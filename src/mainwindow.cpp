@@ -125,3 +125,9 @@ QPointF MainWindow::zoomevent(double new_rate){
 
 
 
+
+void MainWindow::on_btn_shadow_removal_clicked()
+{
+    call_python();
+}
+

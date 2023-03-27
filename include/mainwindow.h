@@ -14,6 +14,7 @@
 
 #include "database.h"
 #include "calculate.h"
+#include "cplus2py.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -38,6 +39,8 @@ private slots:
     void on_btn_zoom_out_clicked();
 
     void on_btn_reset_view_clicked();
+
+    void on_btn_shadow_removal_clicked();
 
 private:
     Ui::MainWindow *ui;
