@@ -119,7 +119,6 @@ QPointF MainWindow::zoomevent(double new_rate){
     double old_rate = imgdata->get_old_ratio_rate();
     QPointF scrollbarpos = QPointF(ui->scrollArea->horizontalScrollBar()->value(), ui->scrollArea->verticalScrollBar()->value());
     QPointF new_barpos = (scrollbarpos / old_rate) * new_rate;
-//    std::cout << new_barpos.x() << "," << new_barpos.y() << std::endl;
     return new_barpos;
 }
 
@@ -128,6 +127,7 @@ QPointF MainWindow::zoomevent(double new_rate){
 
 void MainWindow::on_btn_shadow_removal_clicked()
 {
-    call_python();
+    std::string addr = fileName.toStdString();
+    call_python(addr);
 }
 

@@ -5,7 +5,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description = desc)
     
     # path
-    parser.add_argument('--img_path', type=str, default='/home/haoyu/Desktop/partical/ShadowNet_Data/test/600dpi/A1-390_1200dpi-co.png', help='test_path')
+    parser.add_argument('--img_path', type=str, default='./', help='test_path')
     parser.add_argument('--output_path', type=str, default='/home/haoyu/Desktop/partical/MyProject/output')
     
     # ckpt

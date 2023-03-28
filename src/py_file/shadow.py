@@ -22,6 +22,7 @@ class ShadowRemoval(object):
         
     
     def build_model(self):
+        print(self.img_path)
         self.img_set = CreatDataset(self.img_path)
         self.img_loader = DataLoader(self.img_set, batch_size=1, shuffle=False, num_workers=2, pin_memory=True)
         self.removal_model = Generator().to(self.device)
@@ -55,7 +56,8 @@ class ShadowRemoval(object):
                 patches.append(tmp_img * 255.0)
         
         concat_img = combine_patches(patches, self.origin_size, img_size=self.img_size)
-        save_shadowimg(path=self.output_path+"/test4.jpeg", img=concat_img)
+        # save_shadowimg(path=self.output_path+"/test4.jpeg", img=concat_img)
+        return concat_img;
         
 
         

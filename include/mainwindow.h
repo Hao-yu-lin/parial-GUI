@@ -1,6 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+
+#include "database.h"
+#include "calculate.h"
+#include "cplus2py.h"
+
+
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QScrollBar>
@@ -11,10 +17,6 @@
 #include <opencv2/highgui.hpp>
 #include <iostream>
 #include <string>
-
-#include "database.h"
-#include "calculate.h"
-#include "cplus2py.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
