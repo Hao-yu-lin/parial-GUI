@@ -6,7 +6,7 @@ def parse_args():
     
     # path
     parser.add_argument('--img_path', type=str, default='./', help='test_path')
-    parser.add_argument('--output_path', type=str, default='/home/haoyu/Desktop/partical/MyProject/output')
+    parser.add_argument('--output_path', type=str, default='/home/haoyu/Desktop/GUI/parial-GUI/output')
     
     # ckpt
     parser.add_argument('--removal_path', type=str, default='/home/haoyu/Desktop/partical/shadow_removal3/output/ckpt/03-14-04/train.pt')

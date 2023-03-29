@@ -15,8 +15,7 @@
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
-#include <iostream>
-#include <string>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -44,6 +43,7 @@ private slots:
 
     void on_btn_shadow_removal_clicked();
 
+
 private:
     Ui::MainWindow *ui;
     QString fileName;
@@ -51,6 +51,10 @@ private:
     QImage orig_qimg;
     cv::Mat imgSrc;
     Database *imgdata;
+
+    // for python
+    CallPy *m_callpy;
+    QThread *m_child_thread;
 
     void set_img();
     QPointF zoomevent(double new_rate);

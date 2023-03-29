@@ -8,6 +8,7 @@
 #include <numpy/arrayobject.h>
 #include <opencv2/core/core.hpp>
 #include <cstdio>
+#include <iostream>
 
 #if (PY_VERSION_HEX >= 0x03000000)
 #ifndef NUMPY_IMPORT_ARRAY_RETVAL

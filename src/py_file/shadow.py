@@ -7,6 +7,7 @@ from models.class_module import Classifier
 from models.package.utils import denorm, tensor2numpy, RGB2BGR, combine_patches, save_shadowimg
 from models.dataset import CreatDataset
 from tqdm.auto import tqdm
+import numpy as np
 import cv2
 
 class ShadowRemoval(object):
@@ -22,7 +23,6 @@ class ShadowRemoval(object):
         
     
     def build_model(self):
-        print(self.img_path)
         self.img_set = CreatDataset(self.img_path)
         self.img_loader = DataLoader(self.img_set, batch_size=1, shuffle=False, num_workers=2, pin_memory=True)
         self.removal_model = Generator().to(self.device)
@@ -52,12 +52,15 @@ class ShadowRemoval(object):
                 else:
                     outputs = imgs
             for i in range(b):
-                tmp_img = RGB2BGR(tensor2numpy(denorm(outputs[i])))
+                # tmp_img = RGB2BGR(tensor2numpy(denorm(outputs[i])))
+                tmp_img = tensor2numpy(denorm(outputs[i]))
+                
                 patches.append(tmp_img * 255.0)
         
         concat_img = combine_patches(patches, self.origin_size, img_size=self.img_size)
+        # print(concat_img.shape)
         # save_shadowimg(path=self.output_path+"/test4.jpeg", img=concat_img)
-        return concat_img;
+        return concat_img.astype(np.uint8);  
         
 
         

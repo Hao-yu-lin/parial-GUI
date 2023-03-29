@@ -141,37 +141,35 @@ PyObject* fromMatToNDArray(const Mat& m) {
 }
 
 Mat fromNDArrayToMat(PyObject* o) {
+
     cv::Mat m;
     bool allowND = true;
-    if (!PyArray_Check(o)) {
-        failmsg("argument is not a numpy array");
-        if (!m.data)
+
+
+    PyArrayObject* oarr = (PyArrayObject*) o;
+
+    bool needcopy = false, needcast = false;
+    int typenum = PyArray_TYPE(oarr), new_typenum = typenum;
+    int type = typenum == NPY_UBYTE ? CV_8U : typenum == NPY_BYTE ? CV_8S :
+                typenum == NPY_USHORT ? CV_16U :
+                typenum == NPY_SHORT ? CV_16S :
+                typenum == NPY_INT ? CV_32S :
+                typenum == NPY_INT32 ? CV_32S :
+                typenum == NPY_FLOAT ? CV_32F :
+                typenum == NPY_DOUBLE ? CV_64F : -1;
+
+    if (type < 0) {
+        if (typenum == NPY_INT64 || typenum == NPY_UINT64
+                || type == NPY_LONG) {
+            needcopy = needcast = true;
+            new_typenum = NPY_INT;
+            type = CV_32S;
+        } else {
+            failmsg("Argument data type is not supported");
             m.allocator = &g_numpyAllocator;
-    } else {
-        PyArrayObject* oarr = (PyArrayObject*) o;
-
-        bool needcopy = false, needcast = false;
-        int typenum = PyArray_TYPE(oarr), new_typenum = typenum;
-        int type = typenum == NPY_UBYTE ? CV_8U : typenum == NPY_BYTE ? CV_8S :
-                    typenum == NPY_USHORT ? CV_16U :
-                    typenum == NPY_SHORT ? CV_16S :
-                    typenum == NPY_INT ? CV_32S :
-                    typenum == NPY_INT32 ? CV_32S :
-                    typenum == NPY_FLOAT ? CV_32F :
-                    typenum == NPY_DOUBLE ? CV_64F : -1;
-
-        if (type < 0) {
-            if (typenum == NPY_INT64 || typenum == NPY_UINT64
-                    || type == NPY_LONG) {
-                needcopy = needcast = true;
-                new_typenum = NPY_INT;
-                type = CV_32S;
-            } else {
-                failmsg("Argument data type is not supported");
-                m.allocator = &g_numpyAllocator;
-                return m;
-            }
+            return m;
         }
+    }
 
 #ifndef CV_MAX_DIM
         const int CV_MAX_DIM = 32;
@@ -248,7 +246,7 @@ Mat fromNDArrayToMat(PyObject* o) {
             }
         }
         m.allocator = &g_numpyAllocator;
-    }
+
     return m;
 }
 }

@@ -128,6 +128,28 @@ QPointF MainWindow::zoomevent(double new_rate){
 void MainWindow::on_btn_shadow_removal_clicked()
 {
     std::string addr = fileName.toStdString();
-    call_python(addr);
+    m_callpy = new CallPy;
+    m_child_thread = new QThread;
+    m_callpy->set_addr(addr);
+
+    m_callpy->moveToThread(m_child_thread);
+
+    std::cout << "start!!" << std::endl;
+    m_child_thread->start();
+    imgSrc = m_callpy->start_python();
+
+
+    QImage tmp_img(imgSrc.data,
+                      imgSrc.cols, // width
+                      imgSrc.rows, // height
+                      imgSrc.step,
+                      QImage::Format_RGB888);
+    orig_qimg = tmp_img;
+    set_img();
+
+    std::cout << "finish!!" << std::endl;
+
+    m_callpy->~CallPy();
+
 }
 

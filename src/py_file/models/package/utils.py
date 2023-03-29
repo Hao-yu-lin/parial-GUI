@@ -67,6 +67,7 @@ def combine_patches(patches, origin_size, img_size=128):
     return new_img
 
 def save_shadowimg(path, img):
+
     cv2.imwrite(path, img, [cv2.IMWRITE_PNG_COMPRESSION, 5])
     # cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
     
