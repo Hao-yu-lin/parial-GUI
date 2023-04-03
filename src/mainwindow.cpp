@@ -2,124 +2,75 @@
 #include "./ui_mainwindow.h"
 
 
-
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , imgdata(nullptr)
 {
     ui->setupUi(this);
     ui->scrollArea->setWidgetResizable(false);
-
+    imgCenter = new ImageCenter(ui);
 }
 
 MainWindow::~MainWindow()
 {
-    imgdata->~Database();
-    delete imgdata;
+    delete imgCenter;
     delete ui;
 }
 
 void MainWindow::on_btn_open_img_clicked()
 {
-//    ui->btn_open_img->setText("Open Image");
-    if(!(imgdata == nullptr)){
-        imgdata->~Database();
-    }
-
+    std::cout << "flag open image:" << flag_open_img << std::endl;
     fileName = QFileDialog::getOpenFileName(this, tr("Open Image"));
+    imgCenter->open_img(fileName, flag_open_img);
+    std::cout << "flag open image:" << flag_open_img << std::endl;
+}
 
-    std::string path = fileName.toStdString();
+//void MainWindow::on_slider_zoom_valueChanged(int value)
+//{
+//    if(flag_open_img){
+//        imgCenter->slider_zoom(value);
+//        std::cout << "1" << std::endl;
+//    }else{
+//        std::cout <<"1please open new image!" << std::endl;
+//    }
+//}
 
-    imgSrc = cv::imread(path);
-
-    if(!imgSrc.empty()){
-        cv::cvtColor(imgSrc, imgSrc, cv::COLOR_BGR2RGB);
-        // record data info
-        imgdata = new Database();
-        imgdata->set_imgshape(imgSrc.cols, imgSrc.rows, imgSrc.channels());
-
-        QImage tmp_img(imgSrc.data,
-                   imgSrc.cols, // width
-                   imgSrc.rows, // height
-                   imgSrc.step,
-                   QImage::Format_RGB888);
-       // img_scaled
-        double width = imgSrc.cols;
-        double height = imgSrc.rows;
-
-        if((width / ui->label_image->width())
-                >= (height / ui->label_image->height())){
-            imgdata->set_origin_ratio_rate(ui->label_image->width()/width);
-        }else{
-             imgdata->set_origin_ratio_rate(ui->label_image->height()/height);
-        }
-        qimg_img = tmp_img;
-        orig_qimg = qimg_img.copy();
-        ui->label_image->setAlignment(Qt::AlignCenter);
-        set_img();
-        cv::cvtColor(imgSrc, imgSrc, cv::COLOR_RGB2BGR);
+void MainWindow::on_slider_zoom_sliderReleased()
+{
+    if(flag_open_img){
+        int value = ui->slider_zoom->value();
+        imgCenter->slider_zoom(value);
+    }else{
+        std::cout <<"please open new image!" << std::endl;
     }
 }
 
-void MainWindow::on_slider_zoom_valueChanged(int value)
-{
-    double rate = value_to_rate(value);
-    imgdata->set_ratio(rate);
-    set_img();
-}
 
 void MainWindow::on_btn_zoom_in_clicked()
 {
-    int value = std::min(101, imgdata->get_ratio_value()+1);
-    double ratio = value_to_rate(value);
-    imgdata->set_ratio(ratio, value);
-    set_img();
+     if(flag_open_img){
+         imgCenter->zoom_in();
+     }else{
+         std::cout <<"please open new image!" << std::endl;
+     }
 }
 
 void MainWindow::on_btn_zoom_out_clicked()
 {
-    int value = std::max(0, imgdata->get_ratio_value()-1);
-    double ratio = value_to_rate(value);
-    imgdata->set_ratio(ratio, value);
-    set_img();
+    if(flag_open_img){
+        imgCenter->zoom_out();
+    }else{
+        std::cout <<"please open new image!" << std::endl;
+    }
 }
 
 void MainWindow::on_btn_reset_view_clicked()
 {
-    imgdata->rest_ratio();
-    set_img();
-}
-
-void MainWindow::set_img(){
-    double ratio = imgdata->get_ratio_rate();
-    int qimg_height = ratio * imgdata->get_orig_h();
-    int qimg_width = ratio * imgdata->get_orig_w();
-    qimg_img = orig_qimg.scaledToHeight(qimg_height);
-    ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
-    ui->label_image->resize(qimg_width + 20, qimg_height + 20);
-
-    // sroll area
-    QPointF new_barpos = zoomevent(ratio);
-    ui->scrollArea->takeWidget();
-    ui->scrollArea->setWidget(ui->label_image);
-    ui->scrollArea->horizontalScrollBar()->setValue(new_barpos.x());
-    ui->scrollArea->verticalScrollBar()->setValue(new_barpos.y());
-
-    // set slider
-    int value = rate_to_value(ratio);
-    ui->slider_zoom->setValue(value);
-
-    QString text = QString("%1 %").arg(std::ceil(ratio * 100));
-    ui->label_ratio->setText(text);
-
-}
-
-QPointF MainWindow::zoomevent(double new_rate){
-    double old_rate = imgdata->get_old_ratio_rate();
-    QPointF scrollbarpos = QPointF(ui->scrollArea->horizontalScrollBar()->value(), ui->scrollArea->verticalScrollBar()->value());
-    QPointF new_barpos = (scrollbarpos / old_rate) * new_rate;
-    return new_barpos;
+    if(flag_open_img){
+        imgCenter->rest_view();
+    }else{
+        std::cout <<"please open new image!" << std::endl;
+    }
 }
 
 
@@ -127,29 +78,31 @@ QPointF MainWindow::zoomevent(double new_rate){
 
 void MainWindow::on_btn_shadow_removal_clicked()
 {
-    std::string addr = fileName.toStdString();
-    m_callpy = new CallPy;
-    m_child_thread = new QThread;
-    m_callpy->set_addr(addr);
+//    std::string addr = fileName.toStdString();
+//    m_callpy = new CallPy;
+//    m_child_thread = new QThread;
+//    m_callpy->set_addr(addr);
 
-    m_callpy->moveToThread(m_child_thread);
+//    m_callpy->moveToThread(m_child_thread);
 
-    std::cout << "start!!" << std::endl;
-    m_child_thread->start();
-    imgSrc = m_callpy->start_python();
+//    std::cout << "start!!" << std::endl;
+//    m_child_thread->start();
+//    imgSrc = m_callpy->start_python();
 
 
-    QImage tmp_img(imgSrc.data,
-                      imgSrc.cols, // width
-                      imgSrc.rows, // height
-                      imgSrc.step,
-                      QImage::Format_RGB888);
-    orig_qimg = tmp_img;
-    set_img();
+//    QImage tmp_img(imgSrc.data,
+//                      imgSrc.cols, // width
+//                      imgSrc.rows, // height
+//                      imgSrc.step,
+//                      QImage::Format_RGB888);
+//    orig_qimg = tmp_img;
+//    set_img();
 
-    std::cout << "finish!!" << std::endl;
+//    std::cout << "finish!!" << std::endl;
 
-    m_callpy->~CallPy();
+//    m_callpy->~CallPy();
 
 }
+
+
 

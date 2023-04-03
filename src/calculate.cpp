@@ -2,11 +2,11 @@
 #include <cmath>
 
 
-int rate_to_value(double rate){
+int rate_to_value(const double &rate){
     return std::ceil(std::log10(rate) * 50) + 50;
 }
 
-double value_to_rate(int rate){
+double value_to_rate(const int &rate){
     return std::pow(10, double(rate - 50)/50);
 }
 

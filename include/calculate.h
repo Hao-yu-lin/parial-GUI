@@ -1,8 +1,8 @@
 #ifndef CALCULATE_H
 #define CALCULATE_H
 
-int rate_to_value(double ratio);
-double value_to_rate(int value);
+int rate_to_value(const double &ratio);
+double value_to_rate(const int &value);
 
 
 #endif // CALCULATE_H

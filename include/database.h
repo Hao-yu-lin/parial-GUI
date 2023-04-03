@@ -11,44 +11,39 @@
 //imgSrc.cols, ---> width
 //imgSrc.rows, ---> height
 
-class Database
+class DataBase
 {
 public:
-    Database();
+    DataBase();
+    ~DataBase(){};
+
     // settr
-    void set_imgshape();
-    void set_imgshape(double cols, double rows, int channel);
-    void set_origin_ratio_rate(double rate);
-    void set_ratio(double rate);
-    void set_ratio(int value);
-    void set_ratio(double rate, int value);
+    void set_shape();
+    void set_shape(const double &cols, const double &rows, const int &channel);
+    void set_origin_ratio_rate(const double &rate);
+    void set_ratio(const double &rate);
+    void set_ratio(const int &value);
+    void set_ratio(const double &rate, const int &value);
     void rest_ratio();
 
-    ~Database(){};
-
     // gettr
-    double get_orig_w();
-    double get_orig_h();
+    double get_orig_width();
+    double get_orig_height();
     int get_ratio_value();
     double get_ratio_rate();
     double get_old_ratio_rate();
 
 
-    // function
-
-
-    bool signal_open_img = false;
-
 private:
     // image info
-    int orig_c=3;
-    double orig_w=0, orig_h=0;
+    int orig_channel;
+    double orig_width, orig_height;
 
 
     // zoom in out
-    double origin_ratio_rate=0;
-    double ratio_rate=0;
-    double old_ratio_rate=0;
+    double origin_ratio_rate = 0;
+    double ratio_rate = 0;
+    double old_ratio_rate = 0;
     int ratio_value = 0;
 
 };

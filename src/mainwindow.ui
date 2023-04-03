@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1479</width>
-    <height>827</height>
+    <height>830</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,69 +89,7 @@ border-color: rgb(94, 92, 100);</string>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_load_data">
-        <property name="enabled">
-         <bool>true</bool>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="mouseTracking">
-         <bool>false</bool>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>Load Data</string>
-        </property>
-        <property name="autoRepeat">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btn_save_img">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>25</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Save Image</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="btn_save_histogram">
+       <widget class="QPushButton" name="btn_iWarp_Perspective">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -174,7 +112,7 @@ border-color: rgb(94, 92, 100);</string>
          </font>
         </property>
         <property name="text">
-         <string>Save Histogram</string>
+         <string>Warp Perspective</string>
         </property>
        </widget>
       </item>
@@ -643,13 +581,6 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_title_fixed">
-           <property name="text">
-            <string>Physical Scale of the Image</string>
-           </property>
-          </widget>
-         </item>
          <item row="16" column="1">
           <widget class="QLineEdit" name="lineEdit_red_value">
            <property name="sizePolicy">
@@ -830,6 +761,13 @@ border-color: rgb(94, 92, 100);</string>
            </property>
            <property name="text">
             <string>Reset</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QLabel" name="label_title_fixed">
+           <property name="text">
+            <string>Physical Scale of the Image</string>
            </property>
           </widget>
          </item>
