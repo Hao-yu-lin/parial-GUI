@@ -4,20 +4,20 @@
 #include "database.h"
 #include "calculate.h"
 
-
 //#include "cplus2py.h"
 #include <QObject>
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QScrollBar>
 #include <QPointF>
+#include <QMouseEvent>
+#include <QWidget>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
 #include <string>
 
-class MainWindow;
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -28,10 +28,10 @@ class ImageCenter:public QObject
 public:
     explicit ImageCenter(Ui::MainWindow *input_ui);
     ~ImageCenter(){
-        imgdata->~DataBase();
+        dataBase->~DataBase();
         ui = nullptr;
-        imgdata = nullptr;
-        delete imgdata;
+        dataBase = nullptr;
+        delete dataBase;
 
     };
 
@@ -42,16 +42,15 @@ public:
     void zoom_out();
     void rest_view();
     void set_img();
-
     QPointF zoomevent(const double &new_rate);
 
+    friend class AnalysisCenter;
 
 private:
     Ui::MainWindow *ui;
-    DataBase *imgdata;
+    DataBase *dataBase;
     QString fileName;
     QImage qimg_img;
-    QImage orig_qimg;
     cv::Mat imgSrc;
 
     double label_image_width;

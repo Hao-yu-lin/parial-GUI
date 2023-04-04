@@ -5,6 +5,7 @@
 #include "database.h"
 #include "calculate.h"
 #include "imagecenter.h"
+#include "analysiscenter.h"
 
 //#include "cplus2py.h"
 
@@ -13,8 +14,9 @@
 #include <QScrollBar>
 #include <QPointF>
 #include <iostream>
+#include <QMouseEvent>
+#include <QObject>
 
-class ImageCenter;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,11 +32,13 @@ public:
     ~MainWindow();
 
     bool flag_open_img = false;
+    bool flag_refer_obj = false;
+
+protected:
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
     void on_btn_open_img_clicked();
-
-//    void on_slider_zoom_valueChanged(int value);
 
     void on_btn_zoom_in_clicked();
 
@@ -46,20 +50,19 @@ private slots:
 
     void on_slider_zoom_sliderReleased();
 
+    void on_btn_refer_obj_clicked();
 
 
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
     QString fileName;
-
-    // flag
-
-
+    AnalysisCenter *analysisCenter;
 
     // for python
 //    CallPy *m_callpy;
     QThread *m_child_thread;
+
 
 };
 

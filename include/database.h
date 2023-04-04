@@ -1,15 +1,25 @@
 #ifndef DATABASE_H
 #define DATABASE_H
+
+#include "include/calculate.h"
+
 #include <iostream>
 #include <string.h>
 #include <opencv2/opencv.hpp>
 #include <cmath>
-#include "include/calculate.h"
+#include <vector>
+#include <cstdio>
+#include <QImage>
 
 
+//imgSrc.cols, ---> width ----> x
+//imgSrc.rows, ---> height ----> y
 
-//imgSrc.cols, ---> width
-//imgSrc.rows, ---> height
+struct DataPoint
+{
+    int x;
+    int y;
+};
 
 class DataBase
 {
@@ -18,26 +28,41 @@ public:
     ~DataBase(){};
 
     // settr
+    // settr img
     void set_shape();
     void set_shape(const double &cols, const double &rows, const int &channel);
+    void set_origimg(const QImage &img);
+
+    // settr ratio
     void set_origin_ratio_rate(const double &rate);
     void set_ratio(const double &rate);
     void set_ratio(const int &value);
     void set_ratio(const double &rate, const int &value);
     void rest_ratio();
 
-    // gettr
-    double get_orig_width();
-    double get_orig_height();
-    int get_ratio_value();
-    double get_ratio_rate();
-    double get_old_ratio_rate();
+    // settr array
+    void set_refer_point(const DataPoint &pos);
 
+    // gettr
+    // gettr img
+    const double& get_orig_width();
+    const double& get_orig_height();
+    const QImage& get_orig_img();
+
+    // gettr ratio
+    const int& get_ratio_value();
+    const double& get_ratio_rate();
+    const double& get_old_ratio_rate();
+
+    // gettr array
+    const std::vector<DataPoint>& get_refer_vector();
 
 private:
     // image info
     int orig_channel;
     double orig_width, orig_height;
+    QImage orig_qimage;
+
 
 
     // zoom in out
@@ -46,6 +71,8 @@ private:
     double old_ratio_rate = 0;
     int ratio_value = 0;
 
+    // points array
+    std::vector<struct DataPoint> refer_point_vector;
 };
 
 #endif // DATABASE_H

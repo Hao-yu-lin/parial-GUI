@@ -19,6 +19,11 @@ void DataBase::set_shape(const double &cols, const double &rows, const int &chan
 
 }
 
+void DataBase::set_origimg(const QImage &img)
+{
+    orig_qimage = img.copy();
+}
+
 void DataBase::set_origin_ratio_rate(const double &rate){
     std::cout << "rate:" <<rate << std::endl;
     origin_ratio_rate = rate;
@@ -50,25 +55,48 @@ void DataBase::rest_ratio(){
     ratio_value = rate_to_value(ratio_rate);
 }
 
-double DataBase::get_orig_width(){
+void DataBase::set_refer_point(const DataPoint &pos)
+{
+    if(refer_point_vector.size() < 2){
+        refer_point_vector.push_back(pos);
+    }else{
+        refer_point_vector[1] = pos;
+    }
+
+}
+
+const double& DataBase::get_orig_width()
+{
     return orig_width;
 }
 
-double DataBase::get_orig_height(){
+const double& DataBase::get_orig_height()
+{
     return orig_height;
 }
 
-int DataBase::get_ratio_value(){
+const QImage &DataBase::get_orig_img()
+{
+    return orig_qimage;
+}
+
+const int& DataBase::get_ratio_value(){
     return ratio_value;
 }
 
-double DataBase::get_ratio_rate(){
+const double& DataBase::get_ratio_rate(){
     return ratio_rate;
 }
 
-double DataBase::get_old_ratio_rate(){
+const double& DataBase::get_old_ratio_rate(){
     return old_ratio_rate;
 }
+
+
+const std::vector<DataPoint>& DataBase::get_refer_vector(){
+    return refer_point_vector;
+}
+
 
 
 

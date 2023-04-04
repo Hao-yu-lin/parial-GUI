@@ -4,7 +4,7 @@
 
 ImageCenter::ImageCenter(Ui::MainWindow *input_ui)
     :ui(input_ui)
-    ,imgdata(nullptr)
+    ,dataBase(nullptr)
 {
     label_image_width = ui->label_image->width();
     label_image_height = ui->label_image->height();
@@ -20,14 +20,14 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
             try {
                 if(flag_open_image == true){
                     ui->label_image->resize(label_image_width, label_image_height);
-                    imgdata->~DataBase();
-                    imgdata = nullptr;
+                    dataBase->~DataBase();
+                    dataBase = nullptr;
                 }
                 cv::cvtColor(imgSrc, imgSrc, cv::COLOR_BGR2RGB);
                 // record data info
 
-                imgdata = new DataBase();
-                imgdata->set_shape(imgSrc.cols, imgSrc.rows, imgSrc.channels());
+                dataBase = new DataBase();
+                dataBase->set_shape(imgSrc.cols, imgSrc.rows, imgSrc.channels());
 
                 QImage tmp_img(imgSrc.data,
                            imgSrc.cols, // width
@@ -41,12 +41,12 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
 
                 if((width / ui->label_image->width())
                         >= (height / ui->label_image->height())){
-                    imgdata->set_origin_ratio_rate(ui->label_image->width()/width);
+                    dataBase->set_origin_ratio_rate(ui->label_image->width()/width);
                 }else{
-                     imgdata->set_origin_ratio_rate( ui->label_image->height()/height);
+                     dataBase->set_origin_ratio_rate( ui->label_image->height()/height);
                 }
 
-                orig_qimg = tmp_img.copy();
+                dataBase->set_origimg(tmp_img);
                 ui->label_image->setAlignment(Qt::AlignCenter);
                 set_img();
                 cv::cvtColor(imgSrc, imgSrc, cv::COLOR_RGB2BGR);
@@ -54,51 +54,53 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
 
             }  catch (std::exception &e) {
                 std::cout << "exception: " << e.what() << "\n";
-
+                flag_open_image = false;
+                return;
             }
 
         }else{
             std::cout << "img read error!" << std::endl;
-
+            flag_open_image = false;
+            return;
         }
-
-
 }
 
 void ImageCenter::slider_zoom(const int value)
 {
     double rate = value_to_rate(value);
-    imgdata->set_ratio(rate);
+    dataBase->set_ratio(rate);
     set_img();
 }
 
 void ImageCenter::zoom_in()
 {
-    int value = std::min(101, imgdata->get_ratio_value()+1);
+    int value = std::min(101, dataBase->get_ratio_value()+1);
     double ratio = value_to_rate(value);
-    imgdata->set_ratio(ratio, value);
+    dataBase->set_ratio(ratio, value);
     set_img();
 }
 
 void ImageCenter::zoom_out()
 {
-    int value = std::max(0, imgdata->get_ratio_value()-1);
+    int value = std::max(0, dataBase->get_ratio_value()-1);
     double ratio = value_to_rate(value);
-    imgdata->set_ratio(ratio, value);
+    dataBase->set_ratio(ratio, value);
     set_img();
 }
 
 void ImageCenter::rest_view()
 {
-    imgdata->rest_ratio();
+    dataBase->rest_ratio();
     set_img();
 }
 
 void ImageCenter::set_img()
 {
-    double ratio = imgdata->get_ratio_rate();
-    int qimg_height = ratio * imgdata->get_orig_height();
-    int qimg_width = ratio * imgdata->get_orig_width();
+    const double &ratio = dataBase->get_ratio_rate();
+
+    int qimg_height = ratio * dataBase->get_orig_height();
+    int qimg_width = ratio * dataBase->get_orig_width();
+    const QImage &orig_qimg = dataBase->get_orig_img();
     qimg_img = orig_qimg.scaledToHeight(qimg_height);
     ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
     ui->label_image->resize(qimg_width + 20, qimg_height + 20);
@@ -116,15 +118,20 @@ void ImageCenter::set_img()
 
     QString text = QString("%1 %").arg(std::ceil(ratio * 100));
     ui->label_ratio->setText(text);
-    std::cout << imgdata->get_ratio_value() << std::endl;
 }
 
 QPointF ImageCenter::zoomevent(const double &new_rate)
 {
-    double old_rate = imgdata->get_old_ratio_rate();
+    const double &old_rate = dataBase->get_old_ratio_rate();
     QPointF scrollbarpos = QPointF(ui->scrollArea->horizontalScrollBar()->value(), ui->scrollArea->verticalScrollBar()->value());
     QPointF new_barpos = (scrollbarpos / old_rate) * new_rate;
     return new_barpos;
 }
+
+
+
+
+
+
 
 
