@@ -7,7 +7,6 @@
 #include "imagecenter.h"
 #include "analysiscenter.h"
 
-
 //#include "cplus2py.h"
 
 #include <QMainWindow>
@@ -18,7 +17,9 @@
 #include <QMouseEvent>
 #include <QObject>
 
-
+#define flag_off 0
+#define flag_refer_obj 1
+#define flag_select_roi 2
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,7 +35,6 @@ public:
     ~MainWindow();
 
     bool flag_open_img = false;
-    bool flag_refer_obj = false;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -58,11 +58,18 @@ private slots:
 
     void on_btn_refer_obj_rest_clicked();
 
+    void on_btn_roi_select_clicked();
+
+    void on_btn_roi_choose_clicked();
+
+    void on_btn_particle_reset_clicked();
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
     QString fileName;
     AnalysisCenter *analysisCenter;
+    int flag_num = flag_off;
 
     // for python
 //    CallPy *m_callpy;

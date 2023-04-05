@@ -27,8 +27,14 @@ public:
     void test();
     void set_pts_vector(const QPointF &img_pos, const int &flag_num);
     void del_pts_vector(const int &flag_num);
-    void reset_pts();
+
+    /*  ----------- reference object -----------  */
+    void reset_refer();
     void cal_refer_obj();
+
+    /*  ----------- Particle -----------  */
+    void chose_detect_obj();
+    void reset_detect();
 
     void draw_img(const std::vector<cal::DataPoint>& vector_pts, cv::Scalar color);
     void update_pts_img(cv::Mat &imgsrc, const std::vector<cal::DataPoint> &vector_pts, const cv::Scalar color);

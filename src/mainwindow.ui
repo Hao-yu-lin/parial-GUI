@@ -417,7 +417,11 @@ border-color: rgb(94, 92, 100);</string>
           </widget>
          </item>
          <item row="7" column="1">
-          <widget class="QLineEdit" name="lineEdit_pixel_scale_value"/>
+          <widget class="QLineEdit" name="lineEdit_pixel_scale_value">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </item>
          <item row="19" column="1">
           <spacer name="verticalSpacer">
@@ -565,6 +569,9 @@ border-color: rgb(94, 92, 100);</string>
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>

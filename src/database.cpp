@@ -5,48 +5,66 @@ DataBase::DataBase()
     set_shape();
 }
 
+/*  ----------- image information -----------  */
 void DataBase::set_shape(){
-    orig_width = 0;
-    orig_height = 0;
-    orig_channel = 0;
+    this->orig_width = 0;
+    this->orig_height = 0;
+    this->orig_channel = 0;
 
 }
 
 void DataBase::set_shape(const double &cols, const double &rows, const int &channel){
-    orig_width = cols;
-    orig_height = rows;
-    orig_channel = channel;
+    this->orig_width = cols;
+    this->orig_height = rows;
+    this->orig_channel = channel;
 
 }
 
-void DataBase::set_origimg(const QImage &img)
+const double& DataBase::get_orig_width() const
 {
-    orig_qimage = img.copy();
+    return orig_width;
 }
 
-void DataBase::set_origin_ratio_rate(const double &rate){
+const double& DataBase::get_orig_height() const
+{
+    return orig_height;
+}
+
+void DataBase::set_origimg(const QImage &orig_qimage)
+{
+    this->orig_qimage = orig_qimage.copy();
+}
+
+const QImage &DataBase::get_orig_img() const
+{
+    return orig_qimage;
+}
+
+/*  ----------- image zoom in/out -----------  */
+
+void DataBase::set_origin_ratio_rate(const double &ratio_rate){
 //    std::cout << "rate:" <<rate << std::endl;
-    origin_ratio_rate = rate;
-    old_ratio_rate = rate;
-    ratio_rate = rate;
+    this->origin_ratio_rate = ratio_rate;
+    this->old_ratio_rate = ratio_rate;
+    this->ratio_rate = ratio_rate;
 }
 
-void DataBase::set_ratio(const double &rate){
-    old_ratio_rate = ratio_rate;
-    ratio_rate = rate;
-    ratio_value = cal::rate_to_value(rate);
+void DataBase::set_ratio(const double &ratio_rate){
+    this->old_ratio_rate = this->ratio_rate;
+    this->ratio_rate = ratio_rate;
+    ratio_value = cal::rate_to_value(ratio_rate);
 }
 
-void DataBase::set_ratio(const int &value){
-    ratio_value = value;
-    old_ratio_rate = ratio_rate;
-    ratio_rate = cal::value_to_rate(value);
+void DataBase::set_ratio(const int &ratio_value){
+    this->ratio_value = ratio_value;
+    this->old_ratio_rate = this->ratio_rate;
+    this->ratio_rate = cal::value_to_rate(ratio_value);
 }
 
-void DataBase::set_ratio(const double &rate, const int &value){
-    ratio_rate = rate;
-    old_ratio_rate = ratio_rate;
-    ratio_value = value;
+void DataBase::set_ratio(const double &ratio_rate, const int &ratio_value){
+    this->ratio_rate = ratio_rate;
+    this->old_ratio_rate = ratio_rate;
+    this->ratio_value = ratio_value;
 }
 
 void DataBase::rest_ratio(){
@@ -55,6 +73,23 @@ void DataBase::rest_ratio(){
     ratio_value = cal::rate_to_value(ratio_rate);
 }
 
+const int& DataBase::get_ratio_value() const
+{
+    return ratio_value;
+}
+
+const double& DataBase::get_ratio_rate() const
+{
+    return ratio_rate;
+}
+
+const double& DataBase::get_old_ratio_rate() const
+{
+    return old_ratio_rate;
+}
+
+/*  ----------- reference object -----------  */
+
 void DataBase::set_refer_point(const cal::DataPoint &pos)
 {
     if(refer_point_vector.size() < 2){
@@ -62,47 +97,60 @@ void DataBase::set_refer_point(const cal::DataPoint &pos)
     }else{
         refer_point_vector[1] = pos;
     }
-
 }
 
-const double& DataBase::get_orig_width()
+const std::vector<cal::DataPoint>& DataBase::get_refer_vector() const
 {
-    return orig_width;
-}
 
-const double& DataBase::get_orig_height()
-{
-    return orig_height;
-}
-
-const QImage &DataBase::get_orig_img()
-{
-    return orig_qimage;
-}
-
-const int& DataBase::get_ratio_value(){
-    return ratio_value;
-}
-
-const double& DataBase::get_ratio_rate(){
-    return ratio_rate;
-}
-
-const double& DataBase::get_old_ratio_rate(){
-    return old_ratio_rate;
-}
-
-
-const std::vector<cal::DataPoint>& DataBase::get_refer_vector(){
     return refer_point_vector;
+}
+
+void DataBase::set_pixel_sacle(const double &pixel_sacle)
+{
+    this->pixel_sacle = pixel_sacle;
+}
+
+const double& DataBase::get_pixel_sacle() const
+{
+    return pixel_sacle;
 }
 
 void DataBase::del_refer_vector()
 {
-    if(!refer_point_vector.empty()){
+    if(refer_point_vector.size() != 0){
         refer_point_vector.pop_back();
     }
 }
+
+/*  ----------- Particle -----------  */
+
+void DataBase::set_detect_point(const cal::DataPoint &pos)
+{
+   detect_point_vector.push_back(pos);
+}
+
+const std::vector<cal::DataPoint> &DataBase::get_detect_vector() const
+{
+    return detect_point_vector;
+}
+
+void DataBase::del_detect_vector()
+{
+    if(detect_point_vector.size() != 0){
+        detect_point_vector.pop_back();
+    }
+}
+
+void DataBase::del_all_detect_vector()
+{
+    detect_point_vector.clear();
+}
+
+
+
+
+
+
 
 
 

@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_image->installEventFilter(this);
     imgCenter = new ImageCenter(ui);
     analysisCenter = new AnalysisCenter(ui, imgCenter);
+
 }
 
 MainWindow::~MainWindow()
@@ -62,14 +63,11 @@ void MainWindow::on_btn_reset_view_clicked()
 {
     if(flag_open_img){
         imgCenter->rest_view();
-        flag_refer_obj = false;
+        flag_num = flag_off;
     }else{
         std::cout <<"please open new image!" << std::endl;
     }
 }
-
-
-
 
 void MainWindow::on_btn_shadow_removal_clicked()
 {
@@ -100,37 +98,15 @@ void MainWindow::on_btn_shadow_removal_clicked()
 //    m_callpy->~CallPy();
 }
 
-void MainWindow::on_btn_refer_obj_clicked()
-{
-    if(flag_open_img){
-        flag_refer_obj = !flag_refer_obj;
-    }else{
-        std::cout <<"please open new image!" << std::endl;
-    }
-}
-
-void MainWindow::on_btn_refer_obj_calculate_clicked()
-{
-    analysisCenter->cal_refer_obj();
-}
-
-void MainWindow::on_btn_refer_obj_rest_clicked()
-{
-    analysisCenter->reset_pts();
-}
-
-
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 {
     if(obj == ui->label_image)
     {
         if(event->type() == QEvent::MouseButtonPress)
         {
-            int flag_num;
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if(flag_refer_obj)
+            if(flag_num == flag_refer_obj)
             {
-                flag_num = 1;
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
                     QPointF img_pos = mouseEvent->pos();
@@ -143,6 +119,20 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 }else{
                     return false;
                 }
+            }else if(flag_num == flag_select_roi){
+                if(mouseEvent->button() == Qt::LeftButton)
+                {
+                    QPointF img_pos = mouseEvent->pos();
+                    analysisCenter->set_pts_vector(img_pos, flag_num);
+                    return true;
+                }else if(mouseEvent->button() == Qt::RightButton)
+                {
+                    analysisCenter->del_pts_vector(flag_num);
+                    return true;
+                }else{
+                    return false;
+                }
+
             }else
             {
                 return false;
@@ -153,9 +143,62 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
     }else
     {
+        flag_num = flag_off;
         return QWidget::eventFilter(obj, event);
     }
-
 }
 
+void MainWindow::on_btn_refer_obj_clicked()
+{
+    if(flag_open_img){
+        if(flag_num != flag_refer_obj){
+            flag_num = flag_refer_obj;
+        }else{
+            flag_num = flag_off;
+        }
+    }else{
+        std::cout <<"please open new image!" << std::endl;
+    }
+}
+
+void MainWindow::on_btn_refer_obj_calculate_clicked()
+{
+    flag_num = flag_off;
+    analysisCenter->cal_refer_obj();
+}
+
+void MainWindow::on_btn_refer_obj_rest_clicked()
+{
+    flag_num = flag_off;
+    analysisCenter->reset_refer();
+    ui->lineEdit_pixel_scale_value->clear();
+    ui->lineEdit_object_length->clear();
+}
+
+void MainWindow::on_btn_roi_select_clicked()
+{
+    if(flag_open_img){
+        if(flag_num != flag_select_roi){
+            flag_num = flag_select_roi;
+        }else{
+            flag_num = flag_off;
+        }
+    }else{
+        std::cout <<"please open new image!" << std::endl;
+    }
+}
+
+
+void MainWindow::on_btn_roi_choose_clicked()
+{
+    flag_num = flag_off;
+    analysisCenter->chose_detect_obj();
+}
+
+
+void MainWindow::on_btn_particle_reset_clicked()
+{
+    analysisCenter->reset_detect();
+    std::cout << flag_num << std::endl;
+}
 
