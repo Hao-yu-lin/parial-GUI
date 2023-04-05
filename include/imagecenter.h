@@ -4,6 +4,7 @@
 #include "database.h"
 #include "calculate.h"
 
+
 //#include "cplus2py.h"
 #include <QObject>
 #include <QMainWindow>
@@ -12,15 +13,21 @@
 #include <QPointF>
 #include <QMouseEvent>
 #include <QWidget>
-#include <opencv2/opencv.hpp>
+#include <string>
+#include <opencv2/core/types.hpp>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
-#include <string>
+#include <cmath>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
+
+
+int rate_to_value(const double &ratio);
+double value_to_rate(const int &value);
+
 
 class ImageCenter:public QObject
 {
@@ -42,6 +49,7 @@ public:
     void zoom_out();
     void rest_view();
     void set_img();
+    void set_sroll_area();
     QPointF zoomevent(const double &new_rate);
 
     friend class AnalysisCenter;

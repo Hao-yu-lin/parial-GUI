@@ -62,6 +62,7 @@ void MainWindow::on_btn_reset_view_clicked()
 {
     if(flag_open_img){
         imgCenter->rest_view();
+        flag_refer_obj = false;
     }else{
         std::cout <<"please open new image!" << std::endl;
     }
@@ -108,6 +109,15 @@ void MainWindow::on_btn_refer_obj_clicked()
     }
 }
 
+void MainWindow::on_btn_refer_obj_calculate_clicked()
+{
+    analysisCenter->cal_refer_obj();
+}
+
+void MainWindow::on_btn_refer_obj_rest_clicked()
+{
+    analysisCenter->reset_pts();
+}
 
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
@@ -116,12 +126,23 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     {
         if(event->type() == QEvent::MouseButtonPress)
         {
+            int flag_num;
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if(mouseEvent->button() == Qt::LeftButton && flag_refer_obj)
+            if(flag_refer_obj)
             {
-                QPointF img_pos = mouseEvent->pos();
-                analysisCenter->set_refer_object(img_pos);
-                return true;
+                flag_num = 1;
+                if(mouseEvent->button() == Qt::LeftButton)
+                {
+                    QPointF img_pos = mouseEvent->pos();
+                    analysisCenter->set_pts_vector(img_pos, flag_num);
+                    return true;
+                }else if(mouseEvent->button() == Qt::RightButton)
+                {
+                    analysisCenter->del_pts_vector(flag_num);
+                    return true;
+                }else{
+                    return false;
+                }
             }else
             {
                 return false;

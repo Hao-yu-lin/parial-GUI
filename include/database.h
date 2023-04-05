@@ -1,11 +1,11 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
-#include "include/calculate.h"
+#include "calculate.h"
 
 #include <iostream>
 #include <string.h>
-#include <opencv2/opencv.hpp>
+#include <opencv2/core/types.hpp>
 #include <cmath>
 #include <vector>
 #include <cstdio>
@@ -15,11 +15,6 @@
 //imgSrc.cols, ---> width ----> x
 //imgSrc.rows, ---> height ----> y
 
-struct DataPoint
-{
-    int x;
-    int y;
-};
 
 class DataBase
 {
@@ -27,7 +22,7 @@ public:
     DataBase();
     ~DataBase(){};
 
-    // settr
+    // ------------- settr -------------
     // settr img
     void set_shape();
     void set_shape(const double &cols, const double &rows, const int &channel);
@@ -41,9 +36,9 @@ public:
     void rest_ratio();
 
     // settr array
-    void set_refer_point(const DataPoint &pos);
+    void set_refer_point(const cal::DataPoint &pos);
 
-    // gettr
+    // ------------- gettr -------------
     // gettr img
     const double& get_orig_width();
     const double& get_orig_height();
@@ -55,7 +50,10 @@ public:
     const double& get_old_ratio_rate();
 
     // gettr array
-    const std::vector<DataPoint>& get_refer_vector();
+    const std::vector<cal::DataPoint>& get_refer_vector();
+
+    // array operate
+    void del_refer_vector();
 
 private:
     // image info
@@ -72,7 +70,7 @@ private:
     int ratio_value = 0;
 
     // points array
-    std::vector<struct DataPoint> refer_point_vector;
+    std::vector<struct cal::DataPoint> refer_point_vector;
 };
 
 #endif // DATABASE_H

@@ -7,6 +7,7 @@
 #include "imagecenter.h"
 #include "analysiscenter.h"
 
+
 //#include "cplus2py.h"
 
 #include <QMainWindow>
@@ -16,6 +17,7 @@
 #include <iostream>
 #include <QMouseEvent>
 #include <QObject>
+
 
 
 QT_BEGIN_NAMESPACE
@@ -52,6 +54,9 @@ private slots:
 
     void on_btn_refer_obj_clicked();
 
+    void on_btn_refer_obj_calculate_clicked();
+
+    void on_btn_refer_obj_rest_clicked();
 
 private:
     Ui::MainWindow *ui;

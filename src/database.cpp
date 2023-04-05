@@ -25,7 +25,7 @@ void DataBase::set_origimg(const QImage &img)
 }
 
 void DataBase::set_origin_ratio_rate(const double &rate){
-    std::cout << "rate:" <<rate << std::endl;
+//    std::cout << "rate:" <<rate << std::endl;
     origin_ratio_rate = rate;
     old_ratio_rate = rate;
     ratio_rate = rate;
@@ -34,13 +34,13 @@ void DataBase::set_origin_ratio_rate(const double &rate){
 void DataBase::set_ratio(const double &rate){
     old_ratio_rate = ratio_rate;
     ratio_rate = rate;
-    ratio_value = rate_to_value(rate);
+    ratio_value = cal::rate_to_value(rate);
 }
 
 void DataBase::set_ratio(const int &value){
     ratio_value = value;
     old_ratio_rate = ratio_rate;
-    ratio_rate = value_to_rate(value);
+    ratio_rate = cal::value_to_rate(value);
 }
 
 void DataBase::set_ratio(const double &rate, const int &value){
@@ -52,10 +52,10 @@ void DataBase::set_ratio(const double &rate, const int &value){
 void DataBase::rest_ratio(){
     ratio_rate = origin_ratio_rate;
     old_ratio_rate = origin_ratio_rate;
-    ratio_value = rate_to_value(ratio_rate);
+    ratio_value = cal::rate_to_value(ratio_rate);
 }
 
-void DataBase::set_refer_point(const DataPoint &pos)
+void DataBase::set_refer_point(const cal::DataPoint &pos)
 {
     if(refer_point_vector.size() < 2){
         refer_point_vector.push_back(pos);
@@ -93,8 +93,15 @@ const double& DataBase::get_old_ratio_rate(){
 }
 
 
-const std::vector<DataPoint>& DataBase::get_refer_vector(){
+const std::vector<cal::DataPoint>& DataBase::get_refer_vector(){
     return refer_point_vector;
+}
+
+void DataBase::del_refer_vector()
+{
+    if(!refer_point_vector.empty()){
+        refer_point_vector.pop_back();
+    }
 }
 
 
