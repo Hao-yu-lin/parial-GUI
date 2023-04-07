@@ -20,9 +20,11 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
         std::string path = fileName.toStdString();
         imgSrc = cv::imread(path);
 
-        if(!imgSrc.empty()){
+        if(!imgSrc.empty())
+        {
             try {
-                if(flag_open_image == true){
+                if(flag_open_image == true)
+                {
                     ui->label_image->resize(label_image_width, label_image_height);
                     dataBase->~DataBase();
                     dataBase = nullptr;
@@ -44,9 +46,11 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
 
 
                 if((width / ui->label_image->width())
-                        >= (height / ui->label_image->height())){
+                        >= (height / ui->label_image->height()))
+                {
                     dataBase->set_origin_ratio_rate(ui->label_image->width()/width);
-                }else{
+                }else
+                {
                      dataBase->set_origin_ratio_rate( ui->label_image->height()/height);
                 }
 
@@ -57,13 +61,15 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
 //                cv::cvtColor(imgSrc, imgSrc, cv::COLOR_RGB2BGR);
                 flag_open_image = true;
 
-            }  catch (std::exception &e) {
+            }  catch (std::exception &e)
+            {
                 std::cout << "exception: " << e.what() << "\n";
                 flag_open_image = false;
                 return;
             }
 
-        }else{
+        }else
+        {
             std::cout << "img read error!" << std::endl;
             return;
         }
@@ -145,11 +151,6 @@ QPointF ImageCenter::zoomevent(const double &new_rate)
     QPointF new_barpos = (scrollbarpos / old_rate) * new_rate;
     return new_barpos;
 }
-
-
-
-
-
 
 
 

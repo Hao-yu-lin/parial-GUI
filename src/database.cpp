@@ -90,7 +90,7 @@ const double& DataBase::get_old_ratio_rate() const
 
 /*  ----------- reference object -----------  */
 
-void DataBase::set_refer_point(const cal::DataPoint &pos)
+void DataBase::set_refer_point(const cv::Point2i &pos)
 {
     if(refer_point_vector.size() < 2){
         refer_point_vector.push_back(pos);
@@ -99,7 +99,7 @@ void DataBase::set_refer_point(const cal::DataPoint &pos)
     }
 }
 
-const std::vector<cal::DataPoint>& DataBase::get_refer_vector() const
+const std::vector<cv::Point2i>& DataBase::get_refer_vector() const
 {
 
     return refer_point_vector;
@@ -117,26 +117,28 @@ const double& DataBase::get_pixel_sacle() const
 
 void DataBase::del_refer_vector()
 {
-    if(refer_point_vector.size() != 0){
+    if(refer_point_vector.size() != 0)
+    {
         refer_point_vector.pop_back();
     }
 }
 
 /*  ----------- Particle -----------  */
 
-void DataBase::set_detect_point(const cal::DataPoint &pos)
+void DataBase::set_detect_point(const cv::Point2i &pos)
 {
    detect_point_vector.push_back(pos);
 }
 
-const std::vector<cal::DataPoint> &DataBase::get_detect_vector() const
+const std::vector<cv::Point2i> &DataBase::get_detect_vector() const
 {
     return detect_point_vector;
 }
 
 void DataBase::del_detect_vector()
 {
-    if(detect_point_vector.size() != 0){
+    if(detect_point_vector.size() != 0)
+    {
         detect_point_vector.pop_back();
     }
 }
@@ -144,14 +146,22 @@ void DataBase::del_detect_vector()
 void DataBase::del_all_detect_vector()
 {
     detect_point_vector.clear();
+    std::vector<cv::Point2i>().swap(detect_point_vector);
 }
 
+void DataBase::set_threshold(const cv::Mat &newThreshold)
+{
+    threshold = newThreshold;
+}
 
+const cv::Mat& DataBase::get_threshold() const
+{
+    return threshold;
+}
 
-
-
-
-
-
+void DataBase::del_threshold()
+{
+    threshold = cv::Mat();
+}
 
 

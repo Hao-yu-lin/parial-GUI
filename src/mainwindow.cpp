@@ -11,7 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_image->installEventFilter(this);
     imgCenter = new ImageCenter(ui);
     analysisCenter = new AnalysisCenter(ui, imgCenter);
-
 }
 
 MainWindow::~MainWindow()
@@ -23,7 +22,8 @@ MainWindow::~MainWindow()
 void MainWindow::on_btn_open_img_clicked()
 {
     fileName = QFileDialog::getOpenFileName(this, tr("Open Image"));
-    if(flag_open_img){
+    if(flag_open_img)
+    {
         analysisCenter->~AnalysisCenter();
     }
     imgCenter->open_img(fileName, flag_open_img);
@@ -32,46 +32,52 @@ void MainWindow::on_btn_open_img_clicked()
 
 void MainWindow::on_slider_zoom_sliderReleased()
 {
-    if(flag_open_img){
+    if(flag_open_img)
+    {
         int value = ui->slider_zoom->value();
         imgCenter->slider_zoom(value);
-    }else{
+    }else
+    {
         std::cout <<"please open new image!" << std::endl;
     }
 }
 
-
 void MainWindow::on_btn_zoom_in_clicked()
 {
-     if(flag_open_img){
+     if(flag_open_img)
+     {
          imgCenter->zoom_in();
-     }else{
+     }else
+     {
          std::cout <<"please open new image!" << std::endl;
      }
 }
 
 void MainWindow::on_btn_zoom_out_clicked()
 {
-    if(flag_open_img){
+    if(flag_open_img)
+    {
         imgCenter->zoom_out();
-    }else{
+    }else
+    {
         std::cout <<"please open new image!" << std::endl;
     }
 }
 
 void MainWindow::on_btn_reset_view_clicked()
 {
-    if(flag_open_img){
+    if(flag_open_img)
+    {
         imgCenter->rest_view();
         flag_num = flag_off;
-    }else{
+    }else
+    {
         std::cout <<"please open new image!" << std::endl;
     }
 }
 
 void MainWindow::on_btn_shadow_removal_clicked()
 {
-
     analysisCenter->test();
 //    std::string addr = fileName.toStdString();
 //    m_callpy = new CallPy;
@@ -116,7 +122,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 {
                     analysisCenter->del_pts_vector(flag_num);
                     return true;
-                }else{
+                }else
+                {
                     return false;
                 }
             }else if(flag_num == flag_select_roi){
@@ -129,7 +136,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 {
                     analysisCenter->del_pts_vector(flag_num);
                     return true;
-                }else{
+                }else
+                {
                     return false;
                 }
 
@@ -143,20 +151,22 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
     }else
     {
-        flag_num = flag_off;
         return QWidget::eventFilter(obj, event);
     }
 }
 
 void MainWindow::on_btn_refer_obj_clicked()
 {
-    if(flag_open_img){
+    if(flag_open_img)
+    {
         if(flag_num != flag_refer_obj){
             flag_num = flag_refer_obj;
-        }else{
+        }else
+        {
             flag_num = flag_off;
         }
-    }else{
+    }else
+    {
         std::cout <<"please open new image!" << std::endl;
     }
 }
@@ -177,17 +187,20 @@ void MainWindow::on_btn_refer_obj_rest_clicked()
 
 void MainWindow::on_btn_roi_select_clicked()
 {
-    if(flag_open_img){
-        if(flag_num != flag_select_roi){
+    if(flag_open_img)
+    {
+        if(flag_num != flag_select_roi)
+        {
             flag_num = flag_select_roi;
-        }else{
+        }else
+        {
             flag_num = flag_off;
         }
-    }else{
+    }else
+    {
         std::cout <<"please open new image!" << std::endl;
     }
 }
-
 
 void MainWindow::on_btn_roi_choose_clicked()
 {
@@ -195,10 +208,14 @@ void MainWindow::on_btn_roi_choose_clicked()
     analysisCenter->chose_detect_obj();
 }
 
-
 void MainWindow::on_btn_particle_reset_clicked()
 {
+    flag_num = flag_off;
     analysisCenter->reset_detect();
-    std::cout << flag_num << std::endl;
 }
 
+void MainWindow::on_btn_detect_particle_clicked()
+{
+    flag_num = flag_off;
+    analysisCenter->detect_particle();
+}

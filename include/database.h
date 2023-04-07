@@ -6,6 +6,8 @@
 #include <iostream>
 #include <string.h>
 #include <opencv2/core/types.hpp>
+#include <opencv2/core/mat.hpp>
+#include <opencv2/imgproc.hpp>
 #include <cmath>
 #include <vector>
 #include <cstdio>
@@ -22,7 +24,7 @@ public:
     DataBase();
     ~DataBase(){};
 
-    // ------------- settr -------------
+    /* ------------- Settr ------------- */
     // settr img
     void set_shape();
     void set_shape(const double &cols, const double &rows, const int &channel);
@@ -37,12 +39,11 @@ public:
     void set_pixel_sacle(const double &pixel_sacle);
 
     // settr array
-    void set_refer_point(const cal::DataPoint &pos);
-    void set_detect_point(const cal::DataPoint &pos);
+    void set_refer_point(const cv::Point2i &pos);
+    void set_detect_point(const cv::Point2i &pos);
+    void set_threshold(const cv::Mat &newThreshold);
 
-
-
-    // ------------- gettr -------------
+    /* ------------- Gettr ------------- */
     // gettr img
     const double& get_orig_width() const;
     const double& get_orig_height() const;
@@ -55,15 +56,16 @@ public:
     const double& get_pixel_sacle() const;
 
     // gettr array
-    const std::vector<cal::DataPoint>& get_refer_vector() const;
-    const std::vector<cal::DataPoint> &get_detect_vector() const;
+    const std::vector<cv::Point2i>& get_refer_vector() const;
+    const std::vector<cv::Point2i>& get_detect_vector() const;
+    const cv::Mat& get_threshold() const;
 
-    // array operate
+
+    // del array operate
     void del_refer_vector();
     void del_detect_vector();
     void del_all_detect_vector();
-
-
+    void del_threshold();
 
 
 
@@ -72,7 +74,6 @@ private:
     int orig_channel;
     double orig_width, orig_height;
     QImage orig_qimage;
-
 
 
     // zoom in out
@@ -85,8 +86,9 @@ private:
     double pixel_sacle=1;
 
     // points array
-    std::vector<struct cal::DataPoint> refer_point_vector;
-    std::vector<struct cal::DataPoint> detect_point_vector;
+    std::vector<cv::Point2i> refer_point_vector;
+    std::vector<cv::Point2i> detect_point_vector;
+    cv::Mat threshold;
 };
 
 #endif // DATABASE_H

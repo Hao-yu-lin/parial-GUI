@@ -511,6 +511,9 @@ border-color: rgb(94, 92, 100);</string>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="text">
+            <string>-1</string>
+           </property>
           </widget>
          </item>
          <item row="5" column="0">
@@ -596,6 +599,9 @@ border-color: rgb(94, 92, 100);</string>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="text">
+            <string>-1</string>
+           </property>
           </widget>
          </item>
          <item row="14" column="1">
@@ -678,7 +684,11 @@ border-color: rgb(94, 92, 100);</string>
           </widget>
          </item>
          <item row="18" column="1">
-          <widget class="QLineEdit" name="lineEdit_blue_value"/>
+          <widget class="QLineEdit" name="lineEdit_blue_value">
+           <property name="text">
+            <string>-1</string>
+           </property>
+          </widget>
          </item>
          <item row="7" column="2">
           <widget class="QLabel" name="label_objdect_ratio_fixed">

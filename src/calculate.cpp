@@ -11,7 +11,7 @@ double value_to_rate(const int &rate){
 }
 
 
-double dist(const DataPoint &p1, const DataPoint &p2)
+double dist(const cv::Point2i &p1, const cv::Point2i &p2)
 {
     double x = std::pow((p1.x - p2.x), 2);
     double y = std::pow((p1.y - p2.y), 2);

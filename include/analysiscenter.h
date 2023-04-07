@@ -7,6 +7,7 @@
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc.hpp>
 #include <math.h>
+#include <vector>
 
 
 QT_BEGIN_NAMESPACE
@@ -28,23 +29,30 @@ public:
     void set_pts_vector(const QPointF &img_pos, const int &flag_num);
     void del_pts_vector(const int &flag_num);
 
-    /*  ----------- reference object -----------  */
+    /*  ----------- Reference Object -----------  */
     void reset_refer();
     void cal_refer_obj();
 
     /*  ----------- Particle -----------  */
     void chose_detect_obj();
     void reset_detect();
+    void detect_particle();
 
-    void draw_img(const std::vector<cal::DataPoint>& vector_pts, cv::Scalar color);
-    void update_pts_img(cv::Mat &imgsrc, const std::vector<cal::DataPoint> &vector_pts, const cv::Scalar color);
 
+    /*  ----------- Update Image -----------  */
+    void draw_img(const std::vector<cv::Point2i>& vector_pts, cv::Scalar color);
+    void draw_img(const std::vector<cv::Point2i>& vector_pts);
+    void update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point2i> &vector_pts, const cv::Scalar color);
 
 
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
     DataBase *dataBase;
+    cv::Mat roi_mask;
+//    Bool_State bool_state;
+
+    bool signal_detect_vector = false;
 };
 
 #endif // ANALYSIS_CENTER_H

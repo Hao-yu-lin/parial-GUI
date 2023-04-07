@@ -1,16 +1,11 @@
 #ifndef CALCULATE_H
 #define CALCULATE_H
+#include <opencv2/core/types.hpp>
 
 namespace cal {
-struct DataPoint
-{
-    int x;
-    int y;
-};
-
 int rate_to_value(const double &ratio);
 double value_to_rate(const int &value);
-double dist(const DataPoint &p1, const DataPoint &p2);
+double dist(const cv::Point2i &p1, const cv::Point2i &p2);
 }
 
 
