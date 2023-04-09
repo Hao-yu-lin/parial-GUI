@@ -61,6 +61,10 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
 //                cv::cvtColor(imgSrc, imgSrc, cv::COLOR_RGB2BGR);
                 flag_open_image = true;
 
+                ui->lineEdit_red_value->setText("-1");
+                ui->lineEdit_blue_value->setText("-1");
+                ui->lineEdit_green_value->setText("-1");
+
             }  catch (std::exception &e)
             {
                 std::cout << "exception: " << e.what() << "\n";
@@ -71,9 +75,17 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
         }else
         {
             std::cout << "img read error!" << std::endl;
+            flag_open_image = false;
             return;
         }
 }
+
+/*
+ *       10%   ratio value = 0
+ *       100%  ratio value = 50
+ *      1000%  ratio value = 100
+ *      we get the formula that ratio rate = 10^((ratio_value-50)/50)
+*/
 
 void ImageCenter::slider_zoom(const int value)
 {
@@ -85,7 +97,7 @@ void ImageCenter::slider_zoom(const int value)
 
 void ImageCenter::zoom_in()
 {
-    int value = std::min(101, dataBase->get_ratio_value()+1);
+    int value = std::min(80, dataBase->get_ratio_value()+1);
     double ratio = cal::value_to_rate(value);
     dataBase->set_ratio(ratio, value);
     set_img();

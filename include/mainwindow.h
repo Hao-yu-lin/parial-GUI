@@ -66,6 +66,9 @@ private slots:
 
     void on_btn_detect_particle_clicked();
 
+
+    void on_btn_parameter_reset_clicked();
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;

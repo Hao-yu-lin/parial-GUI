@@ -99,10 +99,9 @@ void DataBase::set_refer_point(const cv::Point2i &pos)
     }
 }
 
-const std::vector<cv::Point2i>& DataBase::get_refer_vector() const
+const std::vector<cv::Point2i>* DataBase::get_refer_vector() const
 {
-
-    return refer_point_vector;
+    return &refer_point_vector;
 }
 
 void DataBase::set_pixel_sacle(const double &pixel_sacle)
@@ -130,9 +129,9 @@ void DataBase::set_detect_point(const cv::Point2i &pos)
    detect_point_vector.push_back(pos);
 }
 
-const std::vector<cv::Point2i> &DataBase::get_detect_vector() const
+const std::vector<cv::Point2i> *DataBase::get_detect_vector() const
 {
-    return detect_point_vector;
+    return &detect_point_vector;
 }
 
 void DataBase::del_detect_vector()
@@ -149,14 +148,14 @@ void DataBase::del_all_detect_vector()
     std::vector<cv::Point2i>().swap(detect_point_vector);
 }
 
-void DataBase::set_threshold(const cv::Mat &newThreshold)
+void DataBase::set_threshold(const cv::Mat &threshold)
 {
-    threshold = newThreshold;
+    this->threshold = threshold.clone();
 }
 
-const cv::Mat& DataBase::get_threshold() const
+const cv::Mat *DataBase::get_threshold() const
 {
-    return threshold;
+    return &threshold;
 }
 
 void DataBase::del_threshold()

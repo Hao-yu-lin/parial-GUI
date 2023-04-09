@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->label_image->installEventFilter(this);
     imgCenter = new ImageCenter(ui);
     analysisCenter = new AnalysisCenter(ui, imgCenter);
+    ui->label_image->setText("No Image Loaded");
 }
 
 MainWindow::~MainWindow()
@@ -219,3 +220,14 @@ void MainWindow::on_btn_detect_particle_clicked()
     flag_num = flag_off;
     analysisCenter->detect_particle();
 }
+
+
+
+
+void MainWindow::on_btn_parameter_reset_clicked()
+{
+    ui->lineEdit_red_value->setText("-1");
+    ui->lineEdit_blue_value->setText("-1");
+    ui->lineEdit_green_value->setText("-1");
+}
+

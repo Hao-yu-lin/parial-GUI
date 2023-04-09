@@ -41,7 +41,7 @@ public:
     // settr array
     void set_refer_point(const cv::Point2i &pos);
     void set_detect_point(const cv::Point2i &pos);
-    void set_threshold(const cv::Mat &newThreshold);
+    void set_threshold(const cv::Mat &threshold);
 
     /* ------------- Gettr ------------- */
     // gettr img
@@ -56,9 +56,9 @@ public:
     const double& get_pixel_sacle() const;
 
     // gettr array
-    const std::vector<cv::Point2i>& get_refer_vector() const;
-    const std::vector<cv::Point2i>& get_detect_vector() const;
-    const cv::Mat& get_threshold() const;
+    const std::vector<cv::Point2i>* get_refer_vector() const;
+    const std::vector<cv::Point2i>* get_detect_vector() const;
+    const cv::Mat* get_threshold() const;
 
 
     // del array operate

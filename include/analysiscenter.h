@@ -6,6 +6,7 @@
 #include <QPointF>
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/core.hpp>
 #include <math.h>
 #include <vector>
 
@@ -52,7 +53,6 @@ private:
     cv::Mat roi_mask;
 //    Bool_State bool_state;
 
-    bool signal_detect_vector = false;
 };
 
 #endif // ANALYSIS_CENTER_H
