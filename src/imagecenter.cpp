@@ -165,4 +165,3 @@ QPointF ImageCenter::zoomevent(const double &new_rate)
 }
 
 
-

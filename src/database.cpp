@@ -97,6 +97,13 @@ void DataBase::set_refer_point(const cv::Point2i &pos)
     }else{
         refer_point_vector[1] = pos;
     }
+    if(refer_point_vector.size() == 2)
+    {
+        flag_refer = true;
+    }else
+    {
+        flag_refer = false;
+    }
 }
 
 const std::vector<cv::Point2i>* DataBase::get_refer_vector() const
@@ -107,6 +114,7 @@ const std::vector<cv::Point2i>* DataBase::get_refer_vector() const
 void DataBase::set_pixel_sacle(const double &pixel_sacle)
 {
     this->pixel_sacle = pixel_sacle;
+
 }
 
 const double& DataBase::get_pixel_sacle() const
@@ -119,6 +127,14 @@ void DataBase::del_refer_vector()
     if(refer_point_vector.size() != 0)
     {
         refer_point_vector.pop_back();
+    }
+
+    if(refer_point_vector.size() == 2)
+    {
+        flag_refer = true;
+    }else
+    {
+        flag_refer = false;
     }
 }
 
@@ -144,9 +160,14 @@ void DataBase::del_detect_vector()
 
 void DataBase::del_all_detect_vector()
 {
+    if(this->detect_point_vector.empty()){
+        return;
+    }
     detect_point_vector.clear();
     std::vector<cv::Point2i>().swap(detect_point_vector);
 }
+
+/*  ----------- Contours -----------  */
 
 void DataBase::set_threshold(const cv::Mat &threshold)
 {
@@ -163,4 +184,33 @@ void DataBase::del_threshold()
     threshold = cv::Mat();
 }
 
+const std::vector<std::vector<cv::Point> > *DataBase::get_detect_contours() const
+{
+    return &detect_contours;
+}
+
+void DataBase::set_detect_contours(const std::vector<std::vector<cv::Point> > &detect_contours)
+{
+    this->detect_contours.assign(detect_contours.begin(), detect_contours.end());
+    flag_contours = true;
+}
+
+void DataBase::del_contours(){
+    if(this->detect_contours.empty()){
+        return;
+    }
+    this->detect_contours.clear();
+    std::vector<std::vector<cv::Point>>().swap(this->detect_contours);
+    flag_contours = false;
+}
+
+const std::vector<float> *DataBase::get_contours_area() const
+{
+    return &area;
+}
+
+void DataBase::set_contours_area(const float &area)
+{
+    this->area.push_back(area);
+}
 

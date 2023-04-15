@@ -54,6 +54,8 @@ public:
 
     friend class AnalysisCenter;
 
+
+
 private:
     Ui::MainWindow *ui;
     DataBase *dataBase;

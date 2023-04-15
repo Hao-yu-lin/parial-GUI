@@ -42,6 +42,8 @@ public:
     void set_refer_point(const cv::Point2i &pos);
     void set_detect_point(const cv::Point2i &pos);
     void set_threshold(const cv::Mat &threshold);
+    void set_detect_contours(const std::vector<std::vector<cv::Point> > &detect_contours);
+    void set_contours_area(const float &area);
 
     /* ------------- Gettr ------------- */
     // gettr img
@@ -59,15 +61,20 @@ public:
     const std::vector<cv::Point2i>* get_refer_vector() const;
     const std::vector<cv::Point2i>* get_detect_vector() const;
     const cv::Mat* get_threshold() const;
-
+    const std::vector<std::vector<cv::Point> >* get_detect_contours() const;
+    const std::vector<float> *get_contours_area() const;
 
     // del array operate
     void del_refer_vector();
     void del_detect_vector();
     void del_all_detect_vector();
     void del_threshold();
+    void del_contours();
 
+    // bool state
+    bool flag_refer = false;
 
+    bool flag_contours = false;
 
 private:
     // image info
@@ -89,6 +96,12 @@ private:
     std::vector<cv::Point2i> refer_point_vector;
     std::vector<cv::Point2i> detect_point_vector;
     cv::Mat threshold;
+    std::vector<std::vector<cv::Point>> detect_contours;
+
+    // contours
+    std::vector<float> area;
+
+
 };
 
 #endif // DATABASE_H
