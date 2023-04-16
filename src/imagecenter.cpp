@@ -55,7 +55,7 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
                 }
 
                 dataBase->set_origimg(tmp_img);
-                ui->label_image->setAlignment(Qt::AlignCenter);
+
                 set_img();
                 set_sroll_area();
 //                cv::cvtColor(imgSrc, imgSrc, cv::COLOR_RGB2BGR);
@@ -129,13 +129,30 @@ void ImageCenter::rest_view()
 void ImageCenter::set_img()
 {
     const double &ratio = dataBase->get_ratio_rate();
+    double qimg_height, qimg_width;
 
-    double qimg_height = ratio * dataBase->get_orig_height();
-    double qimg_width = ratio * dataBase->get_orig_width();
-    const QImage &orig_qimg = dataBase->get_orig_img();
-    qimg_img = orig_qimg.scaledToHeight(qimg_height);
-    ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
-    ui->label_image->resize(qimg_width + 20, qimg_height + 20);
+    if(this->flag_num == flag_hist){
+        qimg_height = dataBase->get_hist_height();
+        qimg_width = dataBase->get_hist_width();
+        const QImage &hist_qimg = dataBase->get_hist_img();
+        qimg_img = hist_qimg;
+
+        ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
+        ui->label_image->resize(qimg_width + 20, qimg_height + 20);
+        ui->label_image->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+//        qimg_img = hist_qimg.scaledToHeight(qimg_height);
+    }else{
+        qimg_height = ratio * dataBase->get_orig_height();
+        qimg_width = ratio * dataBase->get_orig_width();
+        const QImage &orig_qimg = dataBase->get_orig_img();
+
+        qimg_img = orig_qimg.scaledToHeight(qimg_height);
+        ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
+        ui->label_image->resize(qimg_width + 20, qimg_height + 20);
+        ui->label_image->setAlignment(Qt::AlignCenter);
+    }
+
 
     // set slider
     int value = cal::rate_to_value(ratio);

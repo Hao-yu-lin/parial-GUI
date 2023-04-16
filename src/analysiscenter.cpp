@@ -5,15 +5,7 @@ AnalysisCenter::AnalysisCenter(Ui::MainWindow *input_ui, ImageCenter *input_imgC
     :ui(input_ui)
     , imgCenter(input_imgCenter)
     , dataBase(input_imgCenter->dataBase)
-{
-//    // 創建 QChartView 對象
-//    QChartView *chartView;
-
-//    // QChaerView 對象載入直方圖
-//    chartView = new QChartView(createBarChart);
-
-
-}
+{}
 
 void AnalysisCenter::test()
 {
@@ -94,7 +86,7 @@ Reference Object     --->   flag_num = 1
 Selection Particle   --->   flag_num = 2
 */
 
-void AnalysisCenter::set_pts_vector(const QPointF &img_pos, const int &flag_num)
+void AnalysisCenter::set_pts_vector(const QPointF &img_pos)
 {
     auto w_d = (ui->label_image->width() - imgCenter->qimg_img.width())/2.0;
     auto h_d = (ui->label_image->height() - imgCenter->qimg_img.height()) / 2.0;
@@ -117,7 +109,7 @@ void AnalysisCenter::set_pts_vector(const QPointF &img_pos, const int &flag_num)
 //    }else{
 //        return;
 //    }
-    switch (flag_num)
+    switch (imgCenter->flag_num)
     {
     case 1:
         dataBase->set_refer_point(pos);
@@ -134,7 +126,7 @@ void AnalysisCenter::set_pts_vector(const QPointF &img_pos, const int &flag_num)
     }
 }
 
-void AnalysisCenter::del_pts_vector(const int &flag_num)
+void AnalysisCenter::del_pts_vector()
 {
 //    if(flag_num == 1)
 //    {
@@ -145,7 +137,7 @@ void AnalysisCenter::del_pts_vector(const int &flag_num)
 //        dataBase->del_detect_vector();
 //        draw_img(dataBase->get_detect_vector(), cv::Scalar( 0, 0, 255));
 //    }
-    switch (flag_num)
+    switch (imgCenter->flag_num)
     {
     case 1:
         dataBase->del_refer_vector();
@@ -457,14 +449,15 @@ void AnalysisCenter::cal_contours()
         double num_pixel = cv::contourArea(contours->at(i));
         double surface = (num_pixel * (std::pow(pixel_sacle, 2)));
         surface = std::round(surface*100)/100;
-
-        dataBase->set_contours_area((float)surface);
-        countout_idx = countout_idx + 1;
+        if(surface >= 0.01){
+            dataBase->set_contours_area((float)surface);
+            countout_idx = countout_idx + 1;
+        }
     }
 
 
     const std::vector<float>* area = dataBase->get_contours_area();
-    std::vector<float> new_area = area_mad(*area, 2);
+    std::vector<float> new_area = area_mad(*area, 3);
 
 //    int max = (int)(*std::max_element(area->begin(), area->end()) * 100);
 //    int min = (int)(*std::min_element(area->begin(), area->end()) * 100);
@@ -503,48 +496,34 @@ void AnalysisCenter::createBarChart(const std::map<float, int>& counter,int max_
 {
 
     // histogram
-//    QBarSet *p_bar_set = new QBarSet("Particle Histogram");
+    QBarSet *p_bar_set = new QBarSet("Particle Histogram");
+    QStringList partical_size;
+    int count_line = max_count/100;
 
-//    for(auto &it : counter)
-//    {
-//        *p_bar_set << it.second;
-//    }
-
-//    QBarSeries *series = new QBarSeries();
-//    series->append(p_bar_set);
-    QSplineSeries *series = new QSplineSeries();
-    for(auto &it : counter){
-        series->append(QPointF(it.first, it.second));
+    for(auto &it : counter)
+    {
+        if(it.second >= count_line)
+        {
+            *p_bar_set << it.second;
+             partical_size.append(QString::number(it.first));
+        }
     }
-//    series->setLabelsVisible(true);
-//    series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
 
-//    // for X
-//    QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
-//    QStringList partical_size;
-//    for(auto &it : counter)
-//    {
-//         partical_size.append(QString::number(it.first));
-//    }
-//    p_axisX->append(partical_size);
-
-
-//    // for Y
-//    QValueAxis *p_axisY = new QValueAxis();
-//    int max_range = std::ceil(max_count * 1.5);
-//    p_axisY->setRange(0, max_range);
-//    p_axisY->setTickCount((int)(max_range/1000) + 1);
-    // linepot
+    QBarSeries *series = new QBarSeries();
+    series->append(p_bar_set);
 //    QSplineSeries *series = new QSplineSeries();
 //    for(auto &it : counter){
 //        series->append(QPointF(it.first, it.second));
 //    }
+//    series->setLabelsVisible(true);
+//    series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
 
-    QValueAxis *p_axisX = new QValueAxis;
-    p_axisX->setTickCount(10);
+//    // for X
+    QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
+    p_axisX->append(partical_size);
 
     QValueAxis *p_axisY = new QValueAxis();
-    int max_range = std::ceil(max_count * 1.5);
+    int max_range = std::ceil(max_count * 1.2);
     p_axisY->setRange(0, max_range);
     p_axisY->setTickCount((int)(max_range/1000) + 1);
 
@@ -565,19 +544,16 @@ void AnalysisCenter::createBarChart(const std::map<float, int>& counter,int max_
     p_chart->legend()->setAlignment(Qt::AlignBottom);
 
    QChartView *chartView = new QChartView(p_chart);
-   chartView->resize(ui->scrollArea->width(), ui->scrollArea->height());
-   chartView->setRenderHint(QPainter::Antialiasing);
+   chartView->resize(1920, 1080);
+//   chartView->setRenderHint(QPainter::Antialiasing);
+
+
 
    QPixmap p = chartView->grab();
-   p = p.scaledToHeight((int)(ui->scrollArea->height() * 0.9));
-//   QPixmap p(chartView->size());
-//   chartView->render(&p);
-   ui->label_image->setPixmap(p);
-
-   QImage image = p.toImage();
-   image.save("/Users/haoyulin/Desktop/new_qt/GUI/test.png");
-
-
+//   ui->label_image->setPixmap(p);
+   QImage hist_image = p.toImage();
+   dataBase->set_hist_qimage(hist_image);
+   imgCenter->set_img();
 }
 
 std::vector<float> AnalysisCenter::area_mad(std::vector<float> area, float s)

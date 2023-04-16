@@ -20,6 +20,11 @@
 #include <opencv2/highgui.hpp>
 #include <cmath>
 
+#define flag_off 0
+#define flag_refer_obj 1
+#define flag_select_roi 2
+#define flag_hist 3
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -55,6 +60,7 @@ public:
     friend class AnalysisCenter;
 
 
+     int flag_num = flag_off;
 
 private:
     Ui::MainWindow *ui;

@@ -70,7 +70,7 @@ void MainWindow::on_btn_reset_view_clicked()
     if(flag_open_img)
     {
         imgCenter->rest_view();
-        flag_num = flag_off;
+        imgCenter->flag_num = flag_off;
     }else
     {
         std::cout <<"please open new image!" << std::endl;
@@ -112,30 +112,30 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         if(event->type() == QEvent::MouseButtonPress)
         {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if(flag_num == flag_refer_obj)
+            if(imgCenter->flag_num == flag_refer_obj)
             {
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
                     QPointF img_pos = mouseEvent->pos();
-                    analysisCenter->set_pts_vector(img_pos, flag_num);
+                    analysisCenter->set_pts_vector(img_pos);
                     return true;
                 }else if(mouseEvent->button() == Qt::RightButton)
                 {
-                    analysisCenter->del_pts_vector(flag_num);
+                    analysisCenter->del_pts_vector();
                     return true;
                 }else
                 {
                     return false;
                 }
-            }else if(flag_num == flag_select_roi){
+            }else if(imgCenter->flag_num == flag_select_roi){
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
                     QPointF img_pos = mouseEvent->pos();
-                    analysisCenter->set_pts_vector(img_pos, flag_num);
+                    analysisCenter->set_pts_vector(img_pos);
                     return true;
                 }else if(mouseEvent->button() == Qt::RightButton)
                 {
-                    analysisCenter->del_pts_vector(flag_num);
+                    analysisCenter->del_pts_vector();
                     return true;
                 }else
                 {
@@ -160,11 +160,11 @@ void MainWindow::on_btn_refer_obj_clicked()
 {
     if(flag_open_img)
     {
-        if(flag_num != flag_refer_obj){
-            flag_num = flag_refer_obj;
+        if(imgCenter->flag_num != flag_refer_obj){
+            imgCenter->flag_num = flag_refer_obj;
         }else
         {
-            flag_num = flag_off;
+            imgCenter->flag_num = flag_off;
         }
     }else
     {
@@ -174,13 +174,13 @@ void MainWindow::on_btn_refer_obj_clicked()
 
 void MainWindow::on_btn_refer_obj_calculate_clicked()
 {
-    flag_num = flag_off;
+    imgCenter->flag_num = flag_off;
     analysisCenter->cal_refer_obj();
 }
 
 void MainWindow::on_btn_refer_obj_rest_clicked()
 {
-    flag_num = flag_off;
+    imgCenter->flag_num = flag_off;
     analysisCenter->reset_refer();
     ui->lineEdit_pixel_scale_value->clear();
     ui->lineEdit_object_length->clear();
@@ -190,12 +190,12 @@ void MainWindow::on_btn_roi_select_clicked()
 {
     if(flag_open_img)
     {
-        if(flag_num != flag_select_roi)
+        if(imgCenter->flag_num != flag_select_roi)
         {
-            flag_num = flag_select_roi;
+            imgCenter->flag_num = flag_select_roi;
         }else
         {
-            flag_num = flag_off;
+            imgCenter->flag_num = flag_off;
         }
     }else
     {
@@ -205,19 +205,19 @@ void MainWindow::on_btn_roi_select_clicked()
 
 void MainWindow::on_btn_roi_choose_clicked()
 {
-    flag_num = flag_off;
+    imgCenter->flag_num = flag_off;
     analysisCenter->chose_detect_obj();
 }
 
 void MainWindow::on_btn_particle_reset_clicked()
 {
-    flag_num = flag_off;
+    imgCenter->flag_num = flag_off;
     analysisCenter->reset_detect();
 }
 
 void MainWindow::on_btn_detect_particle_clicked()
 {
-    flag_num = flag_off;
+    imgCenter->flag_num = flag_off;
     analysisCenter->detect_particle();
 }
 
@@ -230,7 +230,19 @@ void MainWindow::on_btn_parameter_reset_clicked()
 
 void MainWindow::on_btn_particle_analysis_clicked()
 {
-    analysisCenter->cal_contours();
+
+    if(imgCenter->flag_num == flag_hist){
+        imgCenter->flag_num = flag_off;
+        imgCenter->set_img();
+        ui->btn_particle_analysis->setText("Analysis");
+
+    }else{
+        imgCenter->flag_num = flag_hist;
+        analysisCenter->cal_contours();
+        ui->btn_particle_analysis->setText("image");
+
+    }
+
 }
 
 

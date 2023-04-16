@@ -14,6 +14,7 @@
 #include <QImage>
 
 
+
 //imgSrc.cols, ---> width ----> x
 //imgSrc.rows, ---> height ----> y
 
@@ -29,6 +30,9 @@ public:
     void set_shape();
     void set_shape(const double &cols, const double &rows, const int &channel);
     void set_origimg(const QImage &img);
+
+    // settr hist_img
+    void set_hist_qimage(const QImage &hist_img);
 
     // settr ratio
     void set_origin_ratio_rate(const double &ratio_rate);
@@ -50,6 +54,11 @@ public:
     const double& get_orig_width() const;
     const double& get_orig_height() const;
     const QImage& get_orig_img() const;
+
+    //gettr his_img
+    const double& get_hist_width() const;
+    const double& get_hist_height() const;
+    const QImage& get_hist_img() const;
 
     // gettr ratio
     const int& get_ratio_value() const;
@@ -73,14 +82,18 @@ public:
 
     // bool state
     bool flag_refer = false;
-
     bool flag_contours = false;
+
 
 private:
     // image info
     int orig_channel;
     double orig_width, orig_height;
     QImage orig_qimage;
+
+    double hist_width, hist_height;
+    QImage hist_qimage;
+
 
 
     // zoom in out
@@ -100,6 +113,7 @@ private:
 
     // contours
     std::vector<float> area;
+
 
 
 };

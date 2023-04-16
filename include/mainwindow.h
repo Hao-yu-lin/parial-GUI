@@ -17,10 +17,6 @@
 #include <QMouseEvent>
 #include <QObject>
 
-#define flag_off 0
-#define flag_refer_obj 1
-#define flag_select_roi 2
-
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -75,7 +71,7 @@ private:
     ImageCenter *imgCenter;
     QString fileName;
     AnalysisCenter *analysisCenter;
-    int flag_num = flag_off;
+
 
     // for python
 //    CallPy *m_callpy;

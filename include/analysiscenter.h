@@ -8,6 +8,7 @@
 #include <QBarSeries>
 #include <QBarCategoryAxis>
 #include <QSplineSeries>
+#include <QPainter>
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core.hpp>
@@ -38,8 +39,8 @@ public:
         dataBase = nullptr;
     };
     void test();
-    void set_pts_vector(const QPointF &img_pos, const int &flag_num);
-    void del_pts_vector(const int &flag_num);
+    void set_pts_vector(const QPointF &img_pos);
+    void del_pts_vector();
 
     /*  ----------- Reference Object -----------  */
     void reset_refer();

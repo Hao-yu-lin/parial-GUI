@@ -214,3 +214,29 @@ void DataBase::set_contours_area(const float &area)
     this->area.push_back(area);
 }
 
+/*  ----------- Histogram -----------  */
+
+void DataBase::set_hist_qimage(const QImage &hist_img)
+{
+    this->hist_qimage = hist_img.copy();
+    this->hist_width = hist_img.width();
+    this->hist_height = hist_img.height();
+}
+
+const double &DataBase::get_hist_width() const
+{
+    return this->hist_width;
+}
+
+const double &DataBase::get_hist_height() const
+{
+    return this->hist_height;
+}
+
+const QImage &DataBase::get_hist_img() const
+{
+    return hist_qimage;
+}
+
+
+
