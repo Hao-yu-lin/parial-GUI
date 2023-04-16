@@ -505,7 +505,7 @@ void AnalysisCenter::createBarChart(const std::map<float, int>& counter,int max_
         if(it.second >= count_line)
         {
             *p_bar_set << it.second;
-             partical_size.append(QString::number(it.first));
+            partical_size.append(QString::number(it.first));
         }
     }
 
@@ -515,8 +515,8 @@ void AnalysisCenter::createBarChart(const std::map<float, int>& counter,int max_
 //    for(auto &it : counter){
 //        series->append(QPointF(it.first, it.second));
 //    }
-//    series->setLabelsVisible(true);
-//    series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
+    series->setLabelsVisible(true);
+    series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
 
 //    // for X
     QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
