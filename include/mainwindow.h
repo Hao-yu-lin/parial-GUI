@@ -1,13 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-
+#include "imagecenter.h"
 #include "database.h"
 #include "calculate.h"
-#include "imagecenter.h"
 #include "analysiscenter.h"
-
-//#include "cplus2py.h"
 
 #include <QMainWindow>
 #include <QFileDialog>
@@ -71,12 +68,6 @@ private:
     ImageCenter *imgCenter;
     QString fileName;
     AnalysisCenter *analysisCenter;
-
-
-    // for python
-//    CallPy *m_callpy;
-    QThread *m_child_thread;
-
 
 };
 

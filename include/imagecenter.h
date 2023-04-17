@@ -1,11 +1,9 @@
 #ifndef IMAGECENTER_H
 #define IMAGECENTER_H
-
+#include "cplus2py.h"
 #include "database.h"
 #include "calculate.h"
 
-
-//#include "cplus2py.h"
 #include <QObject>
 #include <QMainWindow>
 #include <QFileDialog>
@@ -55,6 +53,7 @@ public:
     void rest_view();
     void set_img();
     void set_sroll_area();
+    void shadow_removal();
     QPointF zoomevent(const double &new_rate);
 
     friend class AnalysisCenter;
@@ -65,17 +64,17 @@ public:
 private:
     Ui::MainWindow *ui;
     DataBase *dataBase;
-    QString fileName;
     QImage qimg_img;
+    QString imgaddr;
     cv::Mat imgSrc;
 
     double label_image_width;
     double label_image_height;
 
     // for python
-//    CallPy *m_callpy;
-    QThread *m_child_thread;
 
+    CallPy *m_callpy;
+    QThread *m_child_thread;
 
 
 };

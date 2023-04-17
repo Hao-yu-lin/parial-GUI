@@ -30,6 +30,7 @@ public:
     void set_shape();
     void set_shape(const double &cols, const double &rows, const int &channel);
     void set_origimg(const QImage &img);
+    void set_filename(const QString &newFileName);
 
     // settr hist_img
     void set_hist_qimage(const QImage &hist_img);
@@ -54,6 +55,7 @@ public:
     const double& get_orig_width() const;
     const double& get_orig_height() const;
     const QImage& get_orig_img() const;
+    const QString &get_filename() const;
 
     //gettr his_img
     const double& get_hist_width() const;
@@ -85,8 +87,13 @@ public:
     bool flag_contours = false;
 
 
+
+
+
 private:
     // image info
+    QString fileName;
+
     int orig_channel;
     double orig_width, orig_height;
     QImage orig_qimage;
@@ -113,8 +120,6 @@ private:
 
     // contours
     std::vector<float> area;
-
-
 
 };
 

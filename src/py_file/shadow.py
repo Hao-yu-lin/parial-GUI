@@ -33,9 +33,11 @@ class ShadowRemoval(object):
         param = torch.load(self.removal_path)
         # load module
         self.removal_model.load_state_dict(param['genA2B'])
+        print("ok1")
         self.removal_model.eval()
         
         self.classifier_model.load_state_dict(torch.load(self.class_path))
+        print("ok2")
         self.classifier_model.eval()
         
         patches = []

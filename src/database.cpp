@@ -88,6 +88,16 @@ const double& DataBase::get_old_ratio_rate() const
     return old_ratio_rate;
 }
 
+const QString &DataBase::get_filename() const
+{
+    return fileName;
+}
+
+void DataBase::set_filename(const QString &newFileName)
+{
+    fileName = newFileName;
+}
+
 /*  ----------- reference object -----------  */
 
 void DataBase::set_refer_point(const cv::Point2i &pos)
@@ -203,6 +213,8 @@ void DataBase::del_contours(){
     std::vector<std::vector<cv::Point>>().swap(this->detect_contours);
     flag_contours = false;
 }
+
+
 
 const std::vector<float> *DataBase::get_contours_area() const
 {

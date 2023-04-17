@@ -79,30 +79,13 @@ void MainWindow::on_btn_reset_view_clicked()
 
 void MainWindow::on_btn_shadow_removal_clicked()
 {
-    analysisCenter->test();
-//    std::string addr = fileName.toStdString();
-//    m_callpy = new CallPy;
-//    m_child_thread = new QThread;
-//    m_callpy->set_addr(addr);
-
-//    m_callpy->moveToThread(m_child_thread);
-
-//    std::cout << "start!!" << std::endl;
-//    m_child_thread->start();
-//    imgSrc = m_callpy->start_python();
-
-
-//    QImage tmp_img(imgSrc.data,
-//                      imgSrc.cols, // width
-//                      imgSrc.rows, // height
-//                      imgSrc.step,
-//                      QImage::Format_RGB888);
-//    orig_qimg = tmp_img;
-//    set_img();
-
-//    std::cout << "finish!!" << std::endl;
-
-//    m_callpy->~CallPy();
+    if(flag_open_img)
+    {
+        imgCenter->shadow_removal();
+    }else
+    {
+        std::cout <<"please open new image!" << std::endl;
+    }
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event)
