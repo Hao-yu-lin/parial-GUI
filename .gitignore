@@ -1,2 +1,3 @@
 CMakeLists*
 src/py_file/module_ckpt
+__pycache__*

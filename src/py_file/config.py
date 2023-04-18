@@ -9,8 +9,8 @@ def parse_args():
     parser.add_argument('--output_path', type=str, default='/home/haoyu/Desktop/GUI/parial-GUI/output')
     
     # ckpt
-    parser.add_argument('--removal_path', type=str, default='./module_ckpt/shadow_removal.pt')
-    parser.add_argument('--class_path', type=str, default='./module_ckpt/shadow_classifier_128.ckpt')
+    parser.add_argument('--removal_path', type=str, default='../parial-GUI/src/py_file/module_ckpt/shadow_removal.pt')
+    parser.add_argument('--class_path', type=str, default='../parial-GUI/src/py_file/module_ckpt/shadow_classifier_128.ckpt')
     
     parser.add_argument('--img_size', type=int, default=128, help='The size of image')
     parser.add_argument('--device', type=str, default='cuda', choices=['cpu', 'cuda'], help='Set gpu mode; [cpu, cuda]')

@@ -17,9 +17,9 @@ ImageCenter::ImageCenter(Ui::MainWindow *input_ui)
 
 void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
 {
-        std::string path = fileName.toStdString();
-        imgaddr = fileName;
-        imgSrc = cv::imread(path);
+        img_path = fileName.toStdString();
+
+        imgSrc = cv::imread(img_path);
 
         if(!imgSrc.empty())
         {
@@ -187,11 +187,10 @@ QPointF ImageCenter::zoomevent(const double &new_rate)
 void ImageCenter::shadow_removal()
 {
 
-    std::string addr = imgaddr.toStdString();
 
     m_callpy = new CallPy;
     m_child_thread = new QThread;
-    m_callpy->set_addr(addr);
+    m_callpy->set_addr(img_path);
 
     m_callpy->moveToThread(m_child_thread);
 
@@ -212,4 +211,5 @@ void ImageCenter::shadow_removal()
     std::cout << "finish!!" << std::endl;
 
     m_callpy->~CallPy();
+    m_callpy = nullptr;
 }

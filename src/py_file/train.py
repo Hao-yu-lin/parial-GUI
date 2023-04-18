@@ -1,13 +1,11 @@
 import random
-
-import cv2
 import numpy as np
 import torch
 from config import parse_args
 from shadow import ShadowRemoval
 
-
 def main(addr):
+
     args = parse_args()
     args.img_path = addr
       
@@ -31,6 +29,3 @@ def same_seeds(seed):
     torch.backends.cudnn.benchmark = False
     torch.backends.cudnn.deterministic = True
 
-
-if __name__ == '__main__':
-    main()
