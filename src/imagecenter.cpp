@@ -170,15 +170,17 @@ void ImageCenter::set_sroll_area()
     QPointF new_barpos = zoomevent(ratio);
     ui->scrollArea->takeWidget();
     ui->scrollArea->setWidget(ui->label_image);
-    ui->scrollArea->horizontalScrollBar()->setValue(new_barpos.x());
-    ui->scrollArea->verticalScrollBar()->setValue(new_barpos.y());
+    ui->scrollArea->horizontalScrollBar()->setValue(new_barpos.x() - ui->scrollArea->horizontalScrollBar()->pageStep()/4);
+    ui->scrollArea->verticalScrollBar()->setValue(new_barpos.y() - ui->scrollArea->verticalScrollBar()->pageStep()/2);
 }
 
 QPointF ImageCenter::zoomevent(const double &new_rate)
 {
     const double &old_rate = dataBase->get_old_ratio_rate();
-    QPointF scrollbarpos = QPointF(ui->scrollArea->horizontalScrollBar()->value(), ui->scrollArea->verticalScrollBar()->value());
+    QPointF scrollbarpos = QPointF(ui->scrollArea->horizontalScrollBar()->value() + ui->scrollArea->horizontalScrollBar()->pageStep()/4, ui->scrollArea->verticalScrollBar()->value() + ui->scrollArea->verticalScrollBar()->pageStep()/2);
+
     QPointF new_barpos = (scrollbarpos / old_rate) * new_rate;
+
     return new_barpos;
 }
 
@@ -188,28 +190,28 @@ void ImageCenter::shadow_removal()
 {
 
 
-    m_callpy = new CallPy;
-    m_child_thread = new QThread;
-    m_callpy->set_addr(img_path);
+//    m_callpy = new CallPy;
+//    m_child_thread = new QThread;
+//    m_callpy->set_addr(img_path);
 
-    m_callpy->moveToThread(m_child_thread);
+//    m_callpy->moveToThread(m_child_thread);
 
-    std::cout << "start!!" << std::endl;
-    m_child_thread->start();
+//    std::cout << "start!!" << std::endl;
+//    m_child_thread->start();
 
-    imgSrc = m_callpy->start_python();
+//    imgSrc = m_callpy->start_python();
 
 
-    QImage tmp_img(imgSrc.data,
-                      imgSrc.cols, // width
-                      imgSrc.rows, // height
-                      imgSrc.step,
-                      QImage::Format_RGB888);
-    dataBase->set_origimg(tmp_img);
-    set_img();
+//    QImage tmp_img(imgSrc.data,
+//                      imgSrc.cols, // width
+//                      imgSrc.rows, // height
+//                      imgSrc.step,
+//                      QImage::Format_RGB888);
+//    dataBase->set_origimg(tmp_img);
+//    set_img();
 
-    std::cout << "finish!!" << std::endl;
+//    std::cout << "finish!!" << std::endl;
 
-    m_callpy->~CallPy();
-    m_callpy = nullptr;
+//    m_callpy->~CallPy();
+//    m_callpy = nullptr;
 }
