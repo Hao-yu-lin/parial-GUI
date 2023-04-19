@@ -214,9 +214,8 @@ void MainWindow::on_btn_particle_analysis_clicked()
 
     }else{
         imgCenter->flag_num = flag_hist;
-        analysisCenter->cal_contours();
+        analysisCenter->createBarChart();
         ui->btn_particle_analysis->setText("image");
-
     }
 
 }

@@ -52,15 +52,17 @@ public:
     void detect_particle();
 
     /*  ----------- calculate area -----------  */
-    void cal_contours();
+    void cal_contours(std::vector<std::vector<cv::Point>> *contours);
 
     /*  ----------- Update Image -----------  */
     void draw_img(const std::vector<cv::Point2i>& vector_pts, cv::Scalar color);
     void draw_img();
     void update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point2i> &vector_pts, const cv::Scalar color);
+    void draw_contours_img();
 
-    void createBarChart(const std::map<float, int>& counter, int max_count) const;
-    std::vector<float> area_mad(std::vector<float> area, float s);
+//    void createBarChart(const std::map<float, int>& counter, int max_count) const;
+    void createBarChart() const;
+//    std::vector<float> area_mad(const std::vector<float> *area, float s);
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;

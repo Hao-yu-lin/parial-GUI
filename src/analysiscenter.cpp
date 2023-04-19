@@ -80,6 +80,8 @@ void AnalysisCenter::update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point
 
 }
 
+
+
 /*
 flag num:
 Reference Object     --->   flag_num = 1
@@ -431,10 +433,35 @@ void AnalysisCenter::detect_particle()
 
     std::vector<std::vector<cv::Point>> detect_contours;
     cv::findContours(mask_thrshold, detect_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    if(ui->lineEdit_pixel_scale_value->text().isEmpty())
+    {
+        std::cout << "you need check refer_obj " << std::endl;
+        dataBase->del_contours();
+        dataBase->set_detect_contours(detect_contours);
 
-    cv::drawContours(imgsrc, detect_contours, -1, cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
+        mask_thrshold.release();
+        detect_contours.clear();
+        std::vector<std::vector<cv::Point>>().swap(detect_contours);
+        imgsrc.release();
+        return;
+    }
+    cal_contours(&detect_contours);
     dataBase->del_contours();
     dataBase->set_detect_contours(detect_contours);
+
+    mask_thrshold.release();
+    detect_contours.clear();
+    std::vector<std::vector<cv::Point>>().swap(detect_contours);
+    imgsrc.release();
+
+    draw_contours_img();
+}
+
+void AnalysisCenter::draw_contours_img()
+{
+    cv::Mat imgsrc = imgCenter->imgSrc.clone();
+    const std::vector<std::vector<cv::Point> >* contours = dataBase->get_detect_contours();
+    cv::drawContours(imgsrc, *contours, -1, cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
 
     QImage tmp_img(imgsrc.data,
                imgsrc.cols, // width
@@ -445,48 +472,57 @@ void AnalysisCenter::detect_particle()
     dataBase->set_origimg(tmp_img);
     imgCenter->set_img();
 
-    mask_thrshold.release();
-    detect_contours.clear();
-    std::vector<std::vector<cv::Point>>().swap(detect_contours);
     imgsrc.release();
+    contours = nullptr;
+    delete contours;
 }
 
-void AnalysisCenter::cal_contours()
+void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
 {
 
-    if(ui->lineEdit_pixel_scale_value->text().isEmpty() || dataBase->flag_contours == false)
-    {
-        if(ui->lineEdit_pixel_scale_value->text().isEmpty()){
-            std::cout << "you need check refer_obj " << std::endl;
-        }else{
-            std::cout << "you need check contours" << std::endl;
-        }
 
-    }
     double pixel_sacle = ui->lineEdit_pixel_scale_value->text().toDouble();
     int countout_idx = 0;
-
-    const std::vector<std::vector<cv::Point> >* contours = dataBase->get_detect_contours();
-
 
     for(int i = 0; i < contours->size(); i++){
         double num_pixel = cv::contourArea(contours->at(i));
         double surface = (num_pixel * (std::pow(pixel_sacle, 2)));
         surface = std::round(surface*100)/100;
-        if(surface >= 0.01){
+        if(surface >= 0.01 && surface <= 20)
+        {
             dataBase->set_contours_area((float)surface);
             countout_idx = countout_idx + 1;
+        }else
+        {
+            contours->erase(contours->begin() + i);
         }
     }
 
 
-    const std::vector<float>* area = dataBase->get_contours_area();
-    std::vector<float> new_area = area_mad(*area, 3);
+//    std::ofstream ofs;
+//    ofs.open("/Users/haoyulin/Desktop/new_qt/GUI/test2.txt");
+//    for(auto &a : counter)
+//    {
+//        ofs << a.first << "," << a.second << std::endl;
+//    }
 
-//    int max = (int)(*std::max_element(area->begin(), area->end()) * 100);
-//    int min = (int)(*std::min_element(area->begin(), area->end()) * 100);
-    int max = (int)(*std::max_element(new_area.begin(), new_area.end()) * 100);
-    int min = (int)(*std::min_element(new_area.begin(), new_area.end()) * 100);
+//    ofs.close();
+
+//    createBarChart(counter, max_count);
+}
+
+void AnalysisCenter::createBarChart()const
+{
+
+    if(!dataBase->get_hist_img().isNull()){
+        imgCenter->set_img();
+        return;
+    }
+    const std::vector<float>* contours_area = dataBase->get_contours_area();
+//    std::vector<float> new_area = area_mad(contours_area, 3);
+
+    int max = (int)(*std::max_element(contours_area->begin(), contours_area->end()) * 100);
+    int min = (int)(*std::min_element(contours_area->begin(), contours_area->end()) * 100);
     int max_count = 0;
 
     std::map<float, int> counter;
@@ -495,7 +531,7 @@ void AnalysisCenter::cal_contours()
         float tmp = i/100.0;
         counter[tmp] = 0;
     }
-    for(auto a : new_area)
+    for(auto &a : *contours_area)
     {
         counter[a] ++;
         if(counter[a] > max_count)
@@ -503,21 +539,6 @@ void AnalysisCenter::cal_contours()
             max_count = counter[a];
         }
     }
-
-    std::ofstream ofs;
-    ofs.open("/Users/haoyulin/Desktop/new_qt/GUI/test2.txt");
-    for(auto &a : counter)
-    {
-        ofs << a.first << "," << a.second << std::endl;
-    }
-
-    ofs.close();
-
-    createBarChart(counter, max_count);
-}
-
-void AnalysisCenter::createBarChart(const std::map<float, int>& counter,int max_count)const
-{
 
     // histogram
     QBarSet *p_bar_set = new QBarSet("Particle Histogram");
@@ -532,24 +553,28 @@ void AnalysisCenter::createBarChart(const std::map<float, int>& counter,int max_
             partical_size.append(QString::number(it.first));
         }
     }
-
     QBarSeries *series = new QBarSeries();
     series->append(p_bar_set);
 //    QSplineSeries *series = new QSplineSeries();
 //    for(auto &it : counter){
 //        series->append(QPointF(it.first, it.second));
 //    }
+
     series->setLabelsVisible(true);
     series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
+//    series->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
 
 //    // for X
     QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
     p_axisX->append(partical_size);
 
     QValueAxis *p_axisY = new QValueAxis();
-    int max_range = std::ceil(max_count * 1.2);
+    int max_range = std::ceil(max_count) + 10;
     p_axisY->setRange(0, max_range);
-    p_axisY->setTickCount((int)(max_range/1000) + 1);
+    p_axisY->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisY->setTickInterval(100);
+    p_axisY->setTickAnchor(0);
+    p_axisY->setLabelFormat("%d");
 
 //    // setting Chart
     QChart *p_chart = new QChart();
@@ -562,49 +587,49 @@ void AnalysisCenter::createBarChart(const std::map<float, int>& counter,int max_
     series->attachAxis(p_axisX);
     series->attachAxis(p_axisY);
 
-
-
     p_chart->legend()->setVisible(true);
     p_chart->legend()->setAlignment(Qt::AlignBottom);
 
-   QChartView *chartView = new QChartView(p_chart);
-   chartView->resize(1920, 1080);
-//   chartView->setRenderHint(QPainter::Antialiasing);
+    p_chart->setTheme(QChart::ChartThemeBrownSand);
+
+    QChartView *chartView = new QChartView(p_chart);
+    chartView->resize(960 * partical_size.size()/10, 1080);
+    //   chartView->setRenderHint(QPainter::Antialiasing);
 
 
 
-   QPixmap p = chartView->grab();
-//   ui->label_image->setPixmap(p);
-   QImage hist_image = p.toImage();
-   dataBase->set_hist_qimage(hist_image);
-   imgCenter->set_img();
+    QPixmap p = chartView->grab();
+    //   ui->label_image->setPixmap(p);
+    QImage hist_image = p.toImage();
+    dataBase->set_hist_qimage(hist_image);
+    imgCenter->set_img();
 }
 
-std::vector<float> AnalysisCenter::area_mad(std::vector<float> area, float s)
-{
-    int n = area.size();
-    if(n < 2)
-    {
-        return area;
-    }
-    std::sort(area.begin(), area.end());
-    float sum = std::accumulate(area.begin(), area.end(), 0.0);
-    float mean = sum/n;
+//std::vector<float> AnalysisCenter::area_mad(const std::vector<float> *area, float s)
+//{
+//    int n = area->size();
+//    if(n < 2)
+//    {
+//        return *area;
+//    }
+//    std::sort(area->begin(), area->end());
+//    float sum = std::accumulate(area->begin(), area->end(), 0.0);
+//    float mean = sum/n;
 
-    float accum = 0.0;
-    std::for_each(area.begin(), area.end(), [&](const float d){
-        accum += (d-mean) * (d-mean);
-    });
+//    float accum = 0.0;
+//    std::for_each(area->begin(), area->end(), [&](const float d){
+//        accum += (d-mean) * (d-mean);
+//    });
 
-    float stdev = sqrt(accum/(n-1));
-    std::vector<float> new_area;
-    for(auto &a : area){
-        if(std::abs(a-mean) < s*stdev){
-            new_area.push_back(a);
-        }
-    }
-    return new_area;
-}
+//    float stdev = sqrt(accum/(n-1));
+//    std::vector<float> new_area;
+//    for(auto &a : *area){
+//        if(std::abs(a-mean) < s*stdev){
+//            new_area.push_back(a);
+//        }
+//    }
+//    return new_area;
+//}
 
 
 

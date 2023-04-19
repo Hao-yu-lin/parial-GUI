@@ -676,9 +676,9 @@ border-color: rgb(94, 92, 100);</string>
           </widget>
          </item>
          <item row="14" column="0" colspan="2">
-          <widget class="QLabel" name="label">
+          <widget class="QLabel" name="label_rgbandhsv_fixxed">
            <property name="text">
-            <string>RGB and HSV Value</string>
+            <string>RGB and HSV value</string>
            </property>
           </widget>
          </item>
