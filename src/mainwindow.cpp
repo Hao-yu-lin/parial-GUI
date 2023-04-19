@@ -204,13 +204,6 @@ void MainWindow::on_btn_detect_particle_clicked()
     analysisCenter->detect_particle();
 }
 
-void MainWindow::on_btn_parameter_reset_clicked()
-{
-    ui->lineEdit_red_value->setText("-1");
-    ui->lineEdit_blue_value->setText("-1");
-    ui->lineEdit_green_value->setText("-1");
-}
-
 void MainWindow::on_btn_particle_analysis_clicked()
 {
 

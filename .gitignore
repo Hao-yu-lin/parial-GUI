@@ -1,3 +1,4 @@
 CMakeLists*
 src/py_file/module_ckpt
 __pycache__*
+tmp_img

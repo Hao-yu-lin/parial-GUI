@@ -100,15 +100,6 @@ void AnalysisCenter::set_pts_vector(const QPointF &img_pos)
     pos.x = x / dataBase->get_ratio_rate();
     pos.y = y / dataBase->get_ratio_rate();
 
-//    if(flag_num == 1){
-//        dataBase->set_refer_point(pos);
-//        draw_img(dataBase->get_refer_vector(), cv::Scalar( 0, 255, 0));
-//    }else if(flag_num == 2){
-//        dataBase->set_detect_point(pos);
-//        draw_img(dataBase->get_detect_vector(), cv::Scalar( 0, 0, 255));
-//    }else{
-//        return;
-//    }
     switch (imgCenter->flag_num)
     {
     case 1:
@@ -128,15 +119,6 @@ void AnalysisCenter::set_pts_vector(const QPointF &img_pos)
 
 void AnalysisCenter::del_pts_vector()
 {
-//    if(flag_num == 1)
-//    {
-//        dataBase->del_refer_vector();
-//        draw_img(dataBase->get_refer_vector(), cv::Scalar( 0, 255, 0));
-//    }else if(flag_num == 2)
-//    {
-//        dataBase->del_detect_vector();
-//        draw_img(dataBase->get_detect_vector(), cv::Scalar( 0, 0, 255));
-//    }
     switch (imgCenter->flag_num)
     {
     case 1:
@@ -256,71 +238,71 @@ void AnalysisCenter::detect_particle()
 //    bool hsv_s = ui->checkBox_hsv_s->isChecked();
 //    bool hsv_v = ui->checkBox_hsv_v->isChecked();
 
-    bool rgb_r = ui->checkBox_red->isChecked();
-    bool rgb_g = ui->checkBox_green->isChecked();
-    bool rgb_b = ui->checkBox_blue->isChecked();
+//    bool rgb_r = ui->checkBox_red->isChecked();
+//    bool rgb_g = ui->checkBox_green->isChecked();
+//    bool rgb_b = ui->checkBox_blue->isChecked();
 
-    int red_text_value = ui->lineEdit_red_value->text().toInt();
-    int green_text_value = ui->lineEdit_green_value->text().toInt();
-    int blue_text_value = ui->lineEdit_blue_value->text().toInt();
+//    int red_text_value = ui->lineEdit_red_value->text().toInt();
+//    int green_text_value = ui->lineEdit_green_value->text().toInt();
+//    int blue_text_value = ui->lineEdit_blue_value->text().toInt();
 
-    int red_threshold;
-    int green_threshold;
-    int blue_threshold;
+//    int red_threshold;
+//    int green_threshold;
+//    int blue_threshold;
 
-    std::vector<cv::Mat> rgb_channels(3);
-    cv::split(imgsrc, rgb_channels);
+//    std::vector<cv::Mat> rgb_channels(3);
+//    cv::split(imgsrc, rgb_channels);
 
-    if(red_text_value == -1 || green_text_value == -1 || blue_text_value == -1)
-    {
-        cv::Scalar rgb_mean;
-
-
-        rgb_mean = cv::mean(imgsrc, roi_mask);
-        rgb_mean = (rgb_mean * 44/100);
-
-        QString text;
-        cv::Mat src_value;
-        cv::Scalar mean;
-
-        if(red_text_value == -1)
-        {
-            red_threshold = (int)(rgb_mean[0]);
-            text = QString("%1 ").arg(red_threshold);
-            ui->lineEdit_red_value->setText(text);
-        }else
-        {
-            red_threshold = red_text_value;
-        }
+//    if(red_text_value == -1 || green_text_value == -1 || blue_text_value == -1)
+//    {
+//        cv::Scalar rgb_mean;
 
 
-        if(green_text_value == -1)
-        {
-            green_threshold = (int)(rgb_mean[1]);
-            text = QString("%1 ").arg(green_threshold);
-            ui->lineEdit_green_value->setText(text);
-        }else
-        {
-            green_threshold = green_text_value;
-        }
+//        rgb_mean = cv::mean(imgsrc, roi_mask);
+//        rgb_mean = (rgb_mean * 44/100);
 
-        if(blue_text_value == -1)
-        {
-            blue_threshold = (int)(rgb_mean[2]);
-            text = QString("%1 ").arg(blue_threshold);
-            ui->lineEdit_blue_value->setText(text);
-        }else
-        {
-            blue_threshold = blue_text_value;
-        }
-    }else
-    {
-        red_threshold = red_text_value;
-        green_threshold = green_text_value;
-        blue_threshold = blue_text_value;
-    }
+//        QString text;
+//        cv::Mat src_value;
+//        cv::Scalar mean;
 
-    std::vector<cv::Mat> threshold_vector;
+//        if(red_text_value == -1)
+//        {
+//            red_threshold = (int)(rgb_mean[0]);
+//            text = QString("%1 ").arg(red_threshold);
+//            ui->lineEdit_red_value->setText(text);
+//        }else
+//        {
+//            red_threshold = red_text_value;
+//        }
+
+
+//        if(green_text_value == -1)
+//        {
+//            green_threshold = (int)(rgb_mean[1]);
+//            text = QString("%1 ").arg(green_threshold);
+//            ui->lineEdit_green_value->setText(text);
+//        }else
+//        {
+//            green_threshold = green_text_value;
+//        }
+
+//        if(blue_text_value == -1)
+//        {
+//            blue_threshold = (int)(rgb_mean[2]);
+//            text = QString("%1 ").arg(blue_threshold);
+//            ui->lineEdit_blue_value->setText(text);
+//        }else
+//        {
+//            blue_threshold = blue_text_value;
+//        }
+//    }else
+//    {
+//        red_threshold = red_text_value;
+//        green_threshold = green_text_value;
+//        blue_threshold = blue_text_value;
+//    }
+
+//    std::vector<cv::Mat> threshold_vector;
     /*
      * THRESH_BINARY
      * src_value > threshold ---> 255
@@ -331,32 +313,80 @@ void AnalysisCenter::detect_particle()
      * src_value < threshold ---> 255
      */
 
-    if(rgb_r)
-    {
-        cv::Mat red;
-        cv::threshold(rgb_channels[0], red, (double) red_threshold, 255, cv::THRESH_BINARY_INV);     // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
-        threshold_vector.push_back(red);
-        red.release();
-    }
+//    if(rgb_r)
+//    {
+//        cv::Mat red;
+//        cv::threshold(rgb_channels[0], red, (double) red_threshold, 255, cv::THRESH_BINARY_INV);     // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
+//        threshold_vector.push_back(red);
+//        red.release();
+//    }
 
-    if(rgb_g)
-    {
-        cv::Mat green;
-        cv::threshold(rgb_channels[1], green, (double) green_threshold, 255, cv::THRESH_BINARY_INV);  // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
-        threshold_vector.push_back(green);
-        green.release();
-    }
+//    if(rgb_g)
+//    {
+//        cv::Mat green;
+//        cv::threshold(rgb_channels[1], green, (double) green_threshold, 255, cv::THRESH_BINARY_INV);  // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
+//        threshold_vector.push_back(green);
+//        green.release();
+//    }
 
-    if(rgb_b)
-    {
-        cv::Mat blue;
-        cv::threshold(rgb_channels[2], blue, (double) blue_threshold, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
-        threshold_vector.push_back(blue);
-        blue.release();
-    }
+//    if(rgb_b)
+//    {
+//        cv::Mat blue;
+//        cv::threshold(rgb_channels[2], blue, (double) blue_threshold, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
+//        threshold_vector.push_back(blue);
+//        blue.release();
+//    }
+
+    int blue_threshold;
+
+    std::vector<cv::Mat> rgb_channels(3);
+    cv::split(imgsrc, rgb_channels);
+    cv::Scalar rgb_mean;
+
+    std::vector<cv::Mat> threshold_vector;
+
+    rgb_mean = cv::mean(imgsrc, roi_mask);
+    rgb_mean = (rgb_mean * 58/100);
+    blue_threshold = (int)(rgb_mean[2]);
+
+    cv::Mat blue;
+    cv::threshold(rgb_channels[2], blue, (double) blue_threshold, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
+    threshold_vector.push_back(blue);
+    blue.release();
+
 
     rgb_channels.clear();
     std::vector<cv::Mat>().swap(rgb_channels);
+
+    // hsv
+    std::vector<cv::Mat> hsv_channel(3);
+    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_RGB2HSV);
+    cv::split(imgsrc, hsv_channel);
+
+    cv::Scalar hsv_mean;
+    hsv_mean = cv::mean(imgsrc, roi_mask);
+    hsv_mean = (hsv_mean * 58/100);
+
+    // hsv-v
+    int v_threshold = (int)(hsv_mean[2]);
+
+    cv::Mat v;
+    cv::threshold(hsv_channel[2], v, (double)v_threshold, 255, cv::THRESH_BINARY_INV);
+    threshold_vector.push_back(v);
+    v.release();
+
+    // hsv-s
+    int s_threshold = (int)(hsv_mean[1]);
+
+    cv::Mat s;
+    cv::threshold(hsv_channel[1], s, (double)s_threshold, 255, cv::THRESH_BINARY);
+    threshold_vector.push_back(s);
+    s.release();
+
+    hsv_channel.clear();
+    std::vector<cv::Mat>().swap(hsv_channel);
+
+    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_HSV2RGB);
     /*
      * if threshold_length <= 2 -> both of 2 selection need true;
      * else avg need avg > 255 * 0.7
@@ -398,12 +428,6 @@ void AnalysisCenter::detect_particle()
      * need ---> 0
      */
     detect_threshold.release();
-//    dataBase->set_threshold(mask_thrshold);
-    cv::imwrite("/Users/haoyulin/Desktop/new_qt/GUI/test.png", mask_thrshold);
-
-//    const cv::Mat *test;
-//    test = dataBase->get_threshold();
-//    std::cout << "test: "<< test << std::endl;
 
     std::vector<std::vector<cv::Point>> detect_contours;
     cv::findContours(mask_thrshold, detect_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);

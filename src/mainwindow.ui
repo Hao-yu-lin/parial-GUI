@@ -303,13 +303,6 @@ border-color: rgb(94, 92, 100);</string>
          </size>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="18" column="1">
-          <widget class="QLineEdit" name="lineEdit_blue_value">
-           <property name="text">
-            <string>-1</string>
-           </property>
-          </widget>
-         </item>
          <item row="10" column="2">
           <widget class="QPushButton" name="btn_particle_reset">
            <property name="sizePolicy">
@@ -329,23 +322,92 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="16" column="0">
-          <widget class="QLabel" name="label_red_fixed">
+         <item row="13" column="0" colspan="2">
+          <widget class="QLabel" name="label_space_fixed2">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>10</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>10</height>
+            </size>
+           </property>
            <property name="text">
-            <string>RGB_R</string>
+            <string/>
            </property>
           </widget>
          </item>
-         <item row="16" column="1">
-          <widget class="QLineEdit" name="lineEdit_red_value">
+         <item row="3" column="2">
+          <widget class="QPushButton" name="btn_refer_obj_rest">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
            <property name="text">
-            <string>-1</string>
+            <string>Reset</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="2">
+          <widget class="QPushButton" name="btn_particle_analysis">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Analysis</string>
+           </property>
+          </widget>
+         </item>
+         <item row="18" column="1">
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item row="10" column="0">
+          <widget class="QPushButton" name="btn_roi_select">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Select</string>
            </property>
           </widget>
          </item>
@@ -365,25 +427,6 @@ border-color: rgb(94, 92, 100);</string>
            </property>
            <property name="text">
             <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="0">
-          <widget class="QPushButton" name="btn_detect_particle">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Detect</string>
            </property>
           </widget>
          </item>
@@ -415,208 +458,6 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="1">
-          <widget class="QLineEdit" name="lineEdit_object_length">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-         <item row="21" column="1">
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item row="3" column="2">
-          <widget class="QPushButton" name="btn_refer_obj_rest">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Reset</string>
-           </property>
-          </widget>
-         </item>
-         <item row="16" column="2">
-          <widget class="QCheckBox" name="checkBox_red">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="0">
-          <widget class="QLabel" name="label_pixel_scale">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>90</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>90</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Pixel Scale:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="15" column="0">
-          <widget class="QLabel" name="label_hyperparneter_fixed">
-           <property name="minimumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Hyperparameters：</string>
-           </property>
-          </widget>
-         </item>
-         <item row="12" column="1">
-          <widget class="QPushButton" name="btn_erase_clusters">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Erase</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0" colspan="2">
-          <widget class="QLabel" name="label_title_fixed">
-           <property name="minimumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Physical Scale of the Image</string>
-           </property>
-          </widget>
-         </item>
-         <item row="18" column="2">
-          <widget class="QCheckBox" name="checkBox_blue">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="9" column="0" colspan="2">
-          <widget class="QLabel" name="labe_select_particle_fixed">
-           <property name="minimumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Select Coffee Particle</string>
-           </property>
-          </widget>
-         </item>
          <item row="7" column="2">
           <widget class="QLabel" name="label_objdect_ratio_fixed">
            <property name="minimumSize">
@@ -639,57 +480,6 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="0">
-          <widget class="QPushButton" name="btn_roi_select">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Select</string>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="1">
-          <widget class="QLineEdit" name="lineEdit_green_value">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>-1</string>
-           </property>
-          </widget>
-         </item>
-         <item row="20" column="0" colspan="2">
-          <widget class="QLabel" name="label_histogram_fixed">
-           <property name="minimumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>180</width>
-             <height>20</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Histogram：</string>
-           </property>
-          </widget>
-         </item>
          <item row="6" column="2">
           <widget class="QPushButton" name="btn_refer_obj_calculate">
            <property name="sizePolicy">
@@ -709,8 +499,8 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="15" column="2">
-          <widget class="QPushButton" name="btn_parameter_reset">
+         <item row="17" column="2">
+          <widget class="QPushButton" name="btn_hist_reset">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -747,27 +537,36 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="11" column="0" colspan="2">
-          <widget class="QLabel" name="label_num_coffee_bean">
+         <item row="5" column="0">
+          <widget class="QLabel" name="label_objectlength_fixed">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
            <property name="minimumSize">
             <size>
-             <width>180</width>
+             <width>90</width>
              <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>180</width>
+             <width>90</width>
              <height>20</height>
             </size>
            </property>
            <property name="text">
-            <string>The Numers of coffee bean：</string>
+            <string>Object length</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
            </property>
           </widget>
          </item>
-         <item row="12" column="2">
-          <widget class="QPushButton" name="btn_particle_analysis">
+         <item row="12" column="1">
+          <widget class="QPushButton" name="btn_erase_clusters">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -781,14 +580,7 @@ border-color: rgb(94, 92, 100);</string>
             </size>
            </property>
            <property name="text">
-            <string>Analysis</string>
-           </property>
-          </widget>
-         </item>
-         <item row="7" column="1">
-          <widget class="QLineEdit" name="lineEdit_pixel_scale_value">
-           <property name="text">
-            <string/>
+            <string>Erase</string>
            </property>
           </widget>
          </item>
@@ -820,60 +612,27 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
-          <widget class="QPushButton" name="btn_refer_obj">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+         <item row="9" column="0" colspan="2">
+          <widget class="QLabel" name="labe_select_particle_fixed">
            <property name="minimumSize">
             <size>
-             <width>0</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Select</string>
-           </property>
-          </widget>
-         </item>
-         <item row="13" column="0" colspan="2">
-          <widget class="QLabel" name="label_space_fixed2">
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>10</height>
+             <width>180</width>
+             <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
-             <height>10</height>
+             <width>180</width>
+             <height>20</height>
             </size>
            </property>
            <property name="text">
-            <string/>
+            <string>Select Coffee Particle</string>
            </property>
           </widget>
          </item>
-         <item row="18" column="0">
-          <widget class="QLabel" name="label_blue_fixed">
-           <property name="text">
-            <string>RGB_B</string>
-           </property>
-          </widget>
-         </item>
-         <item row="17" column="0">
-          <widget class="QLabel" name="label_green_fixed">
-           <property name="text">
-            <string>RGB_G</string>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="0">
-          <widget class="QLabel" name="label_objectlength_fixed">
+         <item row="7" column="0">
+          <widget class="QLabel" name="label_pixel_scale">
            <property name="sizePolicy">
             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -893,43 +652,38 @@ border-color: rgb(94, 92, 100);</string>
             </size>
            </property>
            <property name="text">
-            <string>Object length</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            <string>Pixel Scale:</string>
            </property>
           </widget>
          </item>
-         <item row="17" column="2">
-          <widget class="QCheckBox" name="checkBox_green">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
+         <item row="11" column="0" colspan="2">
+          <widget class="QLabel" name="label_num_coffee_bean">
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>180</width>
              <height>20</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>16777215</width>
+             <width>180</width>
              <height>20</height>
             </size>
            </property>
            <property name="text">
-            <string/>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
+            <string>The Numers of coffee bean：</string>
            </property>
           </widget>
          </item>
-         <item row="20" column="2">
-          <widget class="QPushButton" name="btn_hist_reset">
+         <item row="14" column="0" colspan="2">
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string>RGB and HSV Value</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="0">
+          <widget class="QPushButton" name="btn_detect_particle">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -943,7 +697,196 @@ border-color: rgb(94, 92, 100);</string>
             </size>
            </property>
            <property name="text">
-            <string>Reset</string>
+            <string>Detect</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0" colspan="2">
+          <widget class="QLabel" name="label_title_fixed">
+           <property name="minimumSize">
+            <size>
+             <width>180</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>180</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Physical Scale of the Image</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QPushButton" name="btn_refer_obj">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Select</string>
+           </property>
+          </widget>
+         </item>
+         <item row="17" column="0" colspan="2">
+          <widget class="QLabel" name="label_histogram_fixed">
+           <property name="minimumSize">
+            <size>
+             <width>180</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>180</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Histogram：</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLineEdit" name="lineEdit_pixel_scale_value">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLineEdit" name="lineEdit_object_length">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="0">
+          <widget class="QLineEdit" name="lineEdit_rgb_value">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>58</string>
+           </property>
+          </widget>
+         </item>
+         <item row="15" column="1">
+          <widget class="QCheckBox" name="checkBox_rgb">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>RGB</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="16" column="0">
+          <widget class="QLineEdit" name="lineEdit_hsv_value">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>58</string>
+           </property>
+          </widget>
+         </item>
+         <item row="16" column="1">
+          <widget class="QCheckBox" name="checkBox_hsv">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>HSV</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
