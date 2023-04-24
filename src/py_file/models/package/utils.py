@@ -17,7 +17,7 @@ def weights_init(m):
         m.weight.data.normal_(1.0, 0.02)
         m.bias.data.fill_(0)
 
-
+@staticmethod
 def print_network(net):
     num_params = 0
     for param in net.parameters():
@@ -40,19 +40,23 @@ def init_weights(m):
         m.weight.data.normal_(0, math.sqrt(2.0 / fan_out))
         if m.bias is not None:
             m.bias.data.zero_()
-
+            
+@staticmethod
 def denorm(x):
     return x * 0.5 + 0.5
 
+@staticmethod
 def tensor2numpy(x):
     return x.detach().cpu().numpy().transpose(1,2,0) # H X W X C
 
+@staticmethod
 def RGB2BGR(x):
     return cv2.cvtColor(x, cv2.COLOR_RGB2BGR)
 
+@staticmethod
 def combine_patches(patches, origin_size, img_size=128):
     patches = np.array(patches)
-    # print(patches.shape)
+    # print(patches.shape)－
     origin_h, origin_w = origin_size
     n_h = (int(origin_h/img_size) if origin_h % img_size == 0 else int(origin_h/img_size) + 1)
     n_w = (int(origin_w/img_size) if origin_w % img_size == 0 else int(origin_w/img_size) + 1)
@@ -66,6 +70,7 @@ def combine_patches(patches, origin_size, img_size=128):
     # print(new_img.shape)
     return new_img
 
+@staticmethod
 def save_shadowimg(path, img):
 
     cv2.imwrite(path, img, [cv2.IMWRITE_PNG_COMPRESSION, 5])
