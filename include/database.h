@@ -81,12 +81,14 @@ public:
     void del_all_detect_vector();
     void del_threshold();
     void del_contours();
+    void del_hist_qimg();
 
     // bool state
     bool flag_refer = false;
     bool flag_contours = false;
 
-
+    void sort_area();
+    void cal_statistics();
 
 
 
@@ -120,6 +122,7 @@ private:
 
     // contours
     std::vector<float> area;
+
 
 };
 

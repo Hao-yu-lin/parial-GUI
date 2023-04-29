@@ -204,20 +204,27 @@ void MainWindow::on_btn_detect_particle_clicked()
     analysisCenter->detect_particle();
 }
 
-void MainWindow::on_btn_particle_analysis_clicked()
+void MainWindow::on_btn_draw_hist_clicked()
 {
 
     if(imgCenter->flag_num == flag_hist){
         imgCenter->flag_num = flag_off;
         imgCenter->set_img();
-        ui->btn_particle_analysis->setText("Analysis");
+        ui->btn_draw_hist->setText("Show");
 
     }else{
         imgCenter->flag_num = flag_hist;
         analysisCenter->createBarChart();
-        ui->btn_particle_analysis->setText("image");
+        ui->btn_draw_hist->setText("image");
     }
 
+}
+
+void MainWindow::on_btn_reproduce_hist_clicked()
+{
+    imgCenter->flag_num = flag_hist;
+    analysisCenter->reproducehist();
+    ui->btn_draw_hist->setText("image");
 }
 
 

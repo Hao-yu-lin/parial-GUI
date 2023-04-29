@@ -226,6 +226,16 @@ void DataBase::set_contours_area(const float &area)
     this->area.push_back(area);
 }
 
+void DataBase::sort_area()
+{
+    std::sort(this->area.begin(), this->area.end());
+}
+
+void DataBase::cal_statistics()
+{
+
+}
+
 /*  ----------- Histogram -----------  */
 
 void DataBase::set_hist_qimage(const QImage &hist_img)
@@ -249,6 +259,12 @@ const QImage &DataBase::get_hist_img() const
 {
     return hist_qimage;
 }
+
+void DataBase::del_hist_qimg(){
+    hist_qimage = QImage();
+}
+
+
 
 
 

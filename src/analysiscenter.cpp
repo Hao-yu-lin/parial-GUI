@@ -9,7 +9,6 @@ AnalysisCenter::AnalysisCenter(Ui::MainWindow *input_ui, ImageCenter *input_imgC
 
 void AnalysisCenter::test()
 {
-//    const std::vector<cv::Point2i>& test = dataBase->get_refer_vector();
 }
 
 void AnalysisCenter::draw_img(const std::vector<cv::Point2i> &vector_pts, cv::Scalar color)
@@ -236,108 +235,6 @@ void AnalysisCenter::detect_particle()
         }
     }
     dataBase->del_threshold();
-//    bool hsv_h = ui->checkBox_hsv_h->isChecked();
-//    bool hsv_s = ui->checkBox_hsv_s->isChecked();
-//    bool hsv_v = ui->checkBox_hsv_v->isChecked();
-
-//    bool rgb_r = ui->checkBox_red->isChecked();
-//    bool rgb_g = ui->checkBox_green->isChecked();
-//    bool rgb_b = ui->checkBox_blue->isChecked();
-
-//    int red_text_value = ui->lineEdit_red_value->text().toInt();
-//    int green_text_value = ui->lineEdit_green_value->text().toInt();
-//    int blue_text_value = ui->lineEdit_blue_value->text().toInt();
-
-//    int red_threshold;
-//    int green_threshold;
-//    int blue_threshold;
-
-//    std::vector<cv::Mat> rgb_channels(3);
-//    cv::split(imgsrc, rgb_channels);
-
-//    if(red_text_value == -1 || green_text_value == -1 || blue_text_value == -1)
-//    {
-//        cv::Scalar rgb_mean;
-
-
-//        rgb_mean = cv::mean(imgsrc, roi_mask);
-//        rgb_mean = (rgb_mean * 44/100);
-
-//        QString text;
-//        cv::Mat src_value;
-//        cv::Scalar mean;
-
-//        if(red_text_value == -1)
-//        {
-//            red_threshold = (int)(rgb_mean[0]);
-//            text = QString("%1 ").arg(red_threshold);
-//            ui->lineEdit_red_value->setText(text);
-//        }else
-//        {
-//            red_threshold = red_text_value;
-//        }
-
-
-//        if(green_text_value == -1)
-//        {
-//            green_threshold = (int)(rgb_mean[1]);
-//            text = QString("%1 ").arg(green_threshold);
-//            ui->lineEdit_green_value->setText(text);
-//        }else
-//        {
-//            green_threshold = green_text_value;
-//        }
-
-//        if(blue_text_value == -1)
-//        {
-//            blue_threshold = (int)(rgb_mean[2]);
-//            text = QString("%1 ").arg(blue_threshold);
-//            ui->lineEdit_blue_value->setText(text);
-//        }else
-//        {
-//            blue_threshold = blue_text_value;
-//        }
-//    }else
-//    {
-//        red_threshold = red_text_value;
-//        green_threshold = green_text_value;
-//        blue_threshold = blue_text_value;
-//    }
-
-//    std::vector<cv::Mat> threshold_vector;
-    /*
-     * THRESH_BINARY
-     * src_value > threshold ---> 255
-     * src_value < threshold ---> 0
-     *
-     * THRESH_BINARY_INV
-     * src_value > threshold ---> 0
-     * src_value < threshold ---> 255
-     */
-
-//    if(rgb_r)
-//    {
-//        cv::Mat red;
-//        cv::threshold(rgb_channels[0], red, (double) red_threshold, 255, cv::THRESH_BINARY_INV);     // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
-//        threshold_vector.push_back(red);
-//        red.release();
-//    }
-
-//    if(rgb_g)
-//    {
-//        cv::Mat green;
-//        cv::threshold(rgb_channels[1], green, (double) green_threshold, 255, cv::THRESH_BINARY_INV);  // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
-//        threshold_vector.push_back(green);
-//        green.release();
-//    }
-
-//    if(rgb_b)
-//    {
-//        cv::Mat blue;
-//        cv::threshold(rgb_channels[2], blue, (double) blue_threshold, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
-//        threshold_vector.push_back(blue);
-//        blue.release();
-//    }
 
     int blue_threshold;
 
@@ -433,6 +330,11 @@ void AnalysisCenter::detect_particle()
 
     std::vector<std::vector<cv::Point>> detect_contours;
     cv::findContours(mask_thrshold, detect_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+
+    detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
+           return contour.size() < 5; }), detect_contours.end());
+
+
     if(ui->lineEdit_pixel_scale_value->text().isEmpty())
     {
         std::cout << "you need check refer_obj " << std::endl;
@@ -469,8 +371,16 @@ void AnalysisCenter::draw_contours_img()
                imgsrc.step,
                QImage::Format_RGB888);
 
+//    cv::cvtColor(imgsrc,imgsrc, cv::COLOR_BGR2RGB);
+//    std::vector<int> compression_params;
+//    compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
+//    compression_params.push_back(9);
+//    cv::imwrite("/Users/haoyulin/Desktop/new_qt/CHAIN_APPROX_NONE_2.png", imgsrc, compression_params);
+
     dataBase->set_origimg(tmp_img);
     imgCenter->set_img();
+
+
 
     imgsrc.release();
     contours = nullptr;
@@ -480,79 +390,115 @@ void AnalysisCenter::draw_contours_img()
 void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
 {
 
-
+    double surface_average = 0;
     double pixel_sacle = ui->lineEdit_pixel_scale_value->text().toDouble();
-    int countout_idx = 0;
+    countout_idx = 0;
+    double scaled = std::pow(pixel_sacle, 2);
+
 
     for(int i = 0; i < contours->size(); i++){
         double num_pixel = cv::contourArea(contours->at(i));
-        double surface = (num_pixel * (std::pow(pixel_sacle, 2)));
-        surface = std::round(surface*100)/100;
+        double surface1 = (num_pixel * scaled);
+
+        cv::RotatedRect rect = minAreaRect(contours->at(i));
+        double surface2 = (rect.size.width  * rect.size.height) * scaled;
+
+        cv::RotatedRect ellipse_rect = fitEllipse(contours->at(i));
+        double surface3 = (CV_PI * ellipse_rect.size.width * ellipse_rect.size.height / 4.0) * scaled;
+
+
+        double min_rect;
+        if(surface2 == 0){
+            min_rect = surface3;
+        }else if(surface3 == 3){
+             min_rect = surface2;
+        }else{
+            min_rect = std::min(surface2, surface3);
+        }
+        double surface = surface1 * 0.5 + min_rect * 0.5;
+
         if(surface >= 0.01 && surface <= 20)
         {
+            surface_average += surface;
             dataBase->set_contours_area((float)surface);
             countout_idx = countout_idx + 1;
+
         }else
         {
             contours->erase(contours->begin() + i);
         }
     }
 
-
-//    std::ofstream ofs;
-//    ofs.open("/Users/haoyulin/Desktop/new_qt/GUI/test2.txt");
-//    for(auto &a : counter)
-//    {
-//        ofs << a.first << "," << a.second << std::endl;
-//    }
-
-//    ofs.close();
-
-//    createBarChart(counter, max_count);
+    surface_average = surface_average/countout_idx;
+    dataBase->sort_area();
+    statistics_area.insert(std::pair<std::string, float>("avg", surface_average));
+    statistics_area.insert(std::pair<std::string, float>("cont", countout_idx));
+    statistics();
+    if(ui->checkBox_outlier->isChecked()){
+        statistics_without_outlier();
+    }
+    update_label();
 }
 
-void AnalysisCenter::createBarChart()const
+void AnalysisCenter::createBarChart()
 {
+    counter.clear();
 
     if(!dataBase->get_hist_img().isNull()){
         imgCenter->set_img();
         return;
     }
+
+    int nums_bins = -1;
+
+    if(ui->lineEdit_nums_bins->text().isEmpty()){
+        nums_bins = -1;
+    }else{
+        nums_bins = ui->lineEdit_nums_bins->text().toInt();
+    }
+
     const std::vector<float>* contours_area = dataBase->get_contours_area();
-//    std::vector<float> new_area = area_mad(contours_area, 3);
 
-    int max = (int)(*std::max_element(contours_area->begin(), contours_area->end()) * 100);
-    int min = (int)(*std::min_element(contours_area->begin(), contours_area->end()) * 100);
     int max_count = 0;
+    float max_area = contours_area->back();
+    float min_area = contours_area->front();
+    float area_range = max_area - min_area;
+    float bin_size;
 
-    std::map<float, int> counter;
-    for(int i = min; i <= max; i += 1)
+    if(nums_bins == -1 || nums_bins == 0)
     {
-        float tmp = i/100.0;
-        counter[tmp] = 0;
+        bin_size = 0.01;
+        nums_bins =  static_cast<int>(area_range / bin_size) + 1;
+    }else
+    {
+        bin_size = area_range / nums_bins;
     }
-    for(auto &a : *contours_area)
-    {
-        counter[a] ++;
-        if(counter[a] > max_count)
-        {
-            max_count = counter[a];
+
+    std::vector<int> counter(nums_bins);
+    for (auto& a : *contours_area) {
+        int bin_index = static_cast<int>((a - min_area) / bin_size);
+        bin_index = std::min(bin_index, nums_bins - 1);
+        counter[bin_index]++;
+        if (counter[bin_index] > max_count) {
+            max_count = counter[bin_index];
         }
     }
 
-    // histogram
-    QBarSet *p_bar_set = new QBarSet("Particle Histogram");
+    QBarSet* p_bar_set = new QBarSet("Particle Histogram");
     QStringList partical_size;
-    int count_line = max_count/100;
 
-    for(auto &it : counter)
-    {
-        if(it.second >= count_line)
-        {
-            *p_bar_set << it.second;
-            partical_size.append(QString::number(it.first));
-        }
+    for (int i = 0; i < nums_bins; i++) {
+        float bin_start = min_area + bin_size * i;
+        float bin_end = bin_start + bin_size;
+        float percentage = (static_cast<float>(counter[i]) / contours_area->size()) * 100.0;
+        percentage = std::round(percentage * 100.0) / 100.0;
+        *p_bar_set << percentage;
+        QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
+        partical_size.append(bin_label);
     }
+    counter.clear();
+    std::vector<int>().swap(counter);
+
     QBarSeries *series = new QBarSeries();
     series->append(p_bar_set);
 //    QSplineSeries *series = new QSplineSeries();
@@ -562,19 +508,23 @@ void AnalysisCenter::createBarChart()const
 
     series->setLabelsVisible(true);
     series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
-//    series->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
 
 //    // for X
     QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
     p_axisX->append(partical_size);
+    p_axisX->setTitleText("Particle Size [ mm x mm ]");
+    p_axisX->setLabelsFont(QFont("Arial", 60));
 
     QValueAxis *p_axisY = new QValueAxis();
-    int max_range = std::ceil(max_count) + 10;
+    int max_range = (int)(((static_cast<float>(max_count)/contours_area->size())*100.0)/5 + 1) * 5;
+
     p_axisY->setRange(0, max_range);
     p_axisY->setTickType(QValueAxis::TickType::TicksDynamic);
-    p_axisY->setTickInterval(100);
+    p_axisY->setTickInterval(5);
     p_axisY->setTickAnchor(0);
     p_axisY->setLabelFormat("%d");
+    p_axisY->setTitleText("Particle Size Ratio [ % ]");
+    p_axisY->setLabelsFont(QFont("Arial", 60));
 
 //    // setting Chart
     QChart *p_chart = new QChart();
@@ -593,45 +543,151 @@ void AnalysisCenter::createBarChart()const
     p_chart->setTheme(QChart::ChartThemeBrownSand);
 
     QChartView *chartView = new QChartView(p_chart);
-    chartView->resize(960 * partical_size.size()/10, 1080);
-    //   chartView->setRenderHint(QPainter::Antialiasing);
-
-
+    chartView->resize(600 * partical_size.size()/5, 1080);
 
     QPixmap p = chartView->grab();
     //   ui->label_image->setPixmap(p);
     QImage hist_image = p.toImage();
+//    hist_image.save("/Users/haoyulin/Desktop/new_qt/hist.jpg", "JPG", 100);
     dataBase->set_hist_qimage(hist_image);
     imgCenter->set_img();
 }
 
-//std::vector<float> AnalysisCenter::area_mad(const std::vector<float> *area, float s)
-//{
-//    int n = area->size();
-//    if(n < 2)
-//    {
-//        return *area;
-//    }
-//    std::sort(area->begin(), area->end());
-//    float sum = std::accumulate(area->begin(), area->end(), 0.0);
-//    float mean = sum/n;
+void AnalysisCenter::reproducehist()
+{
+    dataBase->del_hist_qimg();
+    createBarChart();
+}
 
-//    float accum = 0.0;
-//    std::for_each(area->begin(), area->end(), [&](const float d){
-//        accum += (d-mean) * (d-mean);
-//    });
+void AnalysisCenter::statistics()
+{
+    const std::vector<float>* contours_area = dataBase->get_contours_area();
+    int contours_area_len = contours_area->size();
+    int d20_index = static_cast<int>(contours_area_len * 0.2);
+    statistics_area.insert(std::pair<std::string, float>("d20", contours_area->at(d20_index)));
+    float d50 = 0.0;
+    if (contours_area_len % 2 == 0)
+    {
+        d50 = (contours_area->at(contours_area_len/2 - 1) + contours_area->at(contours_area_len / 2)) / 2.0;
+    } else {
+        d50 = contours_area->at(contours_area_len / 2);
+    }
+    statistics_area.insert(std::pair<std::string, float>("d50", d50));
+    int d70_index = static_cast<int>(contours_area_len * 0.7);
+    statistics_area.insert(std::pair<std::string, float>("d70", contours_area->at(d70_index)));
+    int max_count = 0;
+    int max = (int)(contours_area->back() * 100 + 1);
+    int min = (int)(contours_area->front() * 100 - 1);
+    float mode = 0;
+    float sd = 0.0;
+    float mean = statistics_area["avg"];
 
-//    float stdev = sqrt(accum/(n-1));
-//    std::vector<float> new_area;
-//    for(auto &a : *area){
-//        if(std::abs(a-mean) < s*stdev){
-//            new_area.push_back(a);
-//        }
-//    }
-//    return new_area;
-//}
+    for(int i = min; i <= max; i += 1)
+    {
+        float tmp = i/100.0;
+        counter[tmp] = 0;
+    }
+
+    for(const auto &a : *contours_area)
+    {
+        sd += std::pow(a - mean, 2);
+        double tmp_area = std::round(a*100.0)/100.0;
+        counter[tmp_area] ++;
+
+        if(counter[tmp_area] > max_count)
+        {
+            max_count = counter[tmp_area];
+            mode = tmp_area;
+        }
+    }
+    sd = std::sqrt(sd/contours_area_len);
+    statistics_area.insert(std::pair<std::string, float>("mode", mode));
+    statistics_area.insert(std::pair<std::string, float>("sd", sd));
 
 
+}
+
+void AnalysisCenter::statistics_without_outlier(){
+    const std::vector<float>* contours_area = dataBase->get_contours_area();
+
+    // cal standard_deviation
+    float mean = statistics_area["avg"];
+    float sd = 0.0;
+    for(const auto &a : *contours_area)
+    {
+        sd += std::pow(a - mean, 2);
+    }
+    sd = std::sqrt(sd/contours_area->size());
+
+    // delete outlier 2 standard_deviation
+    float sum = 0.0;
+    std::vector<float> filtered_area;
+    for(const auto& a : *contours_area)
+    {
+        if(std::abs(a-mean) < 2.0 * sd){
+            filtered_area.push_back(a);
+            sum += a;
+        }
+    }
+    const int filtered_area_len = filtered_area.size();
+
+    // cal avg
+    float means = sum / static_cast<float>(filtered_area_len);
+    statistics_wo_outliter.insert(std::pair<std::string, float>("avg", means));
+
+    // cal standard_deviation
+    sd = 0.0;
+    for(const auto &a : filtered_area)
+    {
+        sd += std::pow(a - means, 2);
+    }
+    sd = std::sqrt(sd/filtered_area_len);
+    statistics_wo_outliter.insert(std::pair<std::string, float>("sd", sd));
+
+    // cal d20 d50 d70
+    int d20_index = static_cast<int>(filtered_area_len * 0.2) - 1;
+    statistics_wo_outliter.insert(std::pair<std::string, float>("d20", filtered_area[d20_index]));
+
+    std::sort(filtered_area.begin(), filtered_area.end());
+    float d50;
+    if (filtered_area_len % 2 == 0)
+    {
+        d50 = (filtered_area[(filtered_area_len) / 2 - 1] + filtered_area[filtered_area_len / 2]) / 2.0;
+    } else {
+        d50 = filtered_area[filtered_area_len / 2];
+    }
+    statistics_wo_outliter.insert(std::pair<std::string, float>("d50", d50));
+
+    int d70_index = static_cast<int>(filtered_area_len * 0.7) - 1;
+    statistics_wo_outliter.insert(std::pair<std::string, float>("d70", filtered_area[d70_index]));
+
+    statistics_wo_outliter.insert(std::pair<std::string, float>("cont", filtered_area_len));
+}
+
+void AnalysisCenter::update_label()
+{
+    if(ui->checkBox_outlier->isChecked())
+    {
+        ui->label_avgsurface->setText(QString("Average Surface : %1 -> %2").arg(QString::number(statistics_area["avg"], 'f', 4),
+                                      QString::number(statistics_wo_outliter["avg"], 'f', 4)));
+        ui->label_deviation->setText(QString("Standard Deviation : %1 -> %2").arg(QString::number(statistics_area["avg"], 'f', 4), QString::number(statistics_wo_outliter["avg"], 'f', 4)));
+        ui->label_mode->setText(QString("Mode Surface : %1").arg(QString::number(statistics_area["mode"], 'f', 2)));
+        ui->label_nums->setText(QString("Nums Coffee Particle : %1 -> %2").arg(statistics_area["cont"]).arg(statistics_wo_outliter["cont"]));
+        ui->label_d20->setText(QString("D20 : %1 -> %2").arg(QString::number(statistics_area["d20"], 'f', 4), QString::number(statistics_wo_outliter["d20"], 'f', 4)));
+        ui->label_d50->setText(QString("D50 : %1 -> %2").arg(QString::number(statistics_area["d50"], 'f', 4), QString::number(statistics_wo_outliter["d50"], 'f', 4)));
+        ui->label_d70->setText(QString("D70 : %1 -> %2").arg(QString::number(statistics_area["d70"], 'f', 4), QString::number(statistics_wo_outliter["d70"], 'f', 4)));
+    }else
+    {
+        ui->label_avgsurface->setText(QString("Average Surface : %1").arg(QString::number(statistics_area["avg"], 'f', 4)));
+        ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(statistics_area["sd"], 'f', 4)));
+        ui->label_mode->setText(QString("Mode Surface : %1").arg(QString::number(statistics_area["mode"], 'f', 2)));
+        ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(statistics_area["cont"]));
+        ui->label_d20->setText(QString("D20 : %1").arg(QString::number(statistics_area["d20"], 'f', 4)));
+        ui->label_d50->setText(QString("D50 : %1").arg(QString::number(statistics_area["d50"], 'f', 4)));
+        ui->label_d70->setText(QString("D70 : %1").arg(QString::number(statistics_area["d70"], 'f', 4)));
+    }
+
+}
 
 
 

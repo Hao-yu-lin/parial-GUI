@@ -11,6 +11,7 @@
 #include <QPainter>
 #include <opencv2/core/types.hpp>
 #include <opencv2/imgproc.hpp>
+#include <opencv2/opencv.hpp>
 #include <opencv2/core.hpp>
 #include <math.h>
 #include <cfloat>
@@ -60,16 +61,24 @@ public:
     void update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point2i> &vector_pts, const cv::Scalar color);
     void draw_contours_img();
 
-//    void createBarChart(const std::map<float, int>& counter, int max_count) const;
-    void createBarChart() const;
-//    std::vector<float> area_mad(const std::vector<float> *area, float s);
+    void createBarChart();
+    void reproducehist();
+    void statistics();
+    void statistics_without_outlier();
+    void update_label();
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
     DataBase *dataBase;
     cv::Mat roi_mask;
 //    Bool_State bool_state;
-
+    int countout_idx;
+    std::map<float, int> counter;
+    /*
+     * avg、cont、d50
+     */
+    std::map<std::string, float> statistics_area;
+    std::map<std::string, float> statistics_wo_outliter;
 };
 
 #endif // ANALYSIS_CENTER_H

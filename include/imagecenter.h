@@ -1,6 +1,6 @@
 #ifndef IMAGECENTER_H
 #define IMAGECENTER_H
-#include "cplus2py.h"
+//#include "cplus2py.h"
 #include "database.h"
 #include "calculate.h"
 
@@ -42,7 +42,6 @@ public:
         ui = nullptr;
         dataBase = nullptr;
         delete dataBase;
-
     };
 
     void open_img(const QString &fileName, bool &flag_open_image);
@@ -55,11 +54,8 @@ public:
     void set_sroll_area();
     void shadow_removal();
     QPointF zoomevent(const double &new_rate);
-
     friend class AnalysisCenter;
-
-
-     int flag_num = flag_off;
+    int flag_num = flag_off;
 
 private:
     Ui::MainWindow *ui;
@@ -73,7 +69,7 @@ private:
 
     // for python
 
-    CallPy *m_callpy;
+//    CallPy *m_callpy;
     QThread *m_child_thread;
     std::string img_path;
 
