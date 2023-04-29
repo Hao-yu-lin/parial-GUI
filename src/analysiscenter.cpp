@@ -394,7 +394,7 @@ void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
     double pixel_sacle = ui->lineEdit_pixel_scale_value->text().toDouble();
     countout_idx = 0;
     double scaled = std::pow(pixel_sacle, 2);
-
+    dataBase->del_area();
 
     for(int i = 0; i < contours->size(); i++){
         double num_pixel = cv::contourArea(contours->at(i));
@@ -408,15 +408,17 @@ void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
 
 
         double min_rect;
-        if(surface2 == 0){
+        if(surface2 == 0)
+        {
             min_rect = surface3;
-        }else if(surface3 == 3){
+        }else if(surface3 == 3)
+        {
              min_rect = surface2;
-        }else{
+        }else
+        {
             min_rect = std::min(surface2, surface3);
         }
         double surface = surface1 * 0.5 + min_rect * 0.5;
-
         if(surface >= 0.01 && surface <= 20)
         {
             surface_average += surface;
@@ -431,8 +433,8 @@ void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
 
     surface_average = surface_average/countout_idx;
     dataBase->sort_area();
-    statistics_area.insert(std::pair<std::string, float>("avg", surface_average));
-    statistics_area.insert(std::pair<std::string, float>("cont", countout_idx));
+    statistics_area.avg = surface_average;
+    statistics_area.cont = countout_idx;
     statistics();
     if(ui->checkBox_outlier->isChecked()){
         statistics_without_outlier();
@@ -564,7 +566,7 @@ void AnalysisCenter::statistics()
     const std::vector<float>* contours_area = dataBase->get_contours_area();
     int contours_area_len = contours_area->size();
     int d20_index = static_cast<int>(contours_area_len * 0.2);
-    statistics_area.insert(std::pair<std::string, float>("d20", contours_area->at(d20_index)));
+    statistics_area.d20 = contours_area->at(d20_index);
     float d50 = 0.0;
     if (contours_area_len % 2 == 0)
     {
@@ -572,15 +574,16 @@ void AnalysisCenter::statistics()
     } else {
         d50 = contours_area->at(contours_area_len / 2);
     }
-    statistics_area.insert(std::pair<std::string, float>("d50", d50));
+    statistics_area.d50 = d50;
+
     int d70_index = static_cast<int>(contours_area_len * 0.7);
-    statistics_area.insert(std::pair<std::string, float>("d70", contours_area->at(d70_index)));
+    statistics_area.d70 = contours_area->at(d70_index);
     int max_count = 0;
     int max = (int)(contours_area->back() * 100 + 1);
     int min = (int)(contours_area->front() * 100 - 1);
     float mode = 0;
     float sd = 0.0;
-    float mean = statistics_area["avg"];
+    float mean = statistics_area.avg;
 
     for(int i = min; i <= max; i += 1)
     {
@@ -601,17 +604,15 @@ void AnalysisCenter::statistics()
         }
     }
     sd = std::sqrt(sd/contours_area_len);
-    statistics_area.insert(std::pair<std::string, float>("mode", mode));
-    statistics_area.insert(std::pair<std::string, float>("sd", sd));
-
-
+    statistics_area.mode = mode;
+    statistics_area.sd = sd;
 }
 
 void AnalysisCenter::statistics_without_outlier(){
     const std::vector<float>* contours_area = dataBase->get_contours_area();
-
+    std::cout << "contours_area.size():" << contours_area->size() << std::endl;
     // cal standard_deviation
-    float mean = statistics_area["avg"];
+    float mean = statistics_area.avg;
     float sd = 0.0;
     for(const auto &a : *contours_area)
     {
@@ -629,11 +630,11 @@ void AnalysisCenter::statistics_without_outlier(){
             sum += a;
         }
     }
-    const int filtered_area_len = filtered_area.size();
+    int filtered_area_len = filtered_area.size();
 
     // cal avg
     float means = sum / static_cast<float>(filtered_area_len);
-    statistics_wo_outliter.insert(std::pair<std::string, float>("avg", means));
+    statistics_wo_outliter.avg = means;
 
     // cal standard_deviation
     sd = 0.0;
@@ -642,11 +643,11 @@ void AnalysisCenter::statistics_without_outlier(){
         sd += std::pow(a - means, 2);
     }
     sd = std::sqrt(sd/filtered_area_len);
-    statistics_wo_outliter.insert(std::pair<std::string, float>("sd", sd));
+    statistics_wo_outliter.sd = sd;
 
     // cal d20 d50 d70
     int d20_index = static_cast<int>(filtered_area_len * 0.2) - 1;
-    statistics_wo_outliter.insert(std::pair<std::string, float>("d20", filtered_area[d20_index]));
+    statistics_wo_outliter.d20 = filtered_area[d20_index];
 
     std::sort(filtered_area.begin(), filtered_area.end());
     float d50;
@@ -656,35 +657,38 @@ void AnalysisCenter::statistics_without_outlier(){
     } else {
         d50 = filtered_area[filtered_area_len / 2];
     }
-    statistics_wo_outliter.insert(std::pair<std::string, float>("d50", d50));
+    statistics_wo_outliter.d50 = d50;
 
     int d70_index = static_cast<int>(filtered_area_len * 0.7) - 1;
-    statistics_wo_outliter.insert(std::pair<std::string, float>("d70", filtered_area[d70_index]));
+    statistics_wo_outliter.d70 = filtered_area[d70_index];
 
-    statistics_wo_outliter.insert(std::pair<std::string, float>("cont", filtered_area_len));
+    std::cout << "filtered_area_len:" << filtered_area_len << std::endl;
+    statistics_wo_outliter.cont = filtered_area_len;
+    filtered_area.clear();
+    std::vector<float>().swap(filtered_area);
 }
 
 void AnalysisCenter::update_label()
 {
     if(ui->checkBox_outlier->isChecked())
     {
-        ui->label_avgsurface->setText(QString("Average Surface : %1 -> %2").arg(QString::number(statistics_area["avg"], 'f', 4),
-                                      QString::number(statistics_wo_outliter["avg"], 'f', 4)));
-        ui->label_deviation->setText(QString("Standard Deviation : %1 -> %2").arg(QString::number(statistics_area["avg"], 'f', 4), QString::number(statistics_wo_outliter["avg"], 'f', 4)));
-        ui->label_mode->setText(QString("Mode Surface : %1").arg(QString::number(statistics_area["mode"], 'f', 2)));
-        ui->label_nums->setText(QString("Nums Coffee Particle : %1 -> %2").arg(statistics_area["cont"]).arg(statistics_wo_outliter["cont"]));
-        ui->label_d20->setText(QString("D20 : %1 -> %2").arg(QString::number(statistics_area["d20"], 'f', 4), QString::number(statistics_wo_outliter["d20"], 'f', 4)));
-        ui->label_d50->setText(QString("D50 : %1 -> %2").arg(QString::number(statistics_area["d50"], 'f', 4), QString::number(statistics_wo_outliter["d50"], 'f', 4)));
-        ui->label_d70->setText(QString("D70 : %1 -> %2").arg(QString::number(statistics_area["d70"], 'f', 4), QString::number(statistics_wo_outliter["d70"], 'f', 4)));
+        ui->label_avgsurface->setText(QString("Average Surface : %1 -> %2").arg(QString::number(statistics_area.avg, 'f', 4),
+                                      QString::number(statistics_wo_outliter.avg, 'f', 4)));
+        ui->label_deviation->setText(QString("Standard Deviation : %1 -> %2").arg(QString::number(statistics_area.sd, 'f', 4), QString::number(statistics_wo_outliter.sd, 'f', 4)));
+        ui->label_mode->setText(QString("Mode Surface : %1").arg(QString::number(statistics_area.mode, 'f', 2)));
+        ui->label_nums->setText(QString("Nums Coffee Particle : %1 -> %2").arg(statistics_area.cont).arg(statistics_wo_outliter.cont));
+        ui->label_d20->setText(QString("D20 : %1 -> %2").arg(QString::number(statistics_area.d20, 'f', 4), QString::number(statistics_wo_outliter.d20, 'f', 4)));
+        ui->label_d50->setText(QString("D50 : %1 -> %2").arg(QString::number(statistics_area.d50, 'f', 4), QString::number(statistics_wo_outliter.d50, 'f', 4)));
+        ui->label_d70->setText(QString("D70 : %1 -> %2").arg(QString::number(statistics_area.d70, 'f', 4), QString::number(statistics_wo_outliter.d70, 'f', 4)));
     }else
     {
-        ui->label_avgsurface->setText(QString("Average Surface : %1").arg(QString::number(statistics_area["avg"], 'f', 4)));
-        ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(statistics_area["sd"], 'f', 4)));
-        ui->label_mode->setText(QString("Mode Surface : %1").arg(QString::number(statistics_area["mode"], 'f', 2)));
-        ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(statistics_area["cont"]));
-        ui->label_d20->setText(QString("D20 : %1").arg(QString::number(statistics_area["d20"], 'f', 4)));
-        ui->label_d50->setText(QString("D50 : %1").arg(QString::number(statistics_area["d50"], 'f', 4)));
-        ui->label_d70->setText(QString("D70 : %1").arg(QString::number(statistics_area["d70"], 'f', 4)));
+        ui->label_avgsurface->setText(QString("Average Surface : %1").arg(QString::number(statistics_area.avg, 'f', 4)));
+        ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(statistics_area.sd, 'f', 4)));
+        ui->label_mode->setText(QString("Mode Surface : %1").arg(QString::number(statistics_area.mode, 'f', 2)));
+        ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(statistics_area.cont));
+        ui->label_d20->setText(QString("D20 : %1").arg(QString::number(statistics_area.d20, 'f', 4)));
+        ui->label_d50->setText(QString("D50 : %1").arg(QString::number(statistics_area.d50, 'f', 4)));
+        ui->label_d70->setText(QString("D70 : %1").arg(QString::number(statistics_area.d70, 'f', 4)));
     }
 
 }

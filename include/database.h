@@ -82,15 +82,13 @@ public:
     void del_threshold();
     void del_contours();
     void del_hist_qimg();
+    void del_area();
 
     // bool state
     bool flag_refer = false;
     bool flag_contours = false;
 
     void sort_area();
-    void cal_statistics();
-
-
 
 private:
     // image info

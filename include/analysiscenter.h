@@ -66,6 +66,18 @@ public:
     void statistics();
     void statistics_without_outlier();
     void update_label();
+
+protected:
+    struct statis{
+        float avg;
+        float sd;
+        float mode;
+        float cont;
+        float d20;
+        float d50;
+        float d70;
+    };
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
@@ -77,8 +89,11 @@ private:
     /*
      * avg、cont、d50
      */
-    std::map<std::string, float> statistics_area;
-    std::map<std::string, float> statistics_wo_outliter;
+    statis statistics_area;
+//    std::map<std::string, float> statistics_area;
+    statis statistics_wo_outliter;
 };
+
+
 
 #endif // ANALYSIS_CENTER_H
