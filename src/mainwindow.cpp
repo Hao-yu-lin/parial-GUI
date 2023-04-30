@@ -210,7 +210,7 @@ void MainWindow::on_btn_draw_hist_clicked()
     if(imgCenter->flag_num == flag_hist){
         imgCenter->flag_num = flag_off;
         imgCenter->set_img();
-        ui->btn_draw_hist->setText("Show");
+        ui->btn_draw_hist->setText("Histogram");
 
     }else{
         imgCenter->flag_num = flag_hist;

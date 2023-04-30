@@ -73,7 +73,11 @@ public:
     const std::vector<cv::Point2i>* get_detect_vector() const;
     const cv::Mat* get_threshold() const;
     const std::vector<std::vector<cv::Point> >* get_detect_contours() const;
-    const std::vector<float> *get_contours_area() const;
+    const std::vector<float>* get_contours_area() const;
+
+    // gettr bool state
+    bool get_flag_refer() const;
+    bool get_flag_contours() const;
 
     // del array operate
     void del_refer_vector();
@@ -84,11 +88,10 @@ public:
     void del_hist_qimg();
     void del_area();
 
-    // bool state
-    bool flag_refer = false;
-    bool flag_contours = false;
 
     void sort_area();
+
+
 
 private:
     // image info
@@ -121,6 +124,9 @@ private:
     // contours
     std::vector<float> area;
 
+    // bool state
+    bool flag_refer = false;
+    bool flag_contours = false;
 
 };
 

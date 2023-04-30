@@ -84,13 +84,10 @@ private:
     DataBase *dataBase;
     cv::Mat roi_mask;
 //    Bool_State bool_state;
-    int countout_idx;
-    std::map<float, int> counter;
-    /*
-     * avg、cont、d50
-     */
+
+
+
     statis statistics_area;
-//    std::map<std::string, float> statistics_area;
     statis statistics_wo_outliter;
 };
 

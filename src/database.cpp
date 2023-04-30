@@ -237,6 +237,17 @@ void DataBase::sort_area()
     std::sort(this->area.begin(), this->area.end());
 }
 
+/*  ----------- Boolean State -----------  */
+
+bool DataBase::get_flag_refer() const
+{
+    return flag_refer;
+}
+
+bool DataBase::get_flag_contours() const
+{
+    return flag_contours;
+}
 
 
 /*  ----------- Histogram -----------  */

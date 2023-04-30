@@ -148,7 +148,7 @@ void AnalysisCenter::cal_refer_obj()
 {
     draw_img(*dataBase->get_refer_vector(), cv::Scalar(255,0,0));
     const std::vector<cv::Point2i>*refer_pts = dataBase->get_refer_vector();
-    if(dataBase->flag_refer == false)
+    if(dataBase->get_flag_refer() == false)
     {
         std::cout << "Need two reference object point" << std::endl;
         return;
@@ -389,7 +389,7 @@ void AnalysisCenter::draw_contours_img()
 
 void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
 {
-
+    int countout_idx;
     double surface_average = 0;
     double pixel_sacle = ui->lineEdit_pixel_scale_value->text().toDouble();
     countout_idx = 0;
@@ -444,28 +444,36 @@ void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
 
 void AnalysisCenter::createBarChart()
 {
-    counter.clear();
+    if(dataBase->get_flag_contours() == false)
+    {
+        std::cout << "please, detect contours first" << std::endl;
+        return;
+    }
 
     if(!dataBase->get_hist_img().isNull()){
         imgCenter->set_img();
         return;
     }
 
-    int nums_bins = -1;
-
-    if(ui->lineEdit_nums_bins->text().isEmpty()){
-        nums_bins = -1;
-    }else{
-        nums_bins = ui->lineEdit_nums_bins->text().toInt();
-    }
-
     const std::vector<float>* contours_area = dataBase->get_contours_area();
 
-    int max_count = 0;
-    float max_area = contours_area->back();
-    float min_area = contours_area->front();
-    float area_range = max_area - min_area;
-    float bin_size;
+    static float mean, sd;
+    if(ui->checkBox_outlier->isChecked())
+    {
+        mean = statistics_wo_outliter.avg;
+        sd = statistics_wo_outliter.sd;
+    }else
+    {
+        mean = statistics_area.avg;
+        sd = statistics_area.sd;
+    }
+
+    const float max_area = std::min(mean + 2 * sd, contours_area->back());
+    const float min_area = std::max(mean - 2 * sd,  contours_area->front());
+    const float area_range = max_area - min_area;
+    float bin_size, max_count = 0;
+
+    int nums_bins = ui->lineEdit_nums_bins->text().isEmpty() ? -1 : ui->lineEdit_nums_bins->text().toInt();
 
     if(nums_bins == -1 || nums_bins == 0)
     {
@@ -476,38 +484,44 @@ void AnalysisCenter::createBarChart()
         bin_size = area_range / nums_bins;
     }
 
-    std::vector<int> counter(nums_bins);
-    for (auto& a : *contours_area) {
+    std::vector<int> counters(nums_bins);
+
+    for (auto& a : *contours_area)
+    {
+        if (a < min_area || a > max_area) {
+            continue;
+        }
         int bin_index = static_cast<int>((a - min_area) / bin_size);
         bin_index = std::min(bin_index, nums_bins - 1);
-        counter[bin_index]++;
-        if (counter[bin_index] > max_count) {
-            max_count = counter[bin_index];
+        counters[bin_index]++;
+        if (counters[bin_index] > max_count) {
+            max_count = counters[bin_index];
         }
     }
+
 
     QBarSet* p_bar_set = new QBarSet("Particle Histogram");
     QStringList partical_size;
 
+    QLineSeries* p_line_series = new QLineSeries();
+    float accmulate_percent = 0;
+
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_area + bin_size * i;
         float bin_end = bin_start + bin_size;
-        float percentage = (static_cast<float>(counter[i]) / contours_area->size()) * 100.0;
+        float percentage = (static_cast<float>(counters[i]) / contours_area->size()) * 100.0;
         percentage = std::round(percentage * 100.0) / 100.0;
+        accmulate_percent += percentage;
         *p_bar_set << percentage;
         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
         partical_size.append(bin_label);
+        p_line_series->append(bin_start, accmulate_percent);
     }
-    counter.clear();
-    std::vector<int>().swap(counter);
+    counters.clear();
+    std::vector<int>().swap(counters);
 
     QBarSeries *series = new QBarSeries();
     series->append(p_bar_set);
-//    QSplineSeries *series = new QSplineSeries();
-//    for(auto &it : counter){
-//        series->append(QPointF(it.first, it.second));
-//    }
-
     series->setLabelsVisible(true);
     series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
 
@@ -516,32 +530,44 @@ void AnalysisCenter::createBarChart()
     p_axisX->append(partical_size);
     p_axisX->setTitleText("Particle Size [ mm x mm ]");
     p_axisX->setLabelsFont(QFont("Arial", 60));
+    p_axisX->setLabelsAngle(30);
 
-    QValueAxis *p_axisY = new QValueAxis();
-    int max_range = (int)(((static_cast<float>(max_count)/contours_area->size())*100.0)/5 + 1) * 5;
+    QValueAxis *p_axisYL = new QValueAxis();
+    int max_range = (int)(((static_cast<float>(max_count)/contours_area->size())*100.0)/5 + 1) * 5 + 1;
+    p_axisYL->setRange(0, max_range);
+    p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisYL->setTickInterval(5);
+    p_axisYL->setTickAnchor(0);
+    p_axisYL->setLabelFormat("%d");
+    p_axisYL->setTitleText("Particle Size Ratio [ % ]");
+    p_axisYL->setLabelsFont(QFont("Arial", 60));
 
-    p_axisY->setRange(0, max_range);
-    p_axisY->setTickType(QValueAxis::TickType::TicksDynamic);
-    p_axisY->setTickInterval(5);
-    p_axisY->setTickAnchor(0);
-    p_axisY->setLabelFormat("%d");
-    p_axisY->setTitleText("Particle Size Ratio [ % ]");
-    p_axisY->setLabelsFont(QFont("Arial", 60));
+    QValueAxis *p_axisYR = new QValueAxis();
+    p_axisYL->setRange(0, 100);
+    p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisYL->setTickInterval(5);
+    p_axisYL->setTickAnchor(0);
+    p_axisYL->setLabelFormat("%d");
+    p_axisYL->setTitleText("Accumulate Ratio [ % ]");
+    p_axisYL->setLabelsFont(QFont("Arial", 60));
+
 
 //    // setting Chart
     QChart *p_chart = new QChart();
     p_chart->createDefaultAxes();
     p_chart->setTitle("Distribution");
     p_chart->addSeries(series);
+    p_chart->addSeries(p_line_series);
 
     p_chart->addAxis(p_axisX, Qt::AlignBottom);
-    p_chart->addAxis(p_axisY, Qt::AlignLeft);
+    p_chart->addAxis(p_axisYL, Qt::AlignLeft);
+    p_chart->addAxis(p_axisYR, Qt::AlignRight);
     series->attachAxis(p_axisX);
-    series->attachAxis(p_axisY);
-
-    p_chart->legend()->setVisible(true);
+    series->attachAxis(p_axisYL);
+//    p_line_series->attachAxis(p_axisX);
+    p_line_series->attachAxis(p_axisYR);
+    p_chart->legend()->setVisible(false);
     p_chart->legend()->setAlignment(Qt::AlignBottom);
-
     p_chart->setTheme(QChart::ChartThemeBrownSand);
 
     QChartView *chartView = new QChartView(p_chart);
@@ -553,6 +579,14 @@ void AnalysisCenter::createBarChart()
 //    hist_image.save("/Users/haoyulin/Desktop/new_qt/hist.jpg", "JPG", 100);
     dataBase->set_hist_qimage(hist_image);
     imgCenter->set_img();
+
+    delete p_bar_set;
+    delete p_line_series;
+    delete series;
+    delete p_axisX;
+    delete p_axisYL;
+    delete p_axisYR;
+    delete p_chart;
 }
 
 void AnalysisCenter::reproducehist()
@@ -563,6 +597,7 @@ void AnalysisCenter::reproducehist()
 
 void AnalysisCenter::statistics()
 {
+    std::map<float, int> counter;
     const std::vector<float>* contours_area = dataBase->get_contours_area();
     int contours_area_len = contours_area->size();
     int d20_index = static_cast<int>(contours_area_len * 0.2);
@@ -606,11 +641,12 @@ void AnalysisCenter::statistics()
     sd = std::sqrt(sd/contours_area_len);
     statistics_area.mode = mode;
     statistics_area.sd = sd;
+    counter.clear();
+    std::map<float, int>().swap(counter);
 }
 
 void AnalysisCenter::statistics_without_outlier(){
     const std::vector<float>* contours_area = dataBase->get_contours_area();
-    std::cout << "contours_area.size():" << contours_area->size() << std::endl;
     // cal standard_deviation
     float mean = statistics_area.avg;
     float sd = 0.0;
@@ -661,8 +697,6 @@ void AnalysisCenter::statistics_without_outlier(){
 
     int d70_index = static_cast<int>(filtered_area_len * 0.7) - 1;
     statistics_wo_outliter.d70 = filtered_area[d70_index];
-
-    std::cout << "filtered_area_len:" << filtered_area_len << std::endl;
     statistics_wo_outliter.cont = filtered_area_len;
     filtered_area.clear();
     std::vector<float>().swap(filtered_area);

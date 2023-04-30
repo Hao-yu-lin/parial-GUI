@@ -394,31 +394,6 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="18" column="0">
-          <widget class="QPushButton" name="btn_draw_hist">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>97</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>97</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Histogram</string>
-           </property>
-          </widget>
-         </item>
          <item row="19" column="0">
           <widget class="QLabel" name="label_bins_fixed">
            <property name="minimumSize">
@@ -682,25 +657,6 @@ border-color: rgb(94, 92, 100);</string>
             </size>
            </property>
           </spacer>
-         </item>
-         <item row="18" column="1">
-          <widget class="QPushButton" name="btn_reproduce_hist">
-           <property name="minimumSize">
-            <size>
-             <width>97</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>97</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>Reproduce</string>
-           </property>
-          </widget>
          </item>
          <item row="3" column="2">
           <widget class="QPushButton" name="btn_refer_obj_rest">
@@ -1006,6 +962,50 @@ border-color: rgb(94, 92, 100);</string>
            </property>
            <property name="text">
             <string>Erase</string>
+           </property>
+          </widget>
+         </item>
+         <item row="19" column="2">
+          <widget class="QPushButton" name="btn_reproduce_hist">
+           <property name="minimumSize">
+            <size>
+             <width>97</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>97</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Reproduce</string>
+           </property>
+          </widget>
+         </item>
+         <item row="17" column="2">
+          <widget class="QPushButton" name="btn_draw_hist">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>97</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>97</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Histogram</string>
            </property>
           </widget>
          </item>
