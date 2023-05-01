@@ -485,7 +485,7 @@ void AnalysisCenter::createBarChart()
     }
 
     std::vector<int> counters(nums_bins);
-
+    int acc_count = 0;
     for (auto& a : *contours_area)
     {
         if (a < min_area || a > max_area) {
@@ -497,6 +497,7 @@ void AnalysisCenter::createBarChart()
         if (counters[bin_index] > max_count) {
             max_count = counters[bin_index];
         }
+        acc_count ++;
     }
 
 
@@ -509,13 +510,17 @@ void AnalysisCenter::createBarChart()
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_area + bin_size * i;
         float bin_end = bin_start + bin_size;
-        float percentage = (static_cast<float>(counters[i]) / contours_area->size()) * 100.0;
+        float percentage = (static_cast<float>(counters[i]) / acc_count) * 100.0;
         percentage = std::round(percentage * 100.0) / 100.0;
         accmulate_percent += percentage;
         *p_bar_set << percentage;
         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
         partical_size.append(bin_label);
         p_line_series->append(bin_start, accmulate_percent);
+
+//        QString point_label = QString::number(accmulate_percent, 'f', 2);
+//        p_line_series->setPointLabelsVisible(true);
+//        p_line_series->setPointLabelsFormat(point_label);
     }
     counters.clear();
     std::vector<int>().swap(counters);
@@ -524,32 +529,35 @@ void AnalysisCenter::createBarChart()
     series->append(p_bar_set);
     series->setLabelsVisible(true);
     series->setLabelsPosition(QAbstractBarSeries::LabelsInsideEnd);
+//    p_line_series->setPointLabelsVisible(true);
 
 //    // for X
     QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
     p_axisX->append(partical_size);
     p_axisX->setTitleText("Particle Size [ mm x mm ]");
     p_axisX->setLabelsFont(QFont("Arial", 60));
-    p_axisX->setLabelsAngle(30);
+//    p_axisX->setLabelsAngle(30);
 
     QValueAxis *p_axisYL = new QValueAxis();
-    int max_range = (int)(((static_cast<float>(max_count)/contours_area->size())*100.0)/5 + 1) * 5 + 1;
+    int max_range = (int)(((static_cast<float>(max_count)/contours_area->size())*100.0)/20 + 2) * 20;
+//    std::cout << max_range << std::endl;
     p_axisYL->setRange(0, max_range);
     p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
-    p_axisYL->setTickInterval(5);
+    p_axisYL->setTickInterval(max_range/20);
     p_axisYL->setTickAnchor(0);
     p_axisYL->setLabelFormat("%d");
     p_axisYL->setTitleText("Particle Size Ratio [ % ]");
     p_axisYL->setLabelsFont(QFont("Arial", 60));
 
+
     QValueAxis *p_axisYR = new QValueAxis();
-    p_axisYL->setRange(0, 100);
-    p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
-    p_axisYL->setTickInterval(5);
-    p_axisYL->setTickAnchor(0);
-    p_axisYL->setLabelFormat("%d");
-    p_axisYL->setTitleText("Accumulate Ratio [ % ]");
-    p_axisYL->setLabelsFont(QFont("Arial", 60));
+    p_axisYR->setRange(0, 100);
+    p_axisYR->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisYR->setTickInterval(5);
+    p_axisYR->setTickAnchor(0);
+    p_axisYR->setLabelFormat("%d");
+    p_axisYR->setTitleText("Accumulate Ratio [ % ]");
+    p_axisYR->setLabelsFont(QFont("Arial", 60));
 
 
 //    // setting Chart
@@ -580,12 +588,13 @@ void AnalysisCenter::createBarChart()
     dataBase->set_hist_qimage(hist_image);
     imgCenter->set_img();
 
-    delete p_bar_set;
-    delete p_line_series;
-    delete series;
-    delete p_axisX;
-    delete p_axisYL;
-    delete p_axisYR;
+
+//    delete p_bar_set;
+//    delete p_line_series;
+//    delete series;
+//    delete p_axisX;
+//    delete p_axisYL;
+//    delete p_axisYR;
     delete p_chart;
 }
 
