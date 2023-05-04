@@ -168,6 +168,23 @@ void DataBase::del_detect_vector()
     }
 }
 
+void DataBase::del_detect_vector(cv::Point2i pos)
+{
+    double pos_value;
+    for(auto it = detect_contours.begin(); it != detect_contours.end();)
+    {
+        // 0 onside 1 inside -1 outside
+        pos_value = cv::pointPolygonTest( *it, pos, false);
+        if(pos_value == 1 || pos_value == 0)
+        {
+            it = detect_contours.erase(it);
+            return;
+        }else{
+            ++it;
+        }
+    }
+}
+
 void DataBase::del_all_detect_vector()
 {
     if(this->detect_point_vector.empty()){

@@ -22,6 +22,7 @@
 #define flag_refer_obj 1
 #define flag_select_roi 2
 #define flag_hist 3
+#define flag_del_roi 4
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -53,9 +54,12 @@ public:
     void set_img();
     void set_sroll_area();
     void shadow_removal();
+
     QPointF zoomevent(const double &new_rate);
     friend class AnalysisCenter;
     int flag_num = flag_off;
+
+
 
 private:
     Ui::MainWindow *ui;

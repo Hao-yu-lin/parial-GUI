@@ -63,6 +63,8 @@ private slots:
 
     void on_btn_reproduce_hist_clicked();
 
+    void on_btn_erase_clusters_clicked();
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;

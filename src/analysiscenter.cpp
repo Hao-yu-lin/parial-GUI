@@ -7,10 +7,6 @@ AnalysisCenter::AnalysisCenter(Ui::MainWindow *input_ui, ImageCenter *input_imgC
     , dataBase(input_imgCenter->dataBase)
 {}
 
-void AnalysisCenter::test()
-{
-}
-
 void AnalysisCenter::draw_img(const std::vector<cv::Point2i> &vector_pts, cv::Scalar color)
 {
     cv::Mat tmp_img = imgCenter->imgSrc.clone();
@@ -113,6 +109,13 @@ void AnalysisCenter::set_pts_vector(const QPointF &img_pos)
         draw_img(*dataBase->get_detect_vector(), cv::Scalar( 0, 0, 255));
         break;
 
+    case 4:
+        if(dataBase->get_detect_contours()->empty()){
+            return;
+        }
+        dataBase->del_detect_vector(pos);
+        draw_contours_img();
+        break;
     default:
         break;
     }
@@ -130,7 +133,7 @@ void AnalysisCenter::del_pts_vector()
     case 2:
         dataBase->del_detect_vector();
         draw_img(*dataBase->get_detect_vector(), cv::Scalar( 0, 0, 255));
-        break;
+        break; 
 
     default:
         break;
@@ -358,6 +361,8 @@ void AnalysisCenter::detect_particle()
 
     draw_contours_img();
 }
+
+
 
 void AnalysisCenter::draw_contours_img()
 {

@@ -125,6 +125,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                     return false;
                 }
 
+            }else if(imgCenter->flag_num == flag_del_roi){
+                if(mouseEvent->button() == Qt::LeftButton)
+                {
+                    QPointF img_pos = mouseEvent->pos();
+                    analysisCenter->set_pts_vector(img_pos);
+                    return true;
+                }
             }else
             {
                 return false;
@@ -203,6 +210,12 @@ void MainWindow::on_btn_detect_particle_clicked()
     imgCenter->flag_num = flag_off;
     analysisCenter->detect_particle();
 }
+
+void MainWindow::on_btn_erase_clusters_clicked()
+{
+    imgCenter->flag_num = flag_del_roi;
+}
+
 
 void MainWindow::on_btn_draw_hist_clicked()
 {

@@ -214,3 +214,5 @@ void ImageCenter::shadow_removal()
 
 
 
+
+

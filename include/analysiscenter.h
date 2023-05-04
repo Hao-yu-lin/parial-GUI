@@ -39,7 +39,6 @@ public:
         imgCenter = nullptr;
         dataBase = nullptr;
     };
-    void test();
     void set_pts_vector(const QPointF &img_pos);
     void del_pts_vector();
 

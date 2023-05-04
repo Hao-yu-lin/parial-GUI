@@ -82,6 +82,7 @@ public:
     // del array operate
     void del_refer_vector();
     void del_detect_vector();
+    void del_detect_vector(cv::Point2i pos);
     void del_all_detect_vector();
     void del_threshold();
     void del_contours();
