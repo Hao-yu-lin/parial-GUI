@@ -89,7 +89,7 @@ border-color: rgb(94, 92, 100);</string>
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="btn_iWarp_Perspective">
+       <widget class="QPushButton" name="btn_iwhite_balance">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -112,7 +112,7 @@ border-color: rgb(94, 92, 100);</string>
          </font>
         </property>
         <property name="text">
-         <string>Warp Perspective</string>
+         <string>White Balance</string>
         </property>
        </widget>
       </item>

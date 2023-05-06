@@ -240,4 +240,8 @@ void MainWindow::on_btn_reproduce_hist_clicked()
     ui->btn_draw_hist->setText("image");
 }
 
-
+void MainWindow::on_btn_iwhite_balance_clicked()
+{
+    imgCenter->flag_num = flag_off;
+    imgCenter->white_balance();
+}

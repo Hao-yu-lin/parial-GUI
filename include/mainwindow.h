@@ -65,6 +65,8 @@ private slots:
 
     void on_btn_erase_clusters_clicked();
 
+    void on_btn_iwhite_balance_clicked();
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
