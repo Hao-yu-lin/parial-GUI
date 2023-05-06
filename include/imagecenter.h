@@ -1,6 +1,6 @@
 #ifndef IMAGECENTER_H
 #define IMAGECENTER_H
-//#include "cplus2py.h"
+#include "cplus2py.h"
 #include "database.h"
 #include "calculate.h"
 
@@ -73,7 +73,7 @@ private:
 
     // for python
 
-//    CallPy *m_callpy;
+    CallPy *m_callpy;
     QThread *m_child_thread;
     std::string img_path;
 

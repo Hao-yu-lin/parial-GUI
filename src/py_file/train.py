@@ -67,6 +67,9 @@ def shadow_removal(args):
     removal_model = Generator().to(device)
     # param = torch.load(removal_path)
         # load module
+    # param = torch.load(removal_path)
+    # removal_model.load_state_dict(param['genA2B'])
+    
     removal_model.load_state_dict(torch.load(removal_path))
     removal_model.eval()
     
@@ -74,12 +77,15 @@ def shadow_removal(args):
     img = cv2.imread(img_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     blue = img[:, :, 2]
+    blue_array = np.array(blue.flatten())
+    blue_mean = np.mean(blue_array)
+    
     
     '''
     if blue < blue_value = 255
     else = 0
     '''
-    blue_thresh = np.where(blue < 200, np.uint8(255), np.uint8(0))
+    blue_thresh = np.where(blue < blue_mean, np.uint8(255), np.uint8(0))
     
     '''
     pixel value = 255 is object
@@ -116,7 +122,7 @@ def shadow_removal(args):
         
     img = img.astype(np.uint8)
         
-    # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     return img
 def main(addr):
     args = parse_args()
@@ -143,8 +149,8 @@ def same_seeds(seed):
     torch.backends.cudnn.deterministic = True
 
 if __name__ == '__main__':
-    img_path = "/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/A1-390_600dpi-co.png"
+    img_path = "/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/test12.png"
     img = main(img_path)
     
-    # cv2.imwrite(output_path+"/test10.png", img, [cv2.IMWRITE_PNG_COMPRESSION, 5])
+    cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/shadowf05-03-22.png", img, [cv2.IMWRITE_PNG_COMPRESSION, 5])
     # cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
