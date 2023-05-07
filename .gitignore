@@ -3,3 +3,6 @@ src/py_file/module_ckpt
 __pycache__*
 tmp_img
 pycopy
+src/py_file/models/network copy.py
+src/py_file/models/package/library copy.py
+test.ipynb

@@ -186,49 +186,70 @@ void ImageCenter::shadow_removal()
 {
 
 
-//    m_callpy = new CallPy;
-//    m_child_thread = new QThread;
-//    m_callpy->set_addr(img_path);
+    m_callpy = new CallPy;
+    m_child_thread = new QThread;
+    m_callpy->set_addr(img_path);
 
-//    m_callpy->moveToThread(m_child_thread);
+    m_callpy->moveToThread(m_child_thread);
 
-//    std::cout << "start!!" << std::endl;
-//    m_child_thread->start();
+    std::cout << "start!!" << std::endl;
+    m_child_thread->start();
 
-//    imgSrc = m_callpy->start_python();
+    imgSrc = m_callpy->start_python();
 
 
-//    QImage tmp_img(imgSrc.data,
-//                      imgSrc.cols, // width
-//                      imgSrc.rows, // height
-//                      imgSrc.step,
-//                      QImage::Format_RGB888);
-//    dataBase->set_origimg(tmp_img);
-//    set_img();
+    QImage tmp_img(imgSrc.data,
+                      imgSrc.cols, // width
+                      imgSrc.rows, // height
+                      imgSrc.step,
+                      QImage::Format_RGB888);
+    dataBase->set_origimg(tmp_img);
+    set_img();
 
-//    std::cout << "finish!!" << std::endl;
+    std::cout << "finish!!" << std::endl;
 
-//    m_callpy->~CallPy();
-    //    m_callpy = nullptr;
+    m_callpy->~CallPy();
+    m_callpy = nullptr;
 }
 
 void ImageCenter::white_balance()
 {
     cv::Scalar means = cv::mean(imgSrc);
-    float r_mean = means[0];
-    float g_mean = means[1];
-    float b_mean = means[2];
 
-    float avg = pow(r_mean * g_mean * b_mean, 1.0/3);
-    float rCoef = avg/r_mean;
-    float gCoef = avg/g_mean;
-    float bCoef = avg/b_mean;
     std::vector<cv::Mat> rgb_channels(3);
     cv::split(imgSrc, rgb_channels);
 
     cv::Mat r_channel = rgb_channels[0];
     cv::Mat g_channel = rgb_channels[1];
     cv::Mat b_channel = rgb_channels[2];
+
+    float r_mean = means[0];
+    float g_mean = means[1];
+    float b_mean = means[2];
+
+    for (int i = 0; i < 3; i++) {
+        cv::Mat mask;
+        cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
+        cv::Mat sum_masked;
+        cv::bitwise_and(rgb_channels[i], mask, sum_masked);
+        double sum = cv::sum(sum_masked)[0];
+        int count = cv::countNonZero(mask);
+
+        if (count > 0) {
+            if (i == 0) {
+                r_mean = sum / count;
+            } else if (i == 1) {
+                g_mean = sum / count;
+            } else if (i == 2) {
+                b_mean = sum / count;
+            }
+        }
+    }
+
+    float avg = pow(r_mean * g_mean * b_mean, 1.0/3);
+    float rCoef = avg/r_mean;
+    float gCoef = avg/g_mean;
+    float bCoef = avg/b_mean;
 
     multiply(b_channel, bCoef, b_channel);
     multiply(g_channel, gCoef, g_channel);
@@ -237,13 +258,39 @@ void ImageCenter::white_balance()
     b_channel = min(b_channel, cv::Scalar(255));
     g_channel = min(g_channel, cv::Scalar(255));
     r_channel = min(r_channel, cv::Scalar(255));
+
     merge(rgb_channels, imgSrc);
 
-    float r_mean_new = mean(r_channel > r_mean)[0];
-    float g_mean_new = mean(g_channel > g_mean)[0];
-    float b_mean_new = mean(b_channel > b_mean)[0];
+    cv::Scalar new_means = cv::mean(imgSrc);
 
-    float new_coeff =  255.0 / std::max(r_mean_new, std::max(g_mean_new, b_mean_new));
+    r_mean = new_means[0];
+    g_mean = new_means[1];
+    b_mean = new_means[2];
+
+    float r_mean_new = 0, g_mean_new = 0, b_mean_new = 0;
+
+    for (int i = 0; i < 3; i++) {
+        cv::Mat mask;
+        cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
+        cv::Mat sum_masked;
+        cv::bitwise_and(rgb_channels[i], mask, sum_masked);
+        double sum = cv::sum(sum_masked)[0];
+        int count = cv::countNonZero(mask);
+
+        if (count > 0) {
+            if (i == 0) {
+                r_mean_new = sum / count;
+            } else if (i == 1) {
+                g_mean_new = sum / count;
+            } else if (i == 2) {
+                b_mean_new = sum / count;
+            }
+        }
+    }
+
+    float new_coeff1 =  255.0 / std::min(r_mean_new, std::min(g_mean_new, b_mean_new));
+    float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
+    float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
     cv::Mat table(1, 256, CV_8U);
     for (int i = 0; i < 256; i++) {
         table.at<uchar>(i) = cv::saturate_cast<uchar>(i * new_coeff);

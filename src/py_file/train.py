@@ -2,6 +2,7 @@ import random
 import cv2
 import numpy as np
 import torch
+import math
 
 from models.network import Generator
 from config import parse_args
@@ -67,31 +68,86 @@ def shadow_removal(args):
     removal_model = Generator().to(device)
     # param = torch.load(removal_path)
         # load module
-    # param = torch.load(removal_path)
-    # removal_model.load_state_dict(param['genA2B'])
+    param = torch.load(removal_path)
+    removal_model.load_state_dict(param['genA2B'])
     
-    removal_model.load_state_dict(torch.load(removal_path))
+    # removal_model.load_state_dict(torch.load(removal_path))
     removal_model.eval()
-    
     
     img = cv2.imread(img_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    image_array = np.array(img, dtype=np.float32)
+    r , g, b = np.split(image_array, 3, axis=2)
+
+    r_mean = np.mean(r)
+    g_mean = np.mean(g)
+    b_mean = np.mean(b)
+
+    r_mean = np.mean(r[r > r_mean])
+    g_mean = np.mean(g[g > g_mean])
+    b_mean = np.mean(b[b > b_mean])
+
+    avg =  np.multiply(np.multiply(b_mean, g_mean), r_mean) ** (1.0/3)
+    
+    bCoef = avg/b_mean
+    gCoef = avg/g_mean
+    rCoef = avg/r_mean
+
+    b = np.clip(b * bCoef, 0, 255)
+    g = np.clip(g * gCoef, 0, 255)
+    r = np.clip(r * rCoef, 0, 255)
+
+    r_mean = np.mean(r)
+    g_mean = np.mean(g)
+    b_mean = np.mean(b)
+
+    r_mean_new = np.mean(r[r > r_mean])
+    g_mean_new = np.mean(g[g > g_mean])
+    b_mean_new = np.mean(b[b > b_mean])
+    
+    new_coeff1 = 255 / min(r_mean_new, g_mean_new, b_mean_new)
+    new_coeff2 = 255 / min(r_mean, g_mean, b_mean)
+    new_coeff = math.sqrt(new_coeff1 * new_coeff2)
+
+    r = np.squeeze(r, axis = 2)
+    g = np.squeeze(g, axis = 2)
+    b = np.squeeze(b, axis = 2)
+
+    image_array[:, :, 0] = r * new_coeff
+    image_array[:, :, 1] = g * new_coeff
+    image_array[:, :, 2] = b * new_coeff
+
+    image_array = np.clip(image_array, 0, 255)
+
+    img = np.uint8(image_array)
+    
     blue = img[:, :, 2]
     blue_array = np.array(blue.flatten())
     blue_mean = np.mean(blue_array)
+    blue_median = np.median(blue_array)
     
+    threshold_value = math.sqrt(blue_mean * blue_median)
     
     '''
     if blue < blue_value = 255
     else = 0
     '''
-    blue_thresh = np.where(blue < blue_mean, np.uint8(255), np.uint8(0))
+    blue_thresh = np.where(blue < threshold_value, np.uint8(255), np.uint8(0))
+    # cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/blue_thresh.png", blue_thresh, [cv2.IMWRITE_PNG_COMPRESSION, 9])
     
     '''
     pixel value = 255 is object
     pixel value = 0 is background
     '''   
-    contours, _ = cv2.findContours(image=blue_thresh, mode = cv2.RETR_EXTERNAL, method = cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(image=blue_thresh, mode = cv2.RETR_CCOMP, method = cv2.CHAIN_APPROX_SIMPLE)
+    # inner_contours = []
+    # for i in range(len(hierarchy[0])):
+    #     if hierarchy[0][i][3] == -1: # 没有父contour
+    #         inner_contours.append(contours[i])
+    # inner_img = cv2.drawContours(img.copy(), contours, -1, (0, 255, 0), 2)
+    # inner_img = cv2.cvtColor(inner_img, cv2.COLOR_BGR2RGB)
+    # cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/inner_img.png", inner_img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    
     
     img_set = Mask_Dataset(img, contours)
     img_loader = DataLoader(img_set, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True)
@@ -122,8 +178,9 @@ def shadow_removal(args):
         
     img = img.astype(np.uint8)
         
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     return img
+
 def main(addr):
     args = parse_args()
     if args is None:
@@ -149,8 +206,8 @@ def same_seeds(seed):
     torch.backends.cudnn.deterministic = True
 
 if __name__ == '__main__':
-    img_path = "/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/test12.png"
+    img_path = "/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/IMG_3528.jpg"
     img = main(img_path)
     
-    cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/shadowf05-03-22.png", img, [cv2.IMWRITE_PNG_COMPRESSION, 5])
+    cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/IMG_3528_1.png", img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
     # cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])

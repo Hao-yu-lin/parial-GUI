@@ -31,8 +31,26 @@ class ResnetBlock(nn.Module):
                     nn.InstanceNorm2d(dim) 
         )
         
+        self.prewitt_x = nn.Conv2d(dim, dim, 3, stride=1, padding=1, bias = False)
+        sobel_kernel_x = torch.FloatTensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]]).unsqueeze(0).unsqueeze(0)
+        self.prewitt_x.weight.data = sobel_kernel_x.repeat(dim, dim, 1, 1)
+        
+        self.prewitt_y = nn.Conv2d(dim, dim, 3, stride=1, padding=1, bias = False)
+        sobel_kernel_y = torch.FloatTensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]]).unsqueeze(0).unsqueeze(0)
+        
+        self.prewitt_y.weight.data = sobel_kernel_y.repeat(dim, dim, 1, 1)
+        
+        self.norm = nn.InstanceNorm2d(dim) 
+        self.relu = nn.ReLU(True)
+       
+        
     def forward(self, x):
-        out = x + self.conv_block(x)
+        # print(x.shape)
+        pre_x = self.prewitt_x(x)
+        pre_y = self.prewitt_y(x)
+        pre = self.relu(self.norm(0.5 * pre_x + 0.5 * pre_y))
+        # print(pre.shape)
+        out = x + self.conv_block(x) + pre
         return out
     
 class ResnetAdaILNBlock(nn.Module):
@@ -101,11 +119,6 @@ class OverlapPatchEmbed(nn.Module):
     def forward(self, x):
         x = self.proj(x)
         
-        # B, C, H, W = x.shape
-        # x = x.flatten(2).transpose(1, 2)    # B, H*W, C
-        # # x = self.norm(x)
-        
-        # x = x.transpose(1, 2).view(B, C, H, W)
         return x
 
 
