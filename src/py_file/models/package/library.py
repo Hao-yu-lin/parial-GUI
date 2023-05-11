@@ -32,13 +32,24 @@ class ResnetBlock(nn.Module):
         )
         
         self.prewitt_x = nn.Conv2d(dim, dim, 3, stride=1, padding=1, bias = False)
-        sobel_kernel_x = torch.FloatTensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]]).unsqueeze(0).unsqueeze(0)
+        sobel_kernel_x = torch.FloatTensor([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])
+        sobel_kernel_x = nn.Parameter(sobel_kernel_x.unsqueeze(0).unsqueeze(0), requires_grad=False)
         self.prewitt_x.weight.data = sobel_kernel_x.repeat(dim, dim, 1, 1)
         
         self.prewitt_y = nn.Conv2d(dim, dim, 3, stride=1, padding=1, bias = False)
-        sobel_kernel_y = torch.FloatTensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]]).unsqueeze(0).unsqueeze(0)
-        
+        sobel_kernel_y = torch.FloatTensor([[1, 0, -1], [2, 0, -2], [1, 0, -1]])
+        sobel_kernel_y = nn.Parameter(sobel_kernel_y.unsqueeze(0).unsqueeze(0), requires_grad=False)
         self.prewitt_y.weight.data = sobel_kernel_y.repeat(dim, dim, 1, 1)
+        
+        self.prewitt_45 = nn.Conv2d(dim, dim, 3, stride=1, padding=1, bias = False)
+        sobel_kernel_45 = torch.FloatTensor([[0, -3, -10], [3, 0, -3], [10, 3, 0]])
+        sobel_kernel_45 = nn.Parameter(sobel_kernel_45.unsqueeze(0).unsqueeze(0), requires_grad=False)
+        self.prewitt_45.weight.data = sobel_kernel_45.repeat(dim, dim, 1, 1)
+        
+        self.prewitt_135 = nn.Conv2d(dim, dim, 3, stride=1, padding=1, bias = False)
+        sobel_kernel_135 = torch.FloatTensor([[10, 3, 0], [3, 0, -3], [0, -3, -10]])
+        sobel_kernel_135 = nn.Parameter(sobel_kernel_135.unsqueeze(0).unsqueeze(0), requires_grad=False)
+        self.prewitt_135.weight.data = sobel_kernel_135.repeat(dim, dim, 1, 1)
         
         self.norm = nn.InstanceNorm2d(dim) 
         self.relu = nn.ReLU(True)
@@ -46,9 +57,12 @@ class ResnetBlock(nn.Module):
         
     def forward(self, x):
         # print(x.shape)
-        pre_x = self.prewitt_x(x)
-        pre_y = self.prewitt_y(x)
-        pre = self.relu(self.norm(0.5 * pre_x + 0.5 * pre_y))
+        pre_x = self.relu(self.norm(self.prewitt_x(x)))
+        pre_y = self.relu(self.norm(self.prewitt_y(x)))
+        pre_45 = self.relu(self.norm(self.prewitt_45(x)))
+        pre_135 = self.relu(self.norm(self.prewitt_135(x)))
+        
+        pre =  0.25 * pre_x + 0.25 * pre_y + 0.25 * pre_45 + 0.25 * pre_135
         # print(pre.shape)
         out = x + self.conv_block(x) + pre
         return out
