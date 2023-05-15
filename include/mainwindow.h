@@ -5,6 +5,7 @@
 #include "database.h"
 #include "calculate.h"
 #include "analysiscenter.h"
+#include "controlstruct.h"
 
 #include <QMainWindow>
 #include <QFileDialog>
@@ -26,8 +27,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
-    bool flag_open_img = false;
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -61,17 +60,28 @@ private slots:
 
     void on_btn_draw_hist_clicked();
 
-    void on_btn_reproduce_hist_clicked();
+    void on_btn_draw_hist2_clicked();
+
+    void on_btn_show_image_clicked();
 
     void on_btn_erase_clusters_clicked();
 
     void on_btn_iwhite_balance_clicked();
+
+    void on_btn_save_contours_clicked();
+
+    void on_btn_load_contours_clicked();
+
+    void on_btn_load_contours2_clicked();
+
+    void on_checkBox_compare_data_clicked();
 
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
     QString fileName;
     AnalysisCenter *analysisCenter;
+    setting_t set_flag;
 
 };
 

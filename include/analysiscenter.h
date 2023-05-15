@@ -2,6 +2,8 @@
 #define ANALYSIS_H
 #include "imagecenter.h"
 #include "calculate.h"
+#include "controlstruct.h"
+
 #include <QMouseEvent>
 #include <QPointF>
 #include <QtCharts>
@@ -29,15 +31,18 @@ class QChartView;
 class QChart;
 QT_CHARTS_END_NAMESPACE
 
+
+
 class AnalysisCenter:public QObject
 {
     Q_OBJECT
 public:
-    explicit AnalysisCenter(Ui::MainWindow *input_ui, ImageCenter *input_imgCenter);
+    explicit AnalysisCenter(Ui::MainWindow *input_ui, ImageCenter *input_imgCenter, setting_t *input_flag);
     ~AnalysisCenter(){
         ui = nullptr;
         imgCenter = nullptr;
         dataBase = nullptr;
+        set_flag = nullptr;
     };
     void set_pts_vector(const QPointF &img_pos);
     void del_pts_vector();
@@ -60,34 +65,31 @@ public:
     void update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point2i> &vector_pts, const cv::Scalar color);
     void draw_contours_img();
 
-    void createBarChart();
+    void createBar1_area();
+    void createBar1_diameter();
+    void createBar2_area();
+    void createBar2_diameter();
     void reproducehist();
-    void statistics();
+    void reproducehist2();
+    void statistics(statis_t* statis_data);
     void statistics_without_outlier();
     void update_label();
-
-protected:
-    struct statis{
-        float avg;
-        float sd;
-        float mode;
-        float cont;
-        float d20;
-        float d50;
-        float d70;
-    };
+    void load_data1(const QString &fileName);
+    void load_data2(const QString &fileName);
 
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
+    setting_t *set_flag;
     DataBase *dataBase;
     cv::Mat roi_mask;
 //    Bool_State bool_state;
 
-
-
-    statis statistics_area;
-    statis statistics_wo_outliter;
+    statis_t data1_statis;
+    statis_t data1_noutliter_statis;
+    statis_t data2_statis;
+    std::vector<float> data2_area;
+    std::vector<float> data2_diameter;
 };
 
 

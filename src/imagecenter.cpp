@@ -5,17 +5,19 @@
 
 
 
-ImageCenter::ImageCenter(Ui::MainWindow *input_ui)
+ImageCenter::ImageCenter(Ui::MainWindow *input_ui, setting_t *input_flag)
     :ui(input_ui)
     ,dataBase(nullptr)
+    ,set_flag(input_flag)
 {
     label_image_width = ui->label_image->width();
     label_image_height = ui->label_image->height();
+    dataBase = new DataBase(input_flag);
 }
 
 
 
-void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
+void ImageCenter::open_img(const QString &fileName)
 {
         img_path = fileName.toStdString();
 
@@ -24,7 +26,7 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
         if(!imgSrc.empty())
         {
             try {
-                if(flag_open_image == true)
+                if(set_flag->flag_image == true)
                 {
                     ui->label_image->resize(label_image_width, label_image_height);
                     dataBase->~DataBase();
@@ -33,7 +35,6 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
                 cv::cvtColor(imgSrc, imgSrc, cv::COLOR_BGR2RGB);
                 // record data info
 
-                dataBase = new DataBase();
                 dataBase->set_shape(imgSrc.cols, imgSrc.rows, imgSrc.channels());
 
                 QImage tmp_img(imgSrc.data,
@@ -60,19 +61,19 @@ void ImageCenter::open_img(const QString &fileName, bool &flag_open_image)
                 set_img();
                 set_sroll_area();
 //                cv::cvtColor(imgSrc, imgSrc, cv::COLOR_RGB2BGR);
-                flag_open_image = true;
+                set_flag->flag_image = true;
 
             }  catch (std::exception &e)
             {
                 std::cout << "exception: " << e.what() << "\n";
-                flag_open_image = false;
+                set_flag->flag_image = false;
                 return;
             }
 
         }else
         {
             std::cout << "img read error!" << std::endl;
-            flag_open_image = false;
+            set_flag->flag_image = false;
             return;
         }
 }
@@ -88,7 +89,11 @@ void ImageCenter::slider_zoom(const int value)
 {
     double rate = cal::value_to_rate(value);
     dataBase->set_ratio(rate);
-    set_img();
+    if(set_flag->flag_num == num_hist){
+        set_his_img();
+    }else{
+         set_img();
+    }
     set_sroll_area();
 }
 
@@ -97,7 +102,12 @@ void ImageCenter::zoom_in()
     int value = std::min(80, dataBase->get_ratio_value()+1);
     double ratio = cal::value_to_rate(value);
     dataBase->set_ratio(ratio, value);
-    set_img();
+    if(set_flag->flag_num == num_hist){
+        set_his_img();
+    }else{
+         set_img();
+    }
+
     set_sroll_area();
 }
 
@@ -106,7 +116,11 @@ void ImageCenter::zoom_out()
     int value = std::max(0, dataBase->get_ratio_value()-1);
     double ratio = cal::value_to_rate(value);
     dataBase->set_ratio(ratio, value);
-    set_img();
+    if(set_flag->flag_num == num_hist){
+        set_his_img();
+    }else{
+         set_img();
+    }
     set_sroll_area();
 }
 
@@ -128,28 +142,16 @@ void ImageCenter::set_img()
     const double &ratio = dataBase->get_ratio_rate();
     double qimg_height, qimg_width;
 
-    if(this->flag_num == flag_hist){
-        qimg_height = ratio * dataBase->get_hist_height();
-        qimg_width = ratio * dataBase->get_hist_width();
-        const QImage &hist_qimg = dataBase->get_hist_img();
-        qimg_img = hist_qimg.scaledToHeight(qimg_height);
-
-        ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
-        ui->label_image->resize(qimg_width + 20, qimg_height + 20);
-        ui->label_image->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
 //        qimg_img = hist_qimg.scaledToHeight(qimg_height);
-    }else{
-        qimg_height = ratio * dataBase->get_orig_height();
-        qimg_width = ratio * dataBase->get_orig_width();
-        const QImage &orig_qimg = dataBase->get_orig_img();
 
-        qimg_img = orig_qimg.scaledToHeight(qimg_height);
-        ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
-        ui->label_image->resize(qimg_width + 20, qimg_height + 20);
-        ui->label_image->setAlignment(Qt::AlignCenter);
-    }
+    qimg_height = ratio * dataBase->get_orig_height();
+    qimg_width = ratio * dataBase->get_orig_width();
+    const QImage &orig_qimg = dataBase->get_orig_img();
 
+    qimg_img = orig_qimg.scaledToHeight(qimg_height);
+    ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
+    ui->label_image->resize(qimg_width + 20, qimg_height + 20);
+    ui->label_image->setAlignment(Qt::AlignCenter);
 
     // set slider
     int value = cal::rate_to_value(ratio);
@@ -157,6 +159,89 @@ void ImageCenter::set_img()
 
     QString text = QString("%1 %").arg(std::ceil(ratio * 100));
     ui->label_ratio->setText(text);
+}
+
+void ImageCenter::set_his_img()
+{
+//    const double &ratio = dataBase->get_ratio_rate();
+    double ratio = 0;
+    double qimg_height, qimg_width;
+
+    qimg_height = dataBase->get_hist_height();
+    qimg_width = dataBase->get_hist_width();
+
+    if(dataBase->get_ratio_rate() == 0){
+        if((qimg_width / ui->label_image->width())
+                >= (qimg_height / ui->label_image->height()))
+        {
+            ratio = ui->label_image->width()/qimg_width;
+        }else
+        {
+             ratio = ui->label_image->height()/qimg_height;
+        }
+    }else{
+        ratio = dataBase->get_ratio_rate();
+    }
+
+
+    qimg_height = ratio * qimg_height;
+    qimg_width = ratio * qimg_width;
+
+    const QImage &hist_qimg = dataBase->get_hist_img();
+    qimg_img = hist_qimg.scaledToHeight(qimg_height);
+
+    ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
+    ui->label_image->resize(qimg_width + 20, qimg_height + 20);
+    ui->label_image->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+    // set slider
+    int value = cal::rate_to_value(ratio);
+    dataBase->set_ratio(ratio, value);
+    ui->slider_zoom->setValue(value);
+    QString text = QString("%1 %").arg(std::ceil(ratio * 100));
+    ui->label_ratio->setText(text);
+    set_sroll_area();
+
+}
+
+void ImageCenter::set_his2_img()
+{
+    double ratio = 0;
+    double qimg_height, qimg_width;
+
+    qimg_height = dataBase->get_hist2_height();
+    qimg_width = dataBase->get_hist2_width();
+
+    if(dataBase->get_ratio_rate() == 0){
+        if((qimg_width / ui->label_image->width())
+                >= (qimg_height / ui->label_image->height()))
+        {
+            ratio = ui->label_image->width()/qimg_width;
+        }else
+        {
+             ratio = ui->label_image->height()/qimg_height;
+        }
+    }else{
+        ratio = dataBase->get_ratio_rate();
+    }
+
+    qimg_height = ratio * qimg_height;
+    qimg_width = ratio * qimg_width;
+
+    const QImage &hist_qimg = dataBase->get_hist2_img();
+    qimg_img = hist_qimg.scaledToHeight(qimg_height);
+
+    ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
+    ui->label_image->resize(qimg_width + 20, qimg_height + 20);
+    ui->label_image->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+
+    // set slider
+    int value = cal::rate_to_value(ratio);
+    dataBase->set_ratio(ratio, value);
+    ui->slider_zoom->setValue(value);
+    QString text = QString("%1 %").arg(std::ceil(ratio * 100));
+    ui->label_ratio->setText(text);
+    set_sroll_area();
 }
 
 void ImageCenter::set_sroll_area()
@@ -184,32 +269,30 @@ QPointF ImageCenter::zoomevent(const double &new_rate)
 
 void ImageCenter::shadow_removal()
 {
+//    m_callpy = new CallPy;
+//    m_child_thread = new QThread;
+//    m_callpy->set_addr(img_path);
+
+//    m_callpy->moveToThread(m_child_thread);
+
+//    std::cout << "start!!" << std::endl;
+//    m_child_thread->start();
+
+//    imgSrc = m_callpy->start_python();
 
 
-    m_callpy = new CallPy;
-    m_child_thread = new QThread;
-    m_callpy->set_addr(img_path);
+//    QImage tmp_img(imgSrc.data,
+//                      imgSrc.cols, // width
+//                      imgSrc.rows, // height
+//                      imgSrc.step,
+//                      QImage::Format_RGB888);
+//    dataBase->set_origimg(tmp_img);
+//    set_img();
 
-    m_callpy->moveToThread(m_child_thread);
+//    std::cout << "finish!!" << std::endl;
 
-    std::cout << "start!!" << std::endl;
-    m_child_thread->start();
-
-    imgSrc = m_callpy->start_python();
-
-
-    QImage tmp_img(imgSrc.data,
-                      imgSrc.cols, // width
-                      imgSrc.rows, // height
-                      imgSrc.step,
-                      QImage::Format_RGB888);
-    dataBase->set_origimg(tmp_img);
-    set_img();
-
-    std::cout << "finish!!" << std::endl;
-
-    m_callpy->~CallPy();
-    m_callpy = nullptr;
+//    m_callpy->~CallPy();
+//    m_callpy = nullptr;
 }
 
 void ImageCenter::white_balance()
@@ -307,6 +390,26 @@ void ImageCenter::white_balance()
     set_img();
 
 }
+
+void ImageCenter::save_data(const QString &fileName)
+{
+//    const std::vector<float>* contours_area = dataBase->get_contours_area();
+    const std::vector<particle_t>* particle_data = dataBase->get_particle_data();
+    QFile datafile(fileName);
+    if(!datafile.open(QFile::WriteOnly | QFile::Text))
+    {
+        std::cout << "error" << std::endl;
+        return;
+    }
+    QTextStream out(&datafile);
+    out << "idx" << "," << "area" << "," << "diameter" << "\n";
+    for(int i=0; i < particle_data->size(); i++){
+        out << particle_data->at(i).idx <<"," << particle_data->at(i).surface << "," <<  particle_data->at(i).diameter<< endl;
+    }
+    datafile.close();
+}
+
+
 
 
 

@@ -1,12 +1,15 @@
 #ifndef IMAGECENTER_H
 #define IMAGECENTER_H
-#include "cplus2py.h"
+//#include "cplus2py.h"
 #include "database.h"
 #include "calculate.h"
+#include "controlstruct.h"
 
 #include <QObject>
 #include <QMainWindow>
 #include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 #include <QScrollBar>
 #include <QPointF>
 #include <QMouseEvent>
@@ -18,11 +21,7 @@
 #include <opencv2/highgui.hpp>
 #include <cmath>
 
-#define flag_off 0
-#define flag_refer_obj 1
-#define flag_select_roi 2
-#define flag_hist 3
-#define flag_del_roi 4
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -37,7 +36,7 @@ class ImageCenter:public QObject
 {
     Q_OBJECT
 public:
-    explicit ImageCenter(Ui::MainWindow *input_ui);
+    explicit ImageCenter(Ui::MainWindow *input_ui, setting_t *input_flag);
     ~ImageCenter(){
         dataBase->~DataBase();
         ui = nullptr;
@@ -45,26 +44,27 @@ public:
         delete dataBase;
     };
 
-    void open_img(const QString &fileName, bool &flag_open_image);
+    void open_img(const QString &fileName);
     // zoom & slider
     void slider_zoom(const int value);
     void zoom_in();
     void zoom_out();
     void rest_view();
     void set_img();
+    void set_his_img();
+    void set_his2_img();
     void set_sroll_area();
     void shadow_removal();
     void white_balance();
+    void save_data(const QString &fileName);
 
     QPointF zoomevent(const double &new_rate);
     friend class AnalysisCenter;
-    int flag_num = flag_off;
-
-
 
 private:
     Ui::MainWindow *ui;
     DataBase *dataBase;
+    setting_t *set_flag;
     QImage qimg_img;
     QString imgaddr;
     cv::Mat imgSrc;
@@ -74,10 +74,9 @@ private:
 
     // for python
 
-    CallPy *m_callpy;
+//    CallPy *m_callpy;
     QThread *m_child_thread;
     std::string img_path;
-
 
 };
 

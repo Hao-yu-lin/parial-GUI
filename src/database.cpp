@@ -1,6 +1,6 @@
 #include "../include/database.h"
 
-DataBase::DataBase()
+DataBase::DataBase(setting_t *input_flag):set_flag(input_flag)
 {
     set_shape();
 }
@@ -107,13 +107,6 @@ void DataBase::set_refer_point(const cv::Point2i &pos)
     }else{
         refer_point_vector[1] = pos;
     }
-    if(refer_point_vector.size() == 2)
-    {
-        flag_refer = true;
-    }else
-    {
-        flag_refer = false;
-    }
 }
 
 const std::vector<cv::Point2i>* DataBase::get_refer_vector() const
@@ -137,14 +130,6 @@ void DataBase::del_refer_vector()
     if(refer_point_vector.size() != 0)
     {
         refer_point_vector.pop_back();
-    }
-
-    if(refer_point_vector.size() == 2)
-    {
-        flag_refer = true;
-    }else
-    {
-        flag_refer = false;
     }
 }
 
@@ -178,6 +163,9 @@ void DataBase::del_detect_vector(cv::Point2i pos)
         if(pos_value == 1 || pos_value == 0)
         {
             it = detect_contours.erase(it);
+            if(detect_contours.empty()){
+                set_flag->flag_contours = false;
+            }
             return;
         }else{
             ++it;
@@ -219,7 +207,7 @@ const std::vector<std::vector<cv::Point> > *DataBase::get_detect_contours() cons
 void DataBase::set_detect_contours(const std::vector<std::vector<cv::Point> > &detect_contours)
 {
     this->detect_contours.assign(detect_contours.begin(), detect_contours.end());
-    flag_contours = true;
+    set_flag->flag_contours = true;
 }
 
 void DataBase::del_contours(){
@@ -228,44 +216,55 @@ void DataBase::del_contours(){
     }
     this->detect_contours.clear();
     std::vector<std::vector<cv::Point>>().swap(this->detect_contours);
-    flag_contours = false;
+    set_flag->flag_contours = false;
 }
 
+/*  ----------- Area -----------  */
 
-
-const std::vector<float> *DataBase::get_contours_area() const
+const std::vector<float> *DataBase::get_data1_area() const
 {
-    return &area;
+    return &data1_area;
 }
 
-void DataBase::set_contours_area(const float &area)
+void DataBase::set_data1_area(const float &area)
 {
-    this->area.push_back(area);
+    this->data1_area.push_back(area);
 }
 
 void DataBase::del_area()
 {
-    this->area.clear();
-    std::vector<float>().swap(this->area);
+    this->data1_area.clear();
+    std::vector<float>().swap(this->data1_area);
 }
 
 void DataBase::sort_area()
 {
-    std::sort(this->area.begin(), this->area.end());
+    std::sort(this->data1_area.begin(), this->data1_area.end());
 }
 
-/*  ----------- Boolean State -----------  */
+/*  ----------- diameter -----------  */
 
-bool DataBase::get_flag_refer() const
+const std::vector<float> *DataBase::get_data1_diameter() const
 {
-    return flag_refer;
+    return &data1_diameter;
 }
 
-bool DataBase::get_flag_contours() const
+void DataBase::set_data1_diameter(const float &area)
 {
-    return flag_contours;
+    this->data1_diameter.push_back(area);
+    set_flag->flag_data1 = true;
 }
 
+void DataBase::del_diameter()
+{
+    this->data1_diameter.clear();
+    std::vector<float>().swap(this->data1_diameter);
+}
+
+void DataBase::sort_diameter()
+{
+    std::sort(this->data1_diameter.begin(), this->data1_diameter.end());
+}
 
 /*  ----------- Histogram -----------  */
 
@@ -295,9 +294,76 @@ void DataBase::del_hist_qimg(){
     hist_qimage = QImage();
 }
 
+/*  ----------- Histogram2 -----------  */
 
+void DataBase::set_hist2_qimage(const QImage &hist_img)
+{
+    this->hist2_qimage = hist_img.copy();
+    this->hist2_width = hist_img.width();
+    this->hist2_height = hist_img.height();
+}
 
+const double &DataBase::get_hist2_width() const
+{
+    return this->hist2_width;
+}
 
+const double &DataBase::get_hist2_height() const
+{
+    return this->hist2_height;
+}
 
+const QImage &DataBase::get_hist2_img() const
+{
+    return hist2_qimage;
+}
+
+void DataBase::del_hist2_qimg(){
+    hist2_qimage = QImage();
+}
+
+/*  ----------- Histogram3 -----------  */
+
+void DataBase::set_hist3_qimage(const QImage &hist_img)
+{
+    this->hist3_qimage = hist_img.copy();
+    this->hist3_width = hist_img.width();
+    this->hist3_height = hist_img.height();
+}
+
+const double &DataBase::get_hist3_width() const
+{
+    return this->hist3_width;
+}
+
+const double &DataBase::get_hist3_height() const
+{
+    return this->hist3_height;
+}
+
+const QImage &DataBase::get_hist3_img() const
+{
+    return hist3_qimage;
+}
+
+void DataBase::del_hist3_qimg(){
+    hist3_qimage = QImage();
+}
+
+/*  ----------- Particle -----------  */
+
+void DataBase::set_particle(const int &idx, const float &surface, const float &diameter)
+{
+   particle_t data;
+   data.idx = idx;
+   data.surface = surface;
+   data.diameter = diameter;
+   particle_data.push_back(data);
+}
+
+const std::vector<particle_t>* DataBase::get_particle_data() const
+{
+    return &particle_data;
+}
 
 

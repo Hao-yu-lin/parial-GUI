@@ -9,8 +9,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     ui->scrollArea->setWidgetResizable(false);
     ui->label_image->installEventFilter(this);
-    imgCenter = new ImageCenter(ui);
-    analysisCenter = new AnalysisCenter(ui, imgCenter);
+    imgCenter = new ImageCenter(ui, &set_flag);
+    analysisCenter = new AnalysisCenter(ui, imgCenter, &set_flag);
     ui->label_image->setText("No Image Loaded");
 }
 
@@ -22,18 +22,19 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_btn_open_img_clicked()
 {
-    fileName = QFileDialog::getOpenFileName(this, tr("Open Image"));
-    if(flag_open_img)
+    fileName = QFileDialog::getOpenFileName(this, tr("Open Image"), "", tr("Images (*.png *.jpg *.jpeg *JPG)"));
+    if(set_flag.flag_image == true)
     {
         analysisCenter->~AnalysisCenter();
+        set_flag.flag_image = false;
     }
-    imgCenter->open_img(fileName, flag_open_img);
-    analysisCenter = new AnalysisCenter(ui, imgCenter);
+    imgCenter->open_img(fileName);
+    analysisCenter = new AnalysisCenter(ui, imgCenter, &set_flag);
 }
 
 void MainWindow::on_slider_zoom_sliderReleased()
 {
-    if(flag_open_img)
+    if(set_flag.flag_image || set_flag.flag_hist_img)
     {
         int value = ui->slider_zoom->value();
         imgCenter->slider_zoom(value);
@@ -45,7 +46,7 @@ void MainWindow::on_slider_zoom_sliderReleased()
 
 void MainWindow::on_btn_zoom_in_clicked()
 {
-     if(flag_open_img)
+     if(set_flag.flag_image || set_flag.flag_hist_img)
      {
          imgCenter->zoom_in();
      }else
@@ -56,7 +57,7 @@ void MainWindow::on_btn_zoom_in_clicked()
 
 void MainWindow::on_btn_zoom_out_clicked()
 {
-    if(flag_open_img)
+    if(set_flag.flag_image || set_flag.flag_hist_img)
     {
         imgCenter->zoom_out();
     }else
@@ -67,10 +68,10 @@ void MainWindow::on_btn_zoom_out_clicked()
 
 void MainWindow::on_btn_reset_view_clicked()
 {
-    if(flag_open_img)
+    if(set_flag.flag_image)
     {
         imgCenter->rest_view();
-        imgCenter->flag_num = flag_off;
+        set_flag.flag_num = num_off;
     }else
     {
         std::cout <<"please open new image!" << std::endl;
@@ -79,7 +80,7 @@ void MainWindow::on_btn_reset_view_clicked()
 
 void MainWindow::on_btn_shadow_removal_clicked()
 {
-    if(flag_open_img)
+    if(set_flag.flag_image)
     {
         imgCenter->shadow_removal();
     }else
@@ -95,7 +96,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         if(event->type() == QEvent::MouseButtonPress)
         {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
-            if(imgCenter->flag_num == flag_refer_obj)
+            if(set_flag.flag_num == num_refer_obj)
             {
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
@@ -110,7 +111,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                 {
                     return false;
                 }
-            }else if(imgCenter->flag_num == flag_select_roi){
+            }else if(set_flag.flag_num == num_select_roi){
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
                     QPointF img_pos = mouseEvent->pos();
@@ -125,7 +126,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                     return false;
                 }
 
-            }else if(imgCenter->flag_num == flag_del_roi){
+            }else if(set_flag.flag_num == num_del_roi){
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
                     QPointF img_pos = mouseEvent->pos();
@@ -144,17 +145,18 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     {
         return QWidget::eventFilter(obj, event);
     }
+    return QWidget::eventFilter(obj, event);
 }
 
 void MainWindow::on_btn_refer_obj_clicked()
 {
-    if(flag_open_img)
+    if(set_flag.flag_image)
     {
-        if(imgCenter->flag_num != flag_refer_obj){
-            imgCenter->flag_num = flag_refer_obj;
+        if(set_flag.flag_num != num_refer_obj){
+            set_flag.flag_num = num_refer_obj;
         }else
         {
-            imgCenter->flag_num = flag_off;
+            set_flag.flag_num = num_off;
         }
     }else
     {
@@ -164,28 +166,28 @@ void MainWindow::on_btn_refer_obj_clicked()
 
 void MainWindow::on_btn_refer_obj_calculate_clicked()
 {
-    imgCenter->flag_num = flag_off;
+    set_flag.flag_num = num_off;
     analysisCenter->cal_refer_obj();
 }
 
 void MainWindow::on_btn_refer_obj_rest_clicked()
 {
-    imgCenter->flag_num = flag_off;
-    analysisCenter->reset_refer();
-    ui->lineEdit_pixel_scale_value->clear();
-    ui->lineEdit_object_length->clear();
+   set_flag.flag_num = num_off;
+   analysisCenter->reset_refer();
+   ui->lineEdit_pixel_scale_value->clear();
+   ui->lineEdit_object_length->clear();
 }
 
 void MainWindow::on_btn_roi_select_clicked()
 {
-    if(flag_open_img)
+    if(set_flag.flag_image)
     {
-        if(imgCenter->flag_num != flag_select_roi)
+        if(set_flag.flag_num != num_select_roi)
         {
-            imgCenter->flag_num = flag_select_roi;
+            set_flag.flag_num = num_select_roi;
         }else
         {
-            imgCenter->flag_num = flag_off;
+            set_flag.flag_num = num_off;
         }
     }else
     {
@@ -195,53 +197,88 @@ void MainWindow::on_btn_roi_select_clicked()
 
 void MainWindow::on_btn_roi_choose_clicked()
 {
-    imgCenter->flag_num = flag_off;
+    set_flag.flag_num = num_off;
     analysisCenter->chose_detect_obj();
 }
 
 void MainWindow::on_btn_particle_reset_clicked()
 {
-    imgCenter->flag_num = flag_off;
+    set_flag.flag_num = num_off;
     analysisCenter->reset_detect();
 }
 
 void MainWindow::on_btn_detect_particle_clicked()
 {
-    imgCenter->flag_num = flag_off;
+    set_flag.flag_num = num_off;
     analysisCenter->detect_particle();
 }
 
 void MainWindow::on_btn_erase_clusters_clicked()
 {
-    imgCenter->flag_num = flag_del_roi;
+    set_flag.flag_num = num_del_roi;
 }
 
 
 void MainWindow::on_btn_draw_hist_clicked()
 {
-
-    if(imgCenter->flag_num == flag_hist){
-        imgCenter->flag_num = flag_off;
-        imgCenter->set_img();
-        ui->btn_draw_hist->setText("Histogram");
-
+    set_flag.flag_num = num_hist;
+    if(ui->lineEdit_nums_bins->isModified()){
+        analysisCenter->reproducehist();
     }else{
-        imgCenter->flag_num = flag_hist;
-        analysisCenter->createBarChart();
-        ui->btn_draw_hist->setText("image");
-    }
+        if(ui->comboBox_histstate->currentText() == "Surface"){
+            analysisCenter->createBar1_area();
+        }else{
+            analysisCenter->createBar1_diameter();
+        }
 
+    }
+    set_flag.flag_image = true;
 }
 
-void MainWindow::on_btn_reproduce_hist_clicked()
+void MainWindow::on_btn_draw_hist2_clicked()
 {
-    imgCenter->flag_num = flag_hist;
-    analysisCenter->reproducehist();
-    ui->btn_draw_hist->setText("image");
+    set_flag.flag_num = num_hist;
+    if(ui->lineEdit_nums_bins->isModified()){
+        analysisCenter->reproducehist2();
+    }else{
+        analysisCenter->createBar2_area();
+    }
+}
+
+void MainWindow::on_btn_show_image_clicked()
+{
+    if(set_flag.flag_image == false) return;
+    set_flag.flag_num = num_off;
+    imgCenter->set_img();
+
 }
 
 void MainWindow::on_btn_iwhite_balance_clicked()
 {
-    imgCenter->flag_num = flag_off;
+    if(set_flag.flag_image == false) return;
+    set_flag.flag_num = num_off;
     imgCenter->white_balance();
+}
+
+void MainWindow::on_btn_save_contours_clicked()
+{
+    QString write_name = QFileDialog::getSaveFileName(this, tr("Save File"), nullptr, QStringLiteral("Text files (*.txt)"));
+    imgCenter->save_data(write_name);
+}
+
+void MainWindow::on_btn_load_contours_clicked()
+{
+    QString dataName = QFileDialog::getOpenFileName(this, tr("Open Area Data"), "", tr("Text files (*.txt)"));
+    analysisCenter->load_data1(dataName);
+}
+
+void MainWindow::on_btn_load_contours2_clicked()
+{
+    QString dataName2 = QFileDialog::getOpenFileName(this, tr("Open Area Data"), "", tr("Text files (*.txt)"));
+    analysisCenter->load_data2(dataName2);
+}
+
+void MainWindow::on_checkBox_compare_data_clicked()
+{
+    analysisCenter->update_label();
 }
