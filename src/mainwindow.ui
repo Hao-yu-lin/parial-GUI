@@ -1027,13 +1027,6 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="10" column="1" colspan="2">
-          <widget class="QCheckBox" name="checkBox_outlier">
-           <property name="text">
-            <string>Delete Outlier</string>
-           </property>
-          </widget>
-         </item>
          <item row="5" column="2">
           <widget class="QLabel" name="label_objectlength_fixed_2">
            <property name="sizePolicy">
@@ -1512,7 +1505,7 @@ border-color: rgb(94, 92, 100);</string>
             </widget>
            </item>
            <item row="0" column="0" colspan="2">
-            <widget class="QLabel" name="label_title_fixed_2">
+            <widget class="QLabel" name="label_property_title">
              <property name="minimumSize">
               <size>
                <width>0</width>
@@ -1533,7 +1526,7 @@ border-color: rgb(94, 92, 100);</string>
               </font>
              </property>
              <property name="text">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Properties of the Particle Distribution ( mm&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt; )&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Properties of the Particle Distribution&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>

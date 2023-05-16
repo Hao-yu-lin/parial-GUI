@@ -65,17 +65,19 @@ public:
     void update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point2i> &vector_pts, const cv::Scalar color);
     void draw_contours_img();
 
-    void createBar1_area();
-    void createBar1_diameter();
-    void createBar2_area();
-    void createBar2_diameter();
-    void reproducehist();
+    void createbar_area(const statis_t& data);
+    void createbar_diameter(const statis_t& data);
+
+    void producehist1();
+    void producehist2();
+    void reproducehist1();
     void reproducehist2();
-    void statistics(statis_t* statis_data);
-    void statistics_without_outlier();
+
+    void statistics(const statis_t& data);
+//    void statistics_without_outlier();
     void update_label();
-    void load_data1(const QString &fileName);
-    void load_data2(const QString &fileName);
+    void load_data1(const QString& fileName);
+    void load_data2(const QString& fileName);
 
 private:
     Ui::MainWindow *ui;
@@ -83,13 +85,6 @@ private:
     setting_t *set_flag;
     DataBase *dataBase;
     cv::Mat roi_mask;
-//    Bool_State bool_state;
-
-    statis_t data1_statis;
-    statis_t data1_noutliter_statis;
-    statis_t data2_statis;
-    std::vector<float> data2_area;
-    std::vector<float> data2_diameter;
 };
 
 

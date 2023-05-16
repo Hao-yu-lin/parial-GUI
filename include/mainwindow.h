@@ -19,6 +19,15 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
+#define state_none 0
+#define state_data1_area 1
+#define state_data1_diameter 2
+#define state_data2_area 3
+#define state_data2_diameter  4
+#define state_datamix_area 5
+#define state_datamix_diameter 6
+
+
 
 class MainWindow : public QMainWindow
 {
@@ -74,15 +83,13 @@ private slots:
 
     void on_btn_load_contours2_clicked();
 
-    void on_checkBox_compare_data_clicked();
-
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
     QString fileName;
     AnalysisCenter *analysisCenter;
     setting_t set_flag;
-
+    int last_hist_state = state_none;
 };
 
 #endif // MAINWINDOW_H

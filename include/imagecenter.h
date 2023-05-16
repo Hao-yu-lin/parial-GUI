@@ -50,12 +50,17 @@ public:
     void zoom_in();
     void zoom_out();
     void rest_view();
+
+    // set img
     void set_img();
-    void set_his_img();
-    void set_his2_img();
+    void set_hist_img();
     void set_sroll_area();
+
+    // img preprocessing
     void shadow_removal();
     void white_balance();
+
+    // save
     void save_data(const QString &fileName);
 
     QPointF zoomevent(const double &new_rate);

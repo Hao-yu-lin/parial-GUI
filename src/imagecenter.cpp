@@ -90,7 +90,7 @@ void ImageCenter::slider_zoom(const int value)
     double rate = cal::value_to_rate(value);
     dataBase->set_ratio(rate);
     if(set_flag->flag_num == num_hist){
-        set_his_img();
+        set_hist_img();
     }else{
          set_img();
     }
@@ -103,7 +103,7 @@ void ImageCenter::zoom_in()
     double ratio = cal::value_to_rate(value);
     dataBase->set_ratio(ratio, value);
     if(set_flag->flag_num == num_hist){
-        set_his_img();
+        set_hist_img();
     }else{
          set_img();
     }
@@ -117,7 +117,7 @@ void ImageCenter::zoom_out()
     double ratio = cal::value_to_rate(value);
     dataBase->set_ratio(ratio, value);
     if(set_flag->flag_num == num_hist){
-        set_his_img();
+        set_hist_img();
     }else{
          set_img();
     }
@@ -161,14 +161,18 @@ void ImageCenter::set_img()
     ui->label_ratio->setText(text);
 }
 
-void ImageCenter::set_his_img()
+void ImageCenter::set_hist_img()
 {
-//    const double &ratio = dataBase->get_ratio_rate();
     double ratio = 0;
     double qimg_height, qimg_width;
 
     qimg_height = dataBase->get_hist_height();
     qimg_width = dataBase->get_hist_width();
+    std::cout << "label_width : " << ui->label_image->width() << std::endl;
+    std::cout << "label_height : " << ui->label_image->height() << std::endl;
+
+    std::cout << "qimg_width : " << qimg_width  << std::endl;
+    std::cout << "qimg_height : " << qimg_height  << std::endl;
 
     if(dataBase->get_ratio_rate() == 0){
         if((qimg_width / ui->label_image->width())
@@ -190,8 +194,11 @@ void ImageCenter::set_his_img()
     const QImage &hist_qimg = dataBase->get_hist_img();
     qimg_img = hist_qimg.scaledToHeight(qimg_height);
 
+    std::cout << "qimg_width2 : " << qimg_width  << std::endl;
+    std::cout << "qimg_height2 : " << qimg_height  << std::endl;
+
     ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
-    ui->label_image->resize(qimg_width + 20, qimg_height + 20);
+    ui->label_image->resize(qimg_width+20, qimg_height+20);
     ui->label_image->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
     // set slider
@@ -201,47 +208,10 @@ void ImageCenter::set_his_img()
     QString text = QString("%1 %").arg(std::ceil(ratio * 100));
     ui->label_ratio->setText(text);
     set_sroll_area();
-
-}
-
-void ImageCenter::set_his2_img()
-{
-    double ratio = 0;
-    double qimg_height, qimg_width;
-
-    qimg_height = dataBase->get_hist2_height();
-    qimg_width = dataBase->get_hist2_width();
-
-    if(dataBase->get_ratio_rate() == 0){
-        if((qimg_width / ui->label_image->width())
-                >= (qimg_height / ui->label_image->height()))
-        {
-            ratio = ui->label_image->width()/qimg_width;
-        }else
-        {
-             ratio = ui->label_image->height()/qimg_height;
-        }
-    }else{
-        ratio = dataBase->get_ratio_rate();
-    }
-
-    qimg_height = ratio * qimg_height;
-    qimg_width = ratio * qimg_width;
-
-    const QImage &hist_qimg = dataBase->get_hist2_img();
-    qimg_img = hist_qimg.scaledToHeight(qimg_height);
-
-    ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
-    ui->label_image->resize(qimg_width + 20, qimg_height + 20);
-    ui->label_image->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-
-    // set slider
-    int value = cal::rate_to_value(ratio);
-    dataBase->set_ratio(ratio, value);
-    ui->slider_zoom->setValue(value);
-    QString text = QString("%1 %").arg(std::ceil(ratio * 100));
-    ui->label_ratio->setText(text);
-    set_sroll_area();
+    std::cout << "label_width2 : " << ui->label_image->width() << std::endl;
+    std::cout << "label_height2 : " << ui->label_image->height() << std::endl;
+    std::cout << "------------------------------"<< std::endl;
+    set_flag->flag_hist_img = true;
 }
 
 void ImageCenter::set_sroll_area()

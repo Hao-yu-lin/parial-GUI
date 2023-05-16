@@ -173,7 +173,7 @@ void DataBase::del_detect_vector(cv::Point2i pos)
     }
 }
 
-void DataBase::del_all_detect_vector()
+void DataBase::init_detect_vector()
 {
     if(this->detect_point_vector.empty()){
         return;
@@ -219,52 +219,61 @@ void DataBase::del_contours(){
     set_flag->flag_contours = false;
 }
 
-/*  ----------- Area -----------  */
+/*  ----------- Data -----------  */
 
-const std::vector<float> *DataBase::get_data1_area() const
+const statis_t* DataBase::get_data1_area() const
 {
     return &data1_area;
 }
 
-void DataBase::set_data1_area(const float &area)
-{
-    this->data1_area.push_back(area);
-}
-
-void DataBase::del_area()
-{
-    this->data1_area.clear();
-    std::vector<float>().swap(this->data1_area);
-}
-
-void DataBase::sort_area()
-{
-    std::sort(this->data1_area.begin(), this->data1_area.end());
-}
-
-/*  ----------- diameter -----------  */
-
-const std::vector<float> *DataBase::get_data1_diameter() const
+const statis_t* DataBase::get_data1_diameter() const
 {
     return &data1_diameter;
 }
 
-void DataBase::set_data1_diameter(const float &area)
+const statis_t* DataBase::get_data2_area() const
 {
-    this->data1_diameter.push_back(area);
-    set_flag->flag_data1 = true;
+    return &data2_area;
 }
 
-void DataBase::del_diameter()
+const statis_t* DataBase::get_data2_diameter() const
 {
-    this->data1_diameter.clear();
-    std::vector<float>().swap(this->data1_diameter);
+    return &data2_diameter;
 }
 
-void DataBase::sort_diameter()
+void DataBase::set_data_value(const statis_t& data, float data_value)
 {
-    std::sort(this->data1_diameter.begin(), this->data1_diameter.end());
+    statis_t* mutable_data = const_cast<statis_t*>(&data);
+    mutable_data->value.push_back(data_value);
+    mutable_data->cont = mutable_data->cont + 1;
 }
+
+void DataBase::set_data_statis(const statis_t &data, float avg, float sd, float mode, float d20, float d50, float d70)
+{
+     statis_t* mutable_data = const_cast<statis_t*>(&data);
+     mutable_data->avg = avg;
+     mutable_data->sd = sd;
+     mutable_data->mode = mode;
+     mutable_data->d20 = d20;
+     mutable_data->d50 = d50;
+     mutable_data->d70 = d70;
+}
+
+void DataBase::init_statis_t(const statis_t& data)
+{
+    statis_t* mutable_data = const_cast<statis_t*>(&data);
+    memset(mutable_data, 0, sizeof(statis_t));
+    mutable_data->value.clear();
+}
+
+void DataBase::sort_statis_t(const statis_t& data)
+{
+    statis_t* mutable_data = const_cast<statis_t*>(&data);
+    std::sort(mutable_data->value.begin(), mutable_data->value.end());
+}
+
+
+
 
 /*  ----------- Histogram -----------  */
 
@@ -292,63 +301,9 @@ const QImage &DataBase::get_hist_img() const
 
 void DataBase::del_hist_qimg(){
     hist_qimage = QImage();
+    set_flag->flag_hist_img = false;
 }
 
-/*  ----------- Histogram2 -----------  */
-
-void DataBase::set_hist2_qimage(const QImage &hist_img)
-{
-    this->hist2_qimage = hist_img.copy();
-    this->hist2_width = hist_img.width();
-    this->hist2_height = hist_img.height();
-}
-
-const double &DataBase::get_hist2_width() const
-{
-    return this->hist2_width;
-}
-
-const double &DataBase::get_hist2_height() const
-{
-    return this->hist2_height;
-}
-
-const QImage &DataBase::get_hist2_img() const
-{
-    return hist2_qimage;
-}
-
-void DataBase::del_hist2_qimg(){
-    hist2_qimage = QImage();
-}
-
-/*  ----------- Histogram3 -----------  */
-
-void DataBase::set_hist3_qimage(const QImage &hist_img)
-{
-    this->hist3_qimage = hist_img.copy();
-    this->hist3_width = hist_img.width();
-    this->hist3_height = hist_img.height();
-}
-
-const double &DataBase::get_hist3_width() const
-{
-    return this->hist3_width;
-}
-
-const double &DataBase::get_hist3_height() const
-{
-    return this->hist3_height;
-}
-
-const QImage &DataBase::get_hist3_img() const
-{
-    return hist3_qimage;
-}
-
-void DataBase::del_hist3_qimg(){
-    hist3_qimage = QImage();
-}
 
 /*  ----------- Particle -----------  */
 
@@ -358,12 +313,14 @@ void DataBase::set_particle(const int &idx, const float &surface, const float &d
    data.idx = idx;
    data.surface = surface;
    data.diameter = diameter;
-   particle_data.push_back(data);
+   particle_data1.push_back(data);
 }
 
 const std::vector<particle_t>* DataBase::get_particle_data() const
 {
-    return &particle_data;
+    return &particle_data1;
 }
+
+
 
 

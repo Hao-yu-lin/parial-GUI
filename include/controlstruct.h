@@ -1,11 +1,14 @@
 #ifndef CONTROLLER_FLAG_H
 #define CONTROLLER_FLAG_H
 
+#include <vector>
+
 #define num_off 0
 #define num_refer_obj 1
 #define num_select_roi 2
 #define num_hist 3
 #define num_del_roi 4
+
 
 typedef struct setting_flag{
     bool flag_image = false;
@@ -14,7 +17,6 @@ typedef struct setting_flag{
     bool flag_data1 = false;
     bool flag_data2 = false;
     int flag_num = num_off;
-
 }setting_t;
 
 typedef struct particle{
@@ -24,13 +26,14 @@ typedef struct particle{
 }particle_t;
 
 typedef struct statis{
+    int cont;
     float avg;
     float sd;
     float mode;
-    float cont;
     float d20;
     float d50;
     float d70;
+    std::vector<float> value;
 }statis_t;
 
 

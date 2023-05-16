@@ -222,27 +222,76 @@ void MainWindow::on_btn_erase_clusters_clicked()
 void MainWindow::on_btn_draw_hist_clicked()
 {
     set_flag.flag_num = num_hist;
-    if(ui->lineEdit_nums_bins->isModified()){
-        analysisCenter->reproducehist();
-    }else{
-        if(ui->comboBox_histstate->currentText() == "Surface"){
-            analysisCenter->createBar1_area();
-        }else{
-            analysisCenter->createBar1_diameter();
-        }
+    int state_index = ui->comboBox_histstate->currentIndex(); // 0: surface, 1:diameter
 
+    if(set_flag.flag_data1 == false)
+    {
+        std::cout << "please, detect data1" << std::endl;
+        return;
     }
-    set_flag.flag_image = true;
+    if(last_hist_state == state_data1_area || last_hist_state  == state_data1_diameter)
+    {
+        if(ui->lineEdit_nums_bins->isModified())
+        {
+            analysisCenter->reproducehist1();
+
+        }else if(state_index == 0 && last_hist_state == state_data1_area)
+        {
+             analysisCenter->producehist1();
+        }else
+        {
+            analysisCenter->reproducehist1();
+        }
+    }else{
+        analysisCenter->reproducehist1();
+    }
+    if(state_index == 0)
+    {
+        last_hist_state = state_data1_area;
+    }else
+    {
+        last_hist_state = state_data1_diameter;
+    }
+
+
 }
 
 void MainWindow::on_btn_draw_hist2_clicked()
 {
     set_flag.flag_num = num_hist;
-    if(ui->lineEdit_nums_bins->isModified()){
-        analysisCenter->reproducehist2();
-    }else{
-        analysisCenter->createBar2_area();
+    int state_index = ui->comboBox_histstate->currentIndex(); // 0: surface, 1:diameter
+
+    if(set_flag.flag_data2 == false)
+    {
+        std::cout << "please, detect data2" << std::endl;
+        return;
     }
+    if(last_hist_state == state_data2_area || last_hist_state  == state_data2_diameter)
+    {
+        if(ui->lineEdit_nums_bins->isModified())
+        {
+            analysisCenter->reproducehist2();
+
+        }else if(state_index == 0 && last_hist_state == state_data2_area)
+        {
+             analysisCenter->producehist2();
+        }else
+        {
+            analysisCenter->reproducehist2();
+        }
+    }else
+    {
+        analysisCenter->reproducehist2();
+    }
+    if(state_index == 0)
+    {
+        last_hist_state = state_data2_area;
+    }else
+    {
+        last_hist_state = state_data2_diameter;
+    }
+
+
 }
 
 void MainWindow::on_btn_show_image_clicked()
@@ -278,7 +327,3 @@ void MainWindow::on_btn_load_contours2_clicked()
     analysisCenter->load_data2(dataName2);
 }
 
-void MainWindow::on_checkBox_compare_data_clicked()
-{
-    analysisCenter->update_label();
-}
