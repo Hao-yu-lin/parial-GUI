@@ -168,11 +168,11 @@ void ImageCenter::set_hist_img()
 
     qimg_height = dataBase->get_hist_height();
     qimg_width = dataBase->get_hist_width();
-    std::cout << "label_width : " << ui->label_image->width() << std::endl;
-    std::cout << "label_height : " << ui->label_image->height() << std::endl;
+//    std::cout << "label_width : " << ui->label_image->width() << std::endl;
+//    std::cout << "label_height : " << ui->label_image->height() << std::endl;
 
-    std::cout << "qimg_width : " << qimg_width  << std::endl;
-    std::cout << "qimg_height : " << qimg_height  << std::endl;
+//    std::cout << "qimg_width : " << qimg_width  << std::endl;
+//    std::cout << "qimg_height : " << qimg_height  << std::endl;
 
     if(dataBase->get_ratio_rate() == 0){
         if((qimg_width / ui->label_image->width())
@@ -192,10 +192,10 @@ void ImageCenter::set_hist_img()
     qimg_width = ratio * qimg_width;
 
     const QImage &hist_qimg = dataBase->get_hist_img();
-    qimg_img = hist_qimg.scaledToHeight(qimg_height);
+    qimg_img = hist_qimg.scaledToHeight(qimg_height * 2);
 
-    std::cout << "qimg_width2 : " << qimg_width  << std::endl;
-    std::cout << "qimg_height2 : " << qimg_height  << std::endl;
+//    std::cout << "qimg_width2 : " << qimg_width  << std::endl;
+//    std::cout << "qimg_height2 : " << qimg_height  << std::endl;
 
     ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
     ui->label_image->resize(qimg_width+20, qimg_height+20);
@@ -208,9 +208,9 @@ void ImageCenter::set_hist_img()
     QString text = QString("%1 %").arg(std::ceil(ratio * 100));
     ui->label_ratio->setText(text);
     set_sroll_area();
-    std::cout << "label_width2 : " << ui->label_image->width() << std::endl;
-    std::cout << "label_height2 : " << ui->label_image->height() << std::endl;
-    std::cout << "------------------------------"<< std::endl;
+//    std::cout << "label_width2 : " << ui->label_image->width() << std::endl;
+//    std::cout << "label_height2 : " << ui->label_image->height() << std::endl;
+//    std::cout << "------------------------------"<< std::endl;
     set_flag->flag_hist_img = true;
 }
 

@@ -189,11 +189,14 @@ void AnalysisCenter::chose_detect_obj()
             roi_mask = cv::Mat(imgCenter->imgSrc.size(), CV_8UC1, cv::Scalar(0));
             cv::polylines(roi_mask, *dataBase->get_detect_vector(), true, cv::Scalar(255));
             cv::fillPoly(roi_mask,  *dataBase->get_detect_vector(), cv::Scalar(255), 8, 0);
+            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
+
         }else
         {
             roi_mask = cv::Mat(imgCenter->imgSrc.size(), CV_8UC1, cv::Scalar(255));
             cv::polylines(roi_mask, *dataBase->get_detect_vector(), true, cv::Scalar(0));
             cv::fillPoly(roi_mask,  *dataBase->get_detect_vector(), cv::Scalar(0), 8, 0);
+//            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
         }
 
     }else if(detect_vector->size() == 2 || detect_vector->size() == 1)
@@ -243,6 +246,7 @@ void AnalysisCenter::detect_particle()
             roi_mask = cv::Mat(imgCenter->imgSrc.size(), CV_8UC1, cv::Scalar(0));
         }
     }
+    cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask2.png", roi_mask);
     dataBase->del_threshold();
 
     std::vector<cv::Mat> rgb_channels(3);
@@ -254,6 +258,7 @@ void AnalysisCenter::detect_particle()
     if(channel_value == -1){
         cv::Scalar rgb_mean;
         rgb_mean = cv::mean(imgsrc, roi_mask);
+        std::cout << "rgb_maen" << rgb_mean[2] << std::endl;
         rgb_mean = (rgb_mean * 58/100);
         channel_value = (int)(rgb_mean[2]);
         QString text = QStringLiteral("%1 ").arg(channel_value, 0, 'f', 1);
@@ -261,42 +266,41 @@ void AnalysisCenter::detect_particle()
     }
 
 
-    cv::Mat blue;
-    cv::threshold(rgb_channels[2], blue, (double) channel_value, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
-//    threshold_vector.push_back(blue);
-//    blue.release();
+//    cv::Mat blue;
+    cv::Mat detect_threshold;
+    cv::threshold(rgb_channels[2], detect_threshold, (double) channel_value, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
 
     rgb_channels.clear();
     std::vector<cv::Mat>().swap(rgb_channels);
 
 
-    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_HSV2RGB);
+//    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_HSV2RGB);
     /*
      * if threshold_length <= 2 -> both of 2 selection need true;
      * else avg need avg > 255 * 0.7
      */
-    double thresh_value = 254;
+//    double thresh_value = 254;
 
-    blue.convertTo(blue, CV_8UC1);
-    cv::Mat detect_threshold;
-    cv::threshold(blue, detect_threshold, (double)thresh_value, 253, cv::THRESH_BINARY);
-    detect_threshold = detect_threshold + 2;
-    blue.release();
+//    blue.convertTo(blue, CV_8UC1);
+
+//    cv::threshold(blue, detect_threshold, (double)thresh_value, 253, cv::THRESH_BINARY);
+//    detect_threshold = detect_threshold + 2;
+//    blue.release();
     detect_threshold.convertTo(detect_threshold, CV_8UC1);
-
+    cv::imwrite("/Users/haoyulin/Desktop/new_qt/detect_threshold.png", detect_threshold);
     /*
      * if src1 == src2 ---> 255
      * else            ---> 0
      */
     cv::Mat mask_thrshold;
-    cv::compare(detect_threshold, roi_mask, mask_thrshold, cv::CMP_EQ);
-//    cv::bitwise_not(mask_thrshold, mask_thrshold);
+//    cv::compare(detect_threshold, roi_mask, mask_thrshold, cv::CMP_EQ);
+    cv::bitwise_and(detect_threshold, roi_mask, mask_thrshold);
     /*
      * Not need---> 255
      * need ---> 0
      */
     detect_threshold.release();
-
+    cv::imwrite("/Users/haoyulin/Desktop/new_qt/mask_thrshold.png", mask_thrshold);
     std::vector<std::vector<cv::Point>> detect_contours;
     cv::findContours(mask_thrshold, detect_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 
@@ -574,14 +578,14 @@ void AnalysisCenter::createbar_area(const statis_t& data)
         }
 
     }
-    std::cout << "chartView.width()" << chartView.width() << std::endl;
-    std::cout << "chartView.height() " << chartView.height() << std::endl;
+//    std::cout << "chartView.width()" << chartView.width() << std::endl;
+//    std::cout << "chartView.height() " << chartView.height() << std::endl;
     QPixmap p = chartView.grab();
 //    QPixmap croppedPixmap = p.copy(0, 0, chartView.width(), chartView.height());
 
     //   ui->label_image->setPixmap(p);
-    std::cout << "p.width()" << p.width() << std::endl;
-    std::cout << "p.height() " << p.height() << std::endl;
+//    std::cout << "p.width()" << p.width() << std::endl;
+//    std::cout << "p.height() " << p.height() << std::endl;
     QImage hist_image = p.toImage();
 //    hist_image.save("/Users/haoyulin/Desktop/new_qt/hist.jpg", "JPG", 100);
     dataBase->set_hist_qimage(hist_image);
