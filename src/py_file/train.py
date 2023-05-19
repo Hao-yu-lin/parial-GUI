@@ -51,14 +51,21 @@ def img_preprocess(img):
     r = np.squeeze(r, axis = 2)
     g = np.squeeze(g, axis = 2)
     b = np.squeeze(b, axis = 2)
+    
+    mask = image_array[:, :, 2] < b_mean_new
+    
+    blue = np.zeros_like(b)
+    blue = np.where(mask == 1, b * new_coeff * new_coeff * new_coeff, b * new_coeff)
 
     image_array[:, :, 0] = r * new_coeff
     image_array[:, :, 1] = g * new_coeff
     image_array[:, :, 2] = b * new_coeff
 
-    image_array = np.clip(image_array, 0, 255)
 
-    return image_array
+    image_array = np.clip(image_array, 0, 255)
+    blue = np.clip(blue, 0, 255)
+
+    return image_array, blue
 
 
 class Mask_Dataset(Dataset):
@@ -79,9 +86,15 @@ class Mask_Dataset(Dataset):
     
     def __getitem__(self, index):
         self.blank.fill(0)
-        
-        cv2.drawContours(self.blank, [self.contours[index]], 0, color=(255,255,255), thickness=-1, lineType=cv2.LINE_AA,)
         x, y, w, h = cv2.boundingRect(self.contours[index])
+        
+        if(w * h < 64 * 64):
+            cv2.drawContours(self.blank, [self.contours[index]], 0, color=(255,255,255), thickness=-1, lineType=cv2.LINE_AA,)
+            cv2.rectangle(self.blank, (x, y), (x+w, y+h), (255,255,255), -1)
+            (x_c, y_c), radius_c = cv2.minEnclosingCircle(self.contours[index])
+            center = (int(x_c), int(y_c))
+            radius = int(radius_c)
+            cv2.circle(self.blank, center, radius, (255,255,255), -1)
         
         cx, cy = x + w//2, y + h//2
         
@@ -125,16 +138,17 @@ def shadow_removal(args):
     
     img = cv2.imread(img_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    img = img_preprocess(img)
+    img, blue = img_preprocess(img)
 
-    # img = np.uint8(img)
+    img = np.uint8(img)
     
-    blue = img[:, :, 2]
+    # blue = img[:, :, 2]
     blue_array = np.array(blue.flatten())
     blue_mean = np.mean(blue_array)
-    blue_median = np.median(blue_array)
-    
-    threshold_value = math.sqrt(blue_mean * blue_median)
+    # blue_median = np.median(blue_array)
+    new_blue = np.mean(blue[blue < blue_mean])    
+    # threshold_value = math.sqrt(blue_mean * blue_median)
+    threshold_value = new_blue
     
     '''
     if blue < blue_value = 255
@@ -147,15 +161,9 @@ def shadow_removal(args):
     pixel value = 255 is object
     pixel value = 0 is background
     '''   
-    contours, hierarchy = cv2.findContours(image=blue_thresh, mode = cv2.RETR_CCOMP, method = cv2.CHAIN_APPROX_SIMPLE)
-    # inner_contours = []
-    # for i in range(len(hierarchy[0])):
-    #     if hierarchy[0][i][3] == -1: # 没有父contour
-    #         inner_contours.append(contours[i])
-    # inner_img = cv2.drawContours(img.copy(), contours, -1, (0, 255, 0), 2)
-    # inner_img = cv2.cvtColor(inner_img, cv2.COLOR_BGR2RGB)
-    # cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/inner_img.png", inner_img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
     
+    print(threshold_value)
+    contours, hierarchy = cv2.findContours(image=blue_thresh, mode = cv2.RETR_CCOMP, method = cv2.CHAIN_APPROX_SIMPLE)
     
     img_set = Mask_Dataset(img, contours)
     img_loader = DataLoader(img_set, batch_size=batch_size, shuffle=False, num_workers=8, pin_memory=True)
@@ -184,22 +192,10 @@ def shadow_removal(args):
            
             tmp_img = img[ymin:ymax, xmin:xmax].copy()
             img[ymin:ymax, xmin:xmax] = np.where(blank_threshold == 255, shf_img, tmp_img)
-            
-            # tmp_img2 = img[ymin:ymax, xmin:xmax]
-            # tmp_img2 = cv2.cvtColor(tmp_img2, cv2.COLOR_RGB2BGR)
-            # tmp_img = cv2.cvtColor(tmp_img, cv2.COLOR_RGB2BGR)
-            # shf_img = cv2.cvtColor(shf_img, cv2.COLOR_RGB2BGR)
-            # output_path_2 = os.path.join(output_path, f"{idx}")
-            # os.makedirs(output_path_2, exist_ok=True)
-            
-            # cv2.imwrite(os.path.join(output_path_2, f"{i}_orig.png"), tmp_img)
-            # cv2.imwrite(os.path.join(output_path_2, f"{i}_sh.png"), shf_img)
-            # cv2.imwrite(os.path.join(output_path_2, f"{i}_threshold.png"), blank_threshold)
-            # cv2.imwrite(os.path.join(output_path_2, f"{i}_final.png"), tmp_img2)
         
     img = img.astype(np.uint8)
-        
     # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+    
     return img
 
 def main(addr):
@@ -227,14 +223,18 @@ def same_seeds(seed):
     torch.backends.cudnn.deterministic = True
 
 if __name__ == '__main__':
-    path = "/home/haoyu/Desktop/partical/ShadowNet_Data/600DPI"
-    outputpath = "/home/haoyu/Desktop/GUI/parial-GUI/test_img"
-    fname =  sorted([os.path.join(path, x) for x in os.listdir(path) if (x.endswith(".png") or x.endswith(".JPG") or x.endswith(".jpg"))])
-    for idx, name in enumerate(fname):
+    # path = "/home/haoyu/Desktop/partical/ShadowNet_Data/600DPI"
+    # outputpath = "/home/haoyu/Desktop/GUI/parial-GUI/test_img"
+    # fname =  sorted([os.path.join(path, x) for x in os.listdir(path) if (x.endswith(".png") or x.endswith(".JPG") or x.endswith(".jpg"))])
+    # for idx, name in enumerate(fname):
    
-        img = main(name)
+    #     img = main(name)
 
-        name = name.split("/")[-1].split(".")[0]
+    #     name = name.split("/")[-1].split(".")[0]
         
-        cv2.imwrite(os.path.join(outputpath, f"{name}.png"), img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
-    # cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
+    #     cv2.imwrite(os.path.join(outputpath, f"{name}.png"), img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    # # cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
+    
+    path = "/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/IMG_3624.JPG"
+    img = main(path)
+    

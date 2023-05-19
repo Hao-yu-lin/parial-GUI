@@ -246,7 +246,7 @@ void AnalysisCenter::detect_particle()
             roi_mask = cv::Mat(imgCenter->imgSrc.size(), CV_8UC1, cv::Scalar(0));
         }
     }
-    cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask2.png", roi_mask);
+
     dataBase->del_threshold();
 
     std::vector<cv::Mat> rgb_channels(3);
@@ -287,7 +287,7 @@ void AnalysisCenter::detect_particle()
 //    detect_threshold = detect_threshold + 2;
 //    blue.release();
     detect_threshold.convertTo(detect_threshold, CV_8UC1);
-    cv::imwrite("/Users/haoyulin/Desktop/new_qt/detect_threshold.png", detect_threshold);
+
     /*
      * if src1 == src2 ---> 255
      * else            ---> 0
@@ -300,7 +300,7 @@ void AnalysisCenter::detect_particle()
      * need ---> 0
      */
     detect_threshold.release();
-    cv::imwrite("/Users/haoyulin/Desktop/new_qt/mask_thrshold.png", mask_thrshold);
+
     std::vector<std::vector<cv::Point>> detect_contours;
     cv::findContours(mask_thrshold, detect_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 
