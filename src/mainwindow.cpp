@@ -302,13 +302,6 @@ void MainWindow::on_btn_show_image_clicked()
 
 }
 
-void MainWindow::on_btn_iwhite_balance_clicked()
-{
-    if(set_flag.flag_image == false) return;
-    set_flag.flag_num = num_off;
-    imgCenter->white_balance();
-}
-
 void MainWindow::on_btn_save_contours_clicked()
 {
     QString write_name = QFileDialog::getSaveFileName(this, tr("Save File"), nullptr, QStringLiteral("Text files (*.txt)"));

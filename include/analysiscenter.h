@@ -55,6 +55,7 @@ public:
     void chose_detect_obj();
     void reset_detect();
     void detect_particle();
+    void white_balance();
 
     /*  ----------- calculate area -----------  */
     void cal_contours(std::vector<std::vector<cv::Point>> *contours);
@@ -85,6 +86,7 @@ private:
     setting_t *set_flag;
     DataBase *dataBase;
     cv::Mat roi_mask;
+    cv::Mat binary_map;
 };
 
 

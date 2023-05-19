@@ -249,18 +249,19 @@ void AnalysisCenter::detect_particle()
 
     dataBase->del_threshold();
 
-    std::vector<cv::Mat> rgb_channels(3);
-    cv::split(imgsrc, rgb_channels);
+    white_balance();
+
+//    std::vector<cv::Mat> rgb_channels(3);
+//    cv::split(imgsrc, rgb_channels);
 
 
 //    std::vector<cv::Mat> threshold_vector;
     double channel_value = ui->lineEdit_rgb_value->text().toDouble();
     if(channel_value == -1){
-        cv::Scalar rgb_mean;
-        rgb_mean = cv::mean(imgsrc, roi_mask);
-        std::cout << "rgb_maen" << rgb_mean[2] << std::endl;
-        rgb_mean = (rgb_mean * 58/100);
-        channel_value = (int)(rgb_mean[2]);
+        cv::Scalar b_mean;
+        b_mean = cv::mean(binary_map, roi_mask);
+        b_mean = (b_mean * 58/100);
+        channel_value = (int)(b_mean[0]);
         QString text = QStringLiteral("%1 ").arg(channel_value, 0, 'f', 1);
         ui->lineEdit_rgb_value->setText(text);
     }
@@ -268,10 +269,10 @@ void AnalysisCenter::detect_particle()
 
 //    cv::Mat blue;
     cv::Mat detect_threshold;
-    cv::threshold(rgb_channels[2], detect_threshold, (double) channel_value, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
+    cv::threshold(binary_map, detect_threshold, (double) channel_value, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
 
-    rgb_channels.clear();
-    std::vector<cv::Mat>().swap(rgb_channels);
+//    rgb_channels.clear();
+//    std::vector<cv::Mat>().swap(rgb_channels);
 
 
 //    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_HSV2RGB);
@@ -302,7 +303,7 @@ void AnalysisCenter::detect_particle()
     detect_threshold.release();
 
     std::vector<std::vector<cv::Point>> detect_contours;
-    cv::findContours(mask_thrshold, detect_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    cv::findContours(mask_thrshold, detect_contours, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
 
     detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
            return contour.size() < 5; }), detect_contours.end());
@@ -321,6 +322,112 @@ void AnalysisCenter::detect_particle()
     draw_contours_img();
 }
 
+void AnalysisCenter::white_balance()
+{
+    cv::Mat imgsrc = imgCenter->imgSrc.clone();
+    cv::Scalar means = cv::mean(imgsrc);
+
+    std::vector<cv::Mat> rgb_channels(3);
+    cv::split(imgsrc, rgb_channels);
+    cv::Mat& r_channel = rgb_channels[0];
+    cv::Mat& g_channel = rgb_channels[1];
+    cv::Mat& b_channel = rgb_channels[2];
+
+    float r_mean = means[0];
+    float g_mean = means[1];
+    float b_mean = means[2];
+
+    for (int i = 0; i < 3; i++) {
+        cv::Mat mask;
+        cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
+        cv::Mat sum_masked;
+        cv::bitwise_and(rgb_channels[i], mask, sum_masked);
+        double sum = cv::sum(sum_masked)[0];
+        int count = cv::countNonZero(mask);
+
+        if (count > 0) {
+            if (i == 0) {
+                r_mean = sum / count;
+            } else if (i == 1) {
+                g_mean = sum / count;
+            } else if (i == 2) {
+                b_mean = sum / count;
+            }
+        }
+    }
+
+    float avg = pow(r_mean * g_mean * b_mean, 1.0/3);
+    float rCoef = avg/r_mean;
+    float gCoef = avg/g_mean;
+    float bCoef = avg/b_mean;
+
+    cv::multiply(b_channel, bCoef, b_channel);
+    cv::multiply(g_channel, gCoef, g_channel);
+    cv::multiply(r_channel, rCoef, r_channel);
+
+    b_channel = min(b_channel, cv::Scalar(255));
+    g_channel = min(g_channel, cv::Scalar(255));
+    r_channel = min(r_channel, cv::Scalar(255));
+
+    cv::merge(rgb_channels, imgsrc);
+
+//    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_BGR2RGB);
+//    cv::imwrite("/Users/haoyulin/Desktop/new_qt/blue_channel1.png", imgsrc);
+
+
+    cv::Scalar new_means = cv::mean(imgsrc);
+
+    r_mean = new_means[0];
+    g_mean = new_means[1];
+    b_mean = new_means[2];
+
+    float r_mean_new = 0, g_mean_new = 0, b_mean_new = 0;
+
+    for (int i = 0; i < 3; i++) {
+        cv::Mat mask;
+        cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
+        cv::Mat sum_masked;
+        cv::bitwise_and(rgb_channels[i], mask, sum_masked);
+        double sum = cv::sum(sum_masked)[0];
+        int count = cv::countNonZero(mask);
+
+        if (count > 0) {
+            if (i == 0) {
+                r_mean_new = sum / count;
+            } else if (i == 1) {
+                g_mean_new = sum / count;
+            } else if (i == 2) {
+                b_mean_new = sum / count;
+            }
+        }
+    }
+
+    float new_coeff1 =  255.0 / std::min(r_mean_new, std::min(g_mean_new, b_mean_new));
+    float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
+    float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
+
+    cv::Mat new_mask;
+    cv::compare(b_channel, b_mean_new, new_mask, cv::CMP_LE);
+
+    binary_map = cv::Mat(b_channel.size(), CV_8UC1, cv::Scalar(255));
+
+    for(int i = 0; i < b_channel.rows; i++){
+        for(int j = 0; j < b_channel.cols; j++){
+            uchar image_value = b_channel.at<uchar>(i, j);
+            uchar mask_value = new_mask.at<uchar>(i, j);
+
+            if (mask_value == 255) {
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff * new_coeff * image_value);
+
+            } else {
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * image_value);
+            }
+        }
+    }
+    rgb_channels.clear();
+    std::vector<cv::Mat>().swap(rgb_channels);
+}
+
 
 
 void AnalysisCenter::draw_contours_img()
@@ -328,7 +435,7 @@ void AnalysisCenter::draw_contours_img()
     if(set_flag->flag_contours == false) return;
     cv::Mat imgsrc = imgCenter->imgSrc.clone();
     const std::vector<std::vector<cv::Point> >* contours = dataBase->get_detect_contours();
-    cv::drawContours(imgsrc, *contours, -1, cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
+    cv::drawContours(imgsrc, *contours, -1, cv::Scalar(255, 0, 0), 2, cv::LINE_AA);
 
     QImage tmp_img(imgsrc.data,
                imgsrc.cols, // width

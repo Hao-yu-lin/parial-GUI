@@ -75,8 +75,6 @@ private slots:
 
     void on_btn_erase_clusters_clicked();
 
-    void on_btn_iwhite_balance_clicked();
-
     void on_btn_save_contours_clicked();
 
     void on_btn_load_contours_clicked();
