@@ -196,7 +196,7 @@ void AnalysisCenter::chose_detect_obj()
             roi_mask = cv::Mat(imgCenter->imgSrc.size(), CV_8UC1, cv::Scalar(255));
             cv::polylines(roi_mask, *dataBase->get_detect_vector(), true, cv::Scalar(0));
             cv::fillPoly(roi_mask,  *dataBase->get_detect_vector(), cv::Scalar(0), 8, 0);
-            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
+//            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
         }
 
     }else if(detect_vector->size() == 2 || detect_vector->size() == 1)
@@ -422,13 +422,13 @@ void AnalysisCenter::white_balance()
             uchar mask_value = new_mask.at<uchar>(i, j);
 
             if (mask_value > 200) {
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff *  new_coeff *image_value);
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff * new_coeff  *image_value);
 
             } else if(mask_value < 200 && mask_value > 100){
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff *image_value);
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff  * new_coeff  *image_value);
 
             }else {
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * image_value);
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff  * image_value);
             }
         }
     }
@@ -952,7 +952,7 @@ void AnalysisCenter::statistics(const statis_t& data)
     }
 
     // d70
-    int d70_index = static_cast<int>(total_cont * 0.7);
+    int d70_index = static_cast<int>(total_cont * 0.7) + 1;
     d70 = data.value.at(d70_index);
 
     int max_count = 0;
