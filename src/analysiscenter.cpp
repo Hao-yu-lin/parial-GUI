@@ -760,7 +760,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     p_line_series->setPointLabelsVisible(true);
     p_line_series->setPointLabelsFormat("@yPoint");
     float accmulate_percent = 0;
-    int D_70 = 0;
+    int D_85 = 0;
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_diameter + bin_size * i;
         float bin_end = bin_start + bin_size;
@@ -768,8 +768,8 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
         percentage = std::round(percentage * 100.0) / 100.0;
         accmulate_percent += percentage;
         *p_bar_set << percentage;
-        if(accmulate_percent <= 70 ){
-           D_70 ++;
+        if(accmulate_percent <= 85 ){
+           D_85 ++;
         }
         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
         partical_size.append(bin_label);
@@ -863,7 +863,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
             }
         }
     }
-    int cnt = nums_bins - D_70 - 1;
+    int cnt = nums_bins - D_85 - 1;
     for(QGraphicsRectItem * rect : rect_items){
 
         if(cnt > 0){
@@ -952,7 +952,7 @@ void AnalysisCenter::statistics(const statis_t& data)
     }
 
     // d70
-    int d70_index = static_cast<int>(total_cont * 0.7) + 1;
+    int d70_index = static_cast<int>(total_cont * 0.85) + 1;
     d70 = data.value.at(d70_index);
 
     int max_count = 0;
@@ -1005,38 +1005,55 @@ void AnalysisCenter::update_label()
             ui->label_property_title->setText("Properties of the Surface Distribution");
             data1 = dataBase->get_data1_area();
             data2 = dataBase->get_data2_area();
+            ui->label_avgsurface->setText(QString("Average : (1) %1, (2) %2").arg(QString::number(data1->avg, 'f', 4),
+                                          QString::number(data2->avg, 'f', 4)));
+            ui->label_deviation->setText(QString("Standard Deviation : (1) %1, (2) %2").arg(QString::number(data1->sd, 'f', 4), QString::number(data2->sd, 'f', 4)));
+            ui->label_mode->setText(QString("Mode : (1) %1, (2) %2").arg(QString::number(data1->mode, 'f', 2), QString::number(data2->mode, 'f', 2)));
+            ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
+            ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
+            ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
+            ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
         }else
         {
             ui->label_property_title->setText("Properties of the Diameter Distribution");
             data1 = dataBase->get_data1_diameter();
             data2 = dataBase->get_data2_diameter();
+            ui->label_avgsurface->setText(QString("Average : (1) %1, (2) %2").arg(QString::number(data1->avg, 'f', 4),
+                                          QString::number(data2->avg, 'f', 4)));
+            ui->label_deviation->setText(QString("Standard Deviation : (1) %1, (2) %2").arg(QString::number(data1->sd, 'f', 4), QString::number(data2->sd, 'f', 4)));
+            ui->label_mode->setText(QString("Mode : (1) %1, (2) %2").arg(QString::number(data1->mode, 'f', 2), QString::number(data2->mode, 'f', 2)));
+            ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
+            ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
+            ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
+            ui->label_d70->setText(QString("D85 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
         }
-        ui->label_avgsurface->setText(QString("Average : (1) %1, (2) %2").arg(QString::number(data1->avg, 'f', 4),
-                                      QString::number(data2->avg, 'f', 4)));
-        ui->label_deviation->setText(QString("Standard Deviation : (1) %1, (2) %2").arg(QString::number(data1->sd, 'f', 4), QString::number(data2->sd, 'f', 4)));
-        ui->label_mode->setText(QString("Mode : (1) %1, (2) %2").arg(QString::number(data1->mode, 'f', 2), QString::number(data2->mode, 'f', 2)));
-        ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
-        ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
-        ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
-        ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
+
     }else
     {
         if(ui->comboBox_histstate->currentIndex() == 0)
         {
             ui->label_property_title->setText("Properties of the Surface Distribution");
             data1 = dataBase->get_data1_area();
+            ui->label_avgsurface->setText(QString("Average: %1").arg(QString::number(data1->avg, 'f', 4)));
+            ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(data1->sd, 'f', 4)));
+            ui->label_mode->setText(QString("Mode: %1").arg(QString::number(data1->mode, 'f', 2)));
+            ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(data1->cont));
+            ui->label_d20->setText(QString("D20 : %1").arg(QString::number(data1->d20, 'f', 4)));
+            ui->label_d50->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
+            ui->label_d70->setText(QString("D70 : %1").arg(QString::number(data1->d70, 'f', 4)));
         }else
         {
             ui->label_property_title->setText("Properties of the Diameter Distribution");
             data1 = dataBase->get_data1_diameter();
+            ui->label_avgsurface->setText(QString("Average: %1").arg(QString::number(data1->avg, 'f', 4)));
+            ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(data1->sd, 'f', 4)));
+            ui->label_mode->setText(QString("Mode: %1").arg(QString::number(data1->mode, 'f', 2)));
+            ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(data1->cont));
+            ui->label_d20->setText(QString("D20 : %1").arg(QString::number(data1->d20, 'f', 4)));
+            ui->label_d50->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
+            ui->label_d70->setText(QString("D85 : %1").arg(QString::number(data1->d70, 'f', 4)));
         }
-        ui->label_avgsurface->setText(QString("Average: %1").arg(QString::number(data1->avg, 'f', 4)));
-        ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(data1->sd, 'f', 4)));
-        ui->label_mode->setText(QString("Mode: %1").arg(QString::number(data1->mode, 'f', 2)));
-        ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(data1->cont));
-        ui->label_d20->setText(QString("D20 : %1").arg(QString::number(data1->d20, 'f', 4)));
-        ui->label_d50->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
-        ui->label_d70->setText(QString("D70 : %1").arg(QString::number(data1->d70, 'f', 4)));
+
     }
 
 }
