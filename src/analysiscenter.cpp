@@ -189,14 +189,14 @@ void AnalysisCenter::chose_detect_obj()
             roi_mask = cv::Mat(imgCenter->imgSrc.size(), CV_8UC1, cv::Scalar(0));
             cv::polylines(roi_mask, *dataBase->get_detect_vector(), true, cv::Scalar(255));
             cv::fillPoly(roi_mask,  *dataBase->get_detect_vector(), cv::Scalar(255), 8, 0);
-            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
+//            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
 
         }else
         {
             roi_mask = cv::Mat(imgCenter->imgSrc.size(), CV_8UC1, cv::Scalar(255));
             cv::polylines(roi_mask, *dataBase->get_detect_vector(), true, cv::Scalar(0));
             cv::fillPoly(roi_mask,  *dataBase->get_detect_vector(), cv::Scalar(0), 8, 0);
-//            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
+            cv::imwrite("/Users/haoyulin/Desktop/new_qt/roi_mask.png", roi_mask);
         }
 
     }else if(detect_vector->size() == 2 || detect_vector->size() == 1)
@@ -234,7 +234,7 @@ void AnalysisCenter::detect_particle()
         std::cout << "you need check refer_obj " << std::endl;
         return;
     }
-    cv::Mat imgsrc = imgCenter->imgSrc.clone();
+
     bool roi_reverse = ui->checkBox_roi_reverse->isChecked();
     if(roi_mask.empty())
     {
@@ -260,13 +260,13 @@ void AnalysisCenter::detect_particle()
     if(channel_value == -1){
         cv::Scalar b_mean;
         b_mean = cv::mean(binary_map, roi_mask);
-        b_mean = (b_mean * 58/100);
+//        b_mean = (b_mean * 58/100);
         channel_value = (int)(b_mean[0]);
         QString text = QStringLiteral("%1 ").arg(channel_value, 0, 'f', 1);
         ui->lineEdit_rgb_value->setText(text);
     }
 
-
+    cv::imwrite("/Users/haoyulin/Desktop/new_qt/binary_map.png", binary_map);
 //    cv::Mat blue;
     cv::Mat detect_threshold;
     cv::threshold(binary_map, detect_threshold, (double) channel_value, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
@@ -317,8 +317,6 @@ void AnalysisCenter::detect_particle()
     mask_thrshold.release();
     detect_contours.clear();
     std::vector<std::vector<cv::Point>>().swap(detect_contours);
-    imgsrc.release();
-
     draw_contours_img();
 }
 
@@ -406,8 +404,15 @@ void AnalysisCenter::white_balance()
     float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
     float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
 
-    cv::Mat new_mask;
-    cv::compare(b_channel, b_mean_new, new_mask, cv::CMP_LE);
+    cv::Mat new_mask_1;
+    cv::compare(b_channel, b_mean_new, new_mask_1, cv::CMP_LE);
+    new_mask_1 = new_mask_1 * 0.5;
+
+    cv::Mat new_mask_2;
+    cv::compare(b_channel, b_mean, new_mask_2, cv::CMP_LE);
+    new_mask_2 = new_mask_2 * 0.5;
+
+    cv::Mat new_mask = new_mask_1 + new_mask_2;
 
     binary_map = cv::Mat(b_channel.size(), CV_8UC1, cv::Scalar(255));
 
@@ -416,10 +421,13 @@ void AnalysisCenter::white_balance()
             uchar image_value = b_channel.at<uchar>(i, j);
             uchar mask_value = new_mask.at<uchar>(i, j);
 
-            if (mask_value == 255) {
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff * new_coeff * image_value);
+            if (mask_value > 200) {
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff *  new_coeff *image_value);
 
-            } else {
+            } else if(mask_value < 200 && mask_value > 100){
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff *image_value);
+
+            }else {
                 binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * image_value);
             }
         }
@@ -435,7 +443,7 @@ void AnalysisCenter::draw_contours_img()
     if(set_flag->flag_contours == false) return;
     cv::Mat imgsrc = imgCenter->imgSrc.clone();
     const std::vector<std::vector<cv::Point> >* contours = dataBase->get_detect_contours();
-    cv::drawContours(imgsrc, *contours, -1, cv::Scalar(255, 0, 0), 2, cv::LINE_AA);
+    cv::drawContours(imgsrc, *contours, -1, cv::Scalar(255, 0, 0), 1, cv::LINE_AA);
 
     QImage tmp_img(imgsrc.data,
                imgsrc.cols, // width
