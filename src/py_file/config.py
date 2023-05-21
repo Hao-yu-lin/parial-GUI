@@ -10,8 +10,8 @@ def parse_args():
     parser.add_argument('--output_path', type=str, default='/home/haoyu/Desktop/GUI/parial-GUI/tmp_img')
     
     # ckpt
-    parser.add_argument('--removal_path', type=str, default='../parial-GUI/src/py_file/module_ckpt/shadow_removal.pt')
-    # parser.add_argument('--removal_path', type=str, default='/home/haoyu/Desktop/GUI/parial-GUI/src/py_file/module_ckpt/shadow_removal.pt')  
+    # parser.add_argument('--removal_path', type=str, default='../parial-GUI/src/py_file/module_ckpt/shadow_removal.pt')
+    parser.add_argument('--removal_path', type=str, default='/home/haoyu/Desktop/GUI/parial-GUI/src/py_file/module_ckpt/shadow_removal.pt')  
     
     
     parser.add_argument('--img_size', type=int, default=64, help='The size of image')
