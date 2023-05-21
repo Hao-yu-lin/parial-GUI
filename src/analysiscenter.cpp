@@ -260,7 +260,7 @@ void AnalysisCenter::detect_particle()
     if(channel_value == -1){
         cv::Scalar b_mean;
         b_mean = cv::mean(binary_map, roi_mask);
-//        b_mean = (b_mean * 58/100);
+        b_mean = (b_mean * 40/100);
         channel_value = (int)(b_mean[0]);
         QString text = QStringLiteral("%1 ").arg(channel_value, 0, 'f', 1);
         ui->lineEdit_rgb_value->setText(text);
@@ -404,34 +404,18 @@ void AnalysisCenter::white_balance()
     float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
     float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
 
-    cv::Mat new_mask_1;
-    cv::compare(b_channel, b_mean_new, new_mask_1, cv::CMP_LE);
-    new_mask_1 = new_mask_1 * 0.5;
-
-    cv::Mat new_mask_2;
-    cv::compare(b_channel, b_mean, new_mask_2, cv::CMP_LE);
-    new_mask_2 = new_mask_2 * 0.5;
-
-    cv::Mat new_mask = new_mask_1 + new_mask_2;
 
     binary_map = cv::Mat(b_channel.size(), CV_8UC1, cv::Scalar(255));
 
     for(int i = 0; i < b_channel.rows; i++){
         for(int j = 0; j < b_channel.cols; j++){
             uchar image_value = b_channel.at<uchar>(i, j);
-            uchar mask_value = new_mask.at<uchar>(i, j);
-
-            if (mask_value > 200) {
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff * new_coeff * new_coeff  *image_value);
-
-            } else if(mask_value < 200 && mask_value > 100){
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff  * new_coeff  *image_value);
-
-            }else {
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(new_coeff  * image_value);
-            }
+            float normalized_value = 4/(((float)((image_value+1)/256)*2 + 1)) + 0.3;
+            float log_value = log(normalized_value)/log(1.65);
+            binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(new_coeff, log_value-0.35)  *image_value);
         }
     }
+    cv::imwrite("/Users/haoyulin/Desktop/new_qt/binary_map.png", binary_map);
     rgb_channels.clear();
     std::vector<cv::Mat>().swap(rgb_channels);
 }
@@ -760,7 +744,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     p_line_series->setPointLabelsVisible(true);
     p_line_series->setPointLabelsFormat("@yPoint");
     float accmulate_percent = 0;
-    int D_85 = 0;
+    int D_70 = 0;
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_diameter + bin_size * i;
         float bin_end = bin_start + bin_size;
@@ -768,8 +752,8 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
         percentage = std::round(percentage * 100.0) / 100.0;
         accmulate_percent += percentage;
         *p_bar_set << percentage;
-        if(accmulate_percent <= 85 ){
-           D_85 ++;
+        if(accmulate_percent <= 70 ){
+           D_70 ++;
         }
         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
         partical_size.append(bin_label);
@@ -863,7 +847,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
             }
         }
     }
-    int cnt = nums_bins - D_85 - 1;
+    int cnt = nums_bins - D_70 - 1;
     for(QGraphicsRectItem * rect : rect_items){
 
         if(cnt > 0){
@@ -938,6 +922,7 @@ void AnalysisCenter::statistics(const statis_t& data)
     float d20 = 0.0;
     float d50 = 0.0;
     float d70 = 0.0;
+    float d75 = 0.0;
 
     // d20
     int d20_index = static_cast<int>(total_cont * 0.2);
@@ -952,8 +937,13 @@ void AnalysisCenter::statistics(const statis_t& data)
     }
 
     // d70
-    int d70_index = static_cast<int>(total_cont * 0.85) + 1;
+    int d70_index = static_cast<int>(total_cont * 0.7) - 1;
     d70 = data.value.at(d70_index);
+
+    // d85
+    int d75_index = static_cast<int>(total_cont * 0.75) - 1;
+    d75 = data.value.at(d75_index);
+
 
     int max_count = 0;
     int max_range = (int)(data.value.back() * 100 + 1);
@@ -985,7 +975,7 @@ void AnalysisCenter::statistics(const statis_t& data)
         }
     }
     sd = std::sqrt(sd/total_cont);
-    dataBase->set_data_statis(data, avg, sd, mode, d20, d50, d70);
+    dataBase->set_data_statis(data, avg, sd, mode, d20, d50, d70, d75);
 //    statis_data->mode = mode;
 //    statis_data->sd = sd;
     counter.clear();
@@ -1012,7 +1002,7 @@ void AnalysisCenter::update_label()
             ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
             ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
             ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
+            ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d85, 'f', 4)));
         }else
         {
             ui->label_property_title->setText("Properties of the Diameter Distribution");
@@ -1025,7 +1015,7 @@ void AnalysisCenter::update_label()
             ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
             ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
             ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D85 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
+            ui->label_d70->setText(QString("D75 : (1) %1, (2) %2").arg(QString::number(data1->d75, 'f', 4), QString::number(data2->d70, 'f', 4)));
         }
 
     }else
@@ -1051,7 +1041,7 @@ void AnalysisCenter::update_label()
             ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(data1->cont));
             ui->label_d20->setText(QString("D20 : %1").arg(QString::number(data1->d20, 'f', 4)));
             ui->label_d50->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D85 : %1").arg(QString::number(data1->d70, 'f', 4)));
+            ui->label_d70->setText(QString("D75 : %1").arg(QString::number(data1->d75, 'f', 4)));
         }
 
     }

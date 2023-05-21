@@ -33,6 +33,7 @@ typedef struct statis{
     float d20;
     float d50;
     float d70;
+    float d75;
     std::vector<float> value;
 }statis_t;
 
