@@ -217,6 +217,7 @@ void DataBase::del_contours(){
     this->detect_contours.clear();
     std::vector<std::vector<cv::Point>>().swap(this->detect_contours);
     set_flag->flag_contours = false;
+
 }
 
 /*  ----------- Data -----------  */

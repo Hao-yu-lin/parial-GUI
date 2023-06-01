@@ -207,6 +207,12 @@ void MainWindow::on_btn_particle_reset_clicked()
     analysisCenter->reset_detect();
 }
 
+void MainWindow::on_btn_find_contours_clicked()
+{
+     set_flag.flag_num = num_off;
+     analysisCenter->find_contours();
+}
+
 void MainWindow::on_btn_detect_particle_clicked()
 {
     set_flag.flag_num = num_off;

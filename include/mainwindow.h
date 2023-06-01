@@ -65,6 +65,8 @@ private slots:
 
     void on_btn_particle_reset_clicked();
 
+    void on_btn_find_contours_clicked();
+
     void on_btn_detect_particle_clicked();
 
     void on_btn_draw_hist_clicked();
@@ -80,6 +82,8 @@ private slots:
     void on_btn_load_contours_clicked();
 
     void on_btn_load_contours2_clicked();
+
+
 
 private:
     Ui::MainWindow *ui;

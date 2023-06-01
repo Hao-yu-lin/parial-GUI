@@ -56,9 +56,10 @@ public:
     void reset_detect();
     void detect_particle();
     void white_balance();
+    void find_contours();
 
     /*  ----------- calculate area -----------  */
-    void cal_contours(std::vector<std::vector<cv::Point>> *contours);
+    void cal_contours(const std::vector<std::vector<cv::Point>> *contours);
 
     /*  ----------- Update Image -----------  */
     void draw_img(const std::vector<cv::Point2i>& vector_pts, cv::Scalar color);
@@ -79,6 +80,8 @@ public:
     void update_label();
     void load_data1(const QString& fileName);
     void load_data2(const QString& fileName);
+
+
 
 private:
     Ui::MainWindow *ui;

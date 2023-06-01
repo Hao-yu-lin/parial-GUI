@@ -176,6 +176,7 @@ void AnalysisCenter::cal_refer_obj()
 
 void AnalysisCenter::chose_detect_obj()
 {
+    // draw roi_mask
     roi_mask = cv::Mat();
     bool roi_reverse = ui->checkBox_roi_reverse->isChecked();
     const std::vector<cv::Point2i> *detect_vector = dataBase->get_detect_vector();
@@ -215,6 +216,8 @@ void AnalysisCenter::chose_detect_obj()
     }
     detect_vector = nullptr;
     delete detect_vector;
+
+    white_balance();
 }
 
 void AnalysisCenter::reset_detect()
@@ -227,14 +230,8 @@ void AnalysisCenter::reset_detect()
     draw_img();
 }
 
-void AnalysisCenter::detect_particle()
+void AnalysisCenter::find_contours()
 {
-    if(ui->lineEdit_pixel_scale_value->text().isEmpty())
-    {
-        std::cout << "you need check refer_obj " << std::endl;
-        return;
-    }
-
     bool roi_reverse = ui->checkBox_roi_reverse->isChecked();
     if(roi_mask.empty())
     {
@@ -249,13 +246,11 @@ void AnalysisCenter::detect_particle()
 
     dataBase->del_threshold();
 
-    white_balance();
+    if(binary_map.empty())
+    {
+        white_balance();
+    }
 
-//    std::vector<cv::Mat> rgb_channels(3);
-//    cv::split(imgsrc, rgb_channels);
-
-
-//    std::vector<cv::Mat> threshold_vector;
     double channel_value = ui->lineEdit_rgb_value->text().toDouble();
     if(channel_value == -1){
         cv::Scalar b_mean;
@@ -266,35 +261,15 @@ void AnalysisCenter::detect_particle()
         ui->lineEdit_rgb_value->setText(text);
     }
 
-    cv::imwrite("/Users/haoyulin/Desktop/new_qt/binary_map.png", binary_map);
-//    cv::Mat blue;
     cv::Mat detect_threshold;
     cv::threshold(binary_map, detect_threshold, (double) channel_value, 255, cv::THRESH_BINARY_INV);    // 0:THRESH_BINARY, 1:THRESH_BINARY_INV
 
-//    rgb_channels.clear();
-//    std::vector<cv::Mat>().swap(rgb_channels);
-
-
-//    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_HSV2RGB);
-    /*
-     * if threshold_length <= 2 -> both of 2 selection need true;
-     * else avg need avg > 255 * 0.7
-     */
-//    double thresh_value = 254;
-
-//    blue.convertTo(blue, CV_8UC1);
-
-//    cv::threshold(blue, detect_threshold, (double)thresh_value, 253, cv::THRESH_BINARY);
-//    detect_threshold = detect_threshold + 2;
-//    blue.release();
     detect_threshold.convertTo(detect_threshold, CV_8UC1);
-
     /*
      * if src1 == src2 ---> 255
      * else            ---> 0
      */
     cv::Mat mask_thrshold;
-//    cv::compare(detect_threshold, roi_mask, mask_thrshold, cv::CMP_EQ);
     cv::bitwise_and(detect_threshold, roi_mask, mask_thrshold);
     /*
      * Not need---> 255
@@ -308,16 +283,34 @@ void AnalysisCenter::detect_particle()
     detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
            return contour.size() < 5; }), detect_contours.end());
 
-
-    cal_contours(&detect_contours);
     dataBase->del_contours();
     dataBase->set_detect_contours(detect_contours);
+
     set_flag->flag_contours = true;
 
     mask_thrshold.release();
     detect_contours.clear();
     std::vector<std::vector<cv::Point>>().swap(detect_contours);
     draw_contours_img();
+
+}
+
+
+void AnalysisCenter::detect_particle()
+{
+    if(ui->lineEdit_pixel_scale_value->text().isEmpty())
+    {
+        std::cout << "you need check refer_obj " << std::endl;
+        return;
+    }
+    if(set_flag->flag_contours == false)
+    {
+        std::cout << "you need check contours " << std::endl;
+        return;
+    }
+    cal_contours(dataBase->get_detect_contours());
+
+
 }
 
 void AnalysisCenter::white_balance()
@@ -415,10 +408,11 @@ void AnalysisCenter::white_balance()
             binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(new_coeff, log_value-0.35)  *image_value);
         }
     }
-    cv::imwrite("/Users/haoyulin/Desktop/new_qt/binary_map.png", binary_map);
+//    cv::imwrite("/Users/haoyulin/Desktop/new_qt/binary_map.png", binary_map);
     rgb_channels.clear();
     std::vector<cv::Mat>().swap(rgb_channels);
 }
+
 
 
 
@@ -449,7 +443,7 @@ void AnalysisCenter::draw_contours_img()
     delete contours;
 }
 
-void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
+void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *contours)
 {
     int countout_idx;
     double pixel_sacle = ui->lineEdit_pixel_scale_value->text().toDouble();
@@ -492,10 +486,10 @@ void AnalysisCenter::cal_contours(std::vector<std::vector<cv::Point>> *contours)
             countout_idx = countout_idx + 1;
             dataBase->set_particle(countout_idx, surface, diameter);
 
-        }else
+        }/*else
         {
             contours->erase(contours->begin() + i);
-        }
+        }*/
     }
     dataBase->sort_statis_t(*data1_area);
     statistics(*data1_area);
@@ -1002,7 +996,7 @@ void AnalysisCenter::update_label()
             ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
             ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
             ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d85, 'f', 4)));
+            ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
         }else
         {
             ui->label_property_title->setText("Properties of the Diameter Distribution");
@@ -1015,7 +1009,7 @@ void AnalysisCenter::update_label()
             ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
             ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
             ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D75 : (1) %1, (2) %2").arg(QString::number(data1->d75, 'f', 4), QString::number(data2->d70, 'f', 4)));
+            ui->label_d70->setText(QString("D75 : (1) %1, (2) %2").arg(QString::number(data1->d75, 'f', 4), QString::number(data2->d75, 'f', 4)));
         }
 
     }else
@@ -1133,6 +1127,8 @@ void AnalysisCenter::load_data2(const QString &fileName)
     datafile.close();
 
 }
+
+
 
 
 
