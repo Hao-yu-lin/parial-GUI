@@ -40,6 +40,17 @@ const QImage &DataBase::get_orig_img() const
     return orig_qimage;
 }
 
+void DataBase::set_contours_image(const QImage &contours_img)
+{
+    this->contours_qimage = contours_img.copy();
+}
+
+const QImage &DataBase::get_contours_img() const
+{
+    return contours_qimage;
+}
+
+
 /*  ----------- image zoom in/out -----------  */
 
 void DataBase::set_origin_ratio_rate(const double &ratio_rate){

@@ -72,6 +72,7 @@ void MainWindow::on_btn_reset_view_clicked()
     {
         imgCenter->rest_view();
         set_flag.flag_num = num_off;
+        set_flag.img_show = num_show_img;
     }else
     {
         std::cout <<"please open new image!" << std::endl;
@@ -98,6 +99,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
             QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(event);
             if(set_flag.flag_num == num_refer_obj)
             {
+                set_flag.img_show = num_show_contours;
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
                     QPointF img_pos = mouseEvent->pos();
@@ -112,6 +114,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
                     return false;
                 }
             }else if(set_flag.flag_num == num_select_roi){
+                set_flag.img_show = num_show_contours;
                 if(mouseEvent->button() == Qt::LeftButton)
                 {
                     QPointF img_pos = mouseEvent->pos();
@@ -154,6 +157,7 @@ void MainWindow::on_btn_refer_obj_clicked()
     {
         if(set_flag.flag_num != num_refer_obj){
             set_flag.flag_num = num_refer_obj;
+            set_flag.img_show = num_show_contours;
         }else
         {
             set_flag.flag_num = num_off;
@@ -304,8 +308,17 @@ void MainWindow::on_btn_show_image_clicked()
 {
     if(set_flag.flag_image == false) return;
     set_flag.flag_num = num_off;
+    set_flag.img_show = num_show_img;
     imgCenter->set_img();
 
+}
+
+void MainWindow::on_btn_show_contours_img_clicked()
+{
+    if(set_flag.flag_image == false) return;
+    set_flag.flag_num = num_off;
+    set_flag.img_show = num_show_contours;
+    imgCenter->set_img();
 }
 
 void MainWindow::on_btn_save_contours_clicked()
@@ -325,4 +338,7 @@ void MainWindow::on_btn_load_contours2_clicked()
     QString dataName2 = QFileDialog::getOpenFileName(this, tr("Open Area Data"), "", tr("Text files (*.txt)"));
     analysisCenter->load_data2(dataName2);
 }
+
+
+
 

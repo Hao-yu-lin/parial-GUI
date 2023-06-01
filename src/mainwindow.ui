@@ -1455,7 +1455,26 @@ border-color: rgb(94, 92, 100);</string>
              </property>
             </widget>
            </item>
-           <item row="0" column="3">
+           <item row="2" column="1">
+            <widget class="QLabel" name="label_mode">
+             <property name="minimumSize">
+              <size>
+               <width>270</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>270</width>
+               <height>30</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Mode Surface : </string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2">
             <widget class="QLabel" name="label_d20">
              <property name="minimumSize">
               <size>
@@ -1471,25 +1490,6 @@ border-color: rgb(94, 92, 100);</string>
              </property>
              <property name="text">
               <string>D20 :</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="3">
-            <widget class="QLabel" name="label_d50">
-             <property name="minimumSize">
-              <size>
-               <width>270</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>270</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>D50 :</string>
              </property>
             </widget>
            </item>
@@ -1531,63 +1531,6 @@ border-color: rgb(94, 92, 100);</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="label_mode">
-             <property name="minimumSize">
-              <size>
-               <width>270</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>270</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Mode Surface : </string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="2">
-            <widget class="QLabel" name="label_quality">
-             <property name="minimumSize">
-              <size>
-               <width>270</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>270</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="text">
-              <string> Quality : </string>
-             </property>
-            </widget>
-           </item>
-           <item row="5" column="3">
-            <widget class="QLabel" name="label_d70">
-             <property name="minimumSize">
-              <size>
-               <width>270</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>270</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>D70 :</string>
-             </property>
-            </widget>
-           </item>
            <item row="5" column="0">
             <widget class="QLabel" name="label_deviation">
              <property name="minimumSize">
@@ -1607,26 +1550,7 @@ border-color: rgb(94, 92, 100);</string>
              </property>
             </widget>
            </item>
-           <item row="2" column="2">
-            <widget class="QLabel" name="label_efficiency">
-             <property name="minimumSize">
-              <size>
-               <width>270</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>270</width>
-               <height>30</height>
-              </size>
-             </property>
-             <property name="text">
-              <string>Efficiency : </string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="4">
+           <item row="2" column="3">
             <spacer name="horizontalSpacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>
@@ -1638,6 +1562,44 @@ border-color: rgb(94, 92, 100);</string>
               </size>
              </property>
             </spacer>
+           </item>
+           <item row="2" column="2">
+            <widget class="QLabel" name="label_d50">
+             <property name="minimumSize">
+              <size>
+               <width>270</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>270</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>D50 :</string>
+             </property>
+            </widget>
+           </item>
+           <item row="5" column="2">
+            <widget class="QLabel" name="label_d70">
+             <property name="minimumSize">
+              <size>
+               <width>270</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>270</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>D70 :</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>

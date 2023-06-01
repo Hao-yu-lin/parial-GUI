@@ -57,6 +57,7 @@ void ImageCenter::open_img(const QString &fileName)
                 }
 
                 dataBase->set_origimg(tmp_img);
+                dataBase->set_contours_image(tmp_img);
 
                 set_img();
                 set_sroll_area();
@@ -132,6 +133,7 @@ void ImageCenter::rest_view()
                imgSrc.step,
                QImage::Format_RGB888);
     dataBase->set_origimg(tmp_img);
+    dataBase->set_contours_image(tmp_img);
     dataBase->rest_ratio();
     set_img();
     set_sroll_area();
@@ -146,9 +148,19 @@ void ImageCenter::set_img()
 
     qimg_height = ratio * dataBase->get_orig_height();
     qimg_width = ratio * dataBase->get_orig_width();
-    const QImage &orig_qimg = dataBase->get_orig_img();
 
-    qimg_img = orig_qimg.scaledToHeight(qimg_height);
+    if(set_flag->img_show == num_show_img){
+        const QImage &show_qimg = dataBase->get_orig_img();
+        qimg_img = show_qimg.scaledToHeight(qimg_height);
+    }else{
+        const QImage &show_qimg = dataBase->get_contours_img();
+        qimg_img = show_qimg.scaledToHeight(qimg_height);
+    }
+    if(qimg_img.isNull()){
+        const QImage &show_qimg = dataBase->get_orig_img();
+        qimg_img = show_qimg.scaledToHeight(qimg_height);
+    }
+
     ui->label_image->setPixmap(QPixmap::fromImage(qimg_img));
     ui->label_image->resize(qimg_width + 20, qimg_height + 20);
     ui->label_image->setAlignment(Qt::AlignCenter);

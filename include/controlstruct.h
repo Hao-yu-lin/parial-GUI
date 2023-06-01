@@ -8,6 +8,8 @@
 #define num_select_roi 2
 #define num_hist 3
 #define num_del_roi 4
+#define num_show_img 5
+#define num_show_contours 6
 
 
 typedef struct setting_flag{
@@ -17,6 +19,7 @@ typedef struct setting_flag{
     bool flag_data1 = false;
     bool flag_data2 = false;
     int flag_num = num_off;
+    int img_show = num_show_img;
 }setting_t;
 
 typedef struct particle{

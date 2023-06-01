@@ -85,6 +85,8 @@ private slots:
 
 
 
+    void on_btn_show_contours_img_clicked();
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;

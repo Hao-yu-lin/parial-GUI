@@ -23,7 +23,7 @@ void AnalysisCenter::draw_img()
                imgsrc.step,
                QImage::Format_RGB888);
 
-    dataBase->set_origimg(tmp_img);
+    dataBase->set_contours_image(tmp_img);
     imgCenter->set_img();
 }
 
@@ -71,7 +71,7 @@ void AnalysisCenter::update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point
                imgsrc.step,
                QImage::Format_RGB888);
 
-    dataBase->set_origimg(tmp_img);
+    dataBase->set_contours_image(tmp_img);
     imgCenter->set_img();
 
 }
@@ -408,7 +408,7 @@ void AnalysisCenter::white_balance()
             binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(new_coeff, log_value-0.35)  *image_value);
         }
     }
-//    cv::imwrite("/Users/haoyulin/Desktop/new_qt/binary_map.png", binary_map);
+
     rgb_channels.clear();
     std::vector<cv::Mat>().swap(rgb_channels);
 }
@@ -429,13 +429,8 @@ void AnalysisCenter::draw_contours_img()
                imgsrc.step,
                QImage::Format_RGB888);
 
-//    cv::cvtColor(imgsrc,imgsrc, cv::COLOR_BGR2RGB);
-//    std::vector<int> compression_params;
-//    compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
-//    compression_params.push_back(9);
-//    cv::imwrite("/Users/haoyulin/Desktop/new_qt/CHAIN_APPROX_NONE_2.png", imgsrc, compression_params);
-
-    dataBase->set_origimg(tmp_img);
+    dataBase->set_contours_image(tmp_img);
+    set_flag->flag_num = num_show_contours;
     imgCenter->set_img();
 
     imgsrc.release();
@@ -477,7 +472,7 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
             min_rect = std::min(surface2, surface3);
         }
         double surface = surface1 * 0.5 + min_rect * 0.5;
-        double diameter = std::sqrt(surface/CV_PI) * 2;
+        double diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
 
         if(surface >= 0.01 && surface <= 20)
         {
@@ -709,7 +704,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
 
     if(nums_bins == -1 || nums_bins == 0)
     {
-        bin_size = 0.05;
+        bin_size = 50;
         nums_bins =  static_cast<int>(diameter_range / bin_size) + 1;
     }else
     {
@@ -749,7 +744,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
         if(accmulate_percent <= 70 ){
            D_70 ++;
         }
-        QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
+        QString bin_label = QString::number(bin_start, 'f', 0) + " - " + QString::number(bin_end, 'f', 0);
         partical_size.append(bin_label);
         p_line_series->append(i+bin_size/2, accmulate_percent);
     }
@@ -765,7 +760,6 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
 
     series->setLabelsVisible(true);
     series->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
-//    series->setBarWidth(1);
     series->setUseOpenGL(true);
 
 
@@ -774,7 +768,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
 
     p_axisX->append(partical_size);
-    p_axisX->setTitleText("Particle Diameter [ mm ]");
+    p_axisX->setTitleText("Particle Diameter [ um ]");
     p_axisX->setLabelsFont(QFont("Arial", 60));
 
     QValueAxis *p_axisYL = new QValueAxis();
@@ -821,11 +815,6 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     p_chart->legend()->setVisible(false);
     p_chart->legend()->setAlignment(Qt::AlignBottom);
 
-//    p_chart->setTheme(QChart::ChartThemeBrownSand);
-
-
-
-//    QChartView *chartView = new QChartView(p_chart);
     if(nums_bins == -1){
         nums_bins = partical_size.size();
     }
@@ -999,7 +988,7 @@ void AnalysisCenter::update_label()
             ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
         }else
         {
-            ui->label_property_title->setText("Properties of the Diameter Distribution");
+            ui->label_property_title->setText("Properties of the Diameter Distribution(um)");
             data1 = dataBase->get_data1_diameter();
             data2 = dataBase->get_data2_diameter();
             ui->label_avgsurface->setText(QString("Average : (1) %1, (2) %2").arg(QString::number(data1->avg, 'f', 4),
@@ -1027,7 +1016,7 @@ void AnalysisCenter::update_label()
             ui->label_d70->setText(QString("D70 : %1").arg(QString::number(data1->d70, 'f', 4)));
         }else
         {
-            ui->label_property_title->setText("Properties of the Diameter Distribution");
+            ui->label_property_title->setText("Properties of the Diameter Distribution(um)");
             data1 = dataBase->get_data1_diameter();
             ui->label_avgsurface->setText(QString("Average: %1").arg(QString::number(data1->avg, 'f', 4)));
             ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(data1->sd, 'f', 4)));
