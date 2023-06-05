@@ -504,6 +504,7 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
 
 void AnalysisCenter::createbar_area(const statis_t& data)
 {
+
     if(!dataBase->get_hist_img().isNull()){
         imgCenter->set_hist_img();
         return;
@@ -532,7 +533,7 @@ void AnalysisCenter::createbar_area(const statis_t& data)
         bin_size = area_range / nums_bins;
     }
 
-    std::vector<int> counters(nums_bins);
+    std::vector<int> counters(nums_bins, 0);
     int acc_count = 0;
 
     for (auto& a : *area)
@@ -557,13 +558,26 @@ void AnalysisCenter::createbar_area(const statis_t& data)
     p_line_series->setPointLabelsFormat("@yPoint");
     float accmulate_percent = 0;
     int D_70 = 0;
+    bool flag_percent = (ui->comboBox_histstate->currentIndex() == 0);// percent = 0, number = 1
+    std::cout << flag_percent << std::endl;
+
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_area + bin_size * i;
         float bin_end = bin_start + bin_size;
         float percentage = (static_cast<float>(counters[i]) / acc_count) * 100.0;
         percentage = std::round(percentage * 100.0) / 100.0;
         accmulate_percent += percentage;
-        *p_bar_set << percentage;
+        if(flag_percent == true){
+            *p_bar_set << percentage;
+        }else{
+            *p_bar_set << static_cast<int>(counters[i]);
+//            std::cout << "i: " << static_cast<int>(counters[i]) << "," ;
+//            if(i == nums_bins-1){
+//                std::cout << std::endl;
+//            }
+        }
+
+
         if(accmulate_percent <= 70 ){
            D_70 ++;
         }
@@ -599,13 +613,18 @@ void AnalysisCenter::createbar_area(const statis_t& data)
     p_axisX->setLabelsFont(QFont("Arial", 60));
 
     QValueAxis *p_axisYL = new QValueAxis();
-    int max_range = (int)(((static_cast<float>(max_count)/count)*100.0)/20 + 2) * 20;
+    int max_range;
+    if(flag_percent == true){
+        max_range = (int)(((static_cast<float>(max_count)/count)*100.0)/20 + 2) * 20;
+    }else{
+        max_range =  (int)(static_cast<float>(max_count)/20 + 2)*20;
+    }
     p_axisYL->setRange(0, max_range);
     p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
     p_axisYL->setTickInterval(max_range/20);
     p_axisYL->setTickAnchor(0);
     p_axisYL->setLabelFormat("%d");
-    p_axisYL->setTitleText("Particle Size Ratio [ % ]");
+    p_axisYL->setTitleText("Particle Size Ratio");
     p_axisYL->setLabelsFont(QFont("Arial", 60));
 
 
@@ -858,7 +877,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
 
 void AnalysisCenter::producehist1()
 {
-    if(ui->comboBox_histstate->currentIndex() == 0){
+    if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1){
         createbar_area(*dataBase->get_data1_area());
     }else{
         createbar_diameter(*dataBase->get_data1_diameter());
@@ -869,7 +888,7 @@ void AnalysisCenter::producehist1()
 
 void AnalysisCenter::producehist2()
 {
-    if(ui->comboBox_histstate->currentIndex() == 0){
+    if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1){
         createbar_area(*dataBase->get_data2_area());
     }else{
         createbar_diameter(*dataBase->get_data2_diameter());
@@ -882,7 +901,7 @@ void AnalysisCenter::reproducehist1()
 {
     dataBase->del_hist_qimg();
 
-    if(ui->comboBox_histstate->currentIndex() == 0){
+    if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1){
         createbar_area(*dataBase->get_data1_area());
     }else{
         createbar_diameter(*dataBase->get_data1_diameter());
@@ -894,7 +913,7 @@ void AnalysisCenter::reproducehist1()
 void AnalysisCenter::reproducehist2()
 {
     dataBase->del_hist_qimg();
-    if(ui->comboBox_histstate->currentIndex() == 0){
+    if(ui->comboBox_histstate->currentIndex() == 0|| ui->comboBox_histstate->currentIndex() == 1){
         createbar_area(*dataBase->get_data2_area());
     }else{
         createbar_diameter(*dataBase->get_data2_diameter());

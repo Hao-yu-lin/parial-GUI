@@ -1232,44 +1232,6 @@ border-color: rgb(94, 92, 100);</string>
            </property>
           </widget>
          </item>
-         <item row="23" column="2">
-          <widget class="QComboBox" name="comboBox_histstate">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>92</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>92</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::DefaultContextMenu</enum>
-           </property>
-           <property name="minimumContentsLength">
-            <number>6</number>
-           </property>
-           <item>
-            <property name="text">
-             <string>Surface</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Diameter</string>
-            </property>
-           </item>
-          </widget>
-         </item>
          <item row="11" column="0">
           <widget class="QPushButton" name="btn_roi_select">
            <property name="sizePolicy">
@@ -1386,6 +1348,54 @@ border-color: rgb(94, 92, 100);</string>
            <property name="checkable">
             <bool>true</bool>
            </property>
+          </widget>
+         </item>
+         <item row="23" column="1" colspan="2">
+          <widget class="QComboBox" name="comboBox_histstate">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>190</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>190</width>
+             <height>25</height>
+            </size>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::DefaultContextMenu</enum>
+           </property>
+           <property name="minimumContentsLength">
+            <number>6</number>
+           </property>
+           <item>
+            <property name="text">
+             <string>Surface with Percent</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Surface with Number</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Diameter with Percent</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Diameter with Number</string>
+            </property>
+           </item>
           </widget>
          </item>
         </layout>
