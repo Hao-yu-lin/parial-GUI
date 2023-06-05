@@ -280,8 +280,8 @@ void AnalysisCenter::find_contours()
     std::vector<std::vector<cv::Point>> detect_contours;
     cv::findContours(mask_thrshold, detect_contours, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
 
-    detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
-           return contour.size() < 5; }), detect_contours.end());
+//    detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
+//           return contour.size() < 5; }), detect_contours.end());
 
     dataBase->del_contours();
     dataBase->set_detect_contours(detect_contours);
@@ -451,27 +451,34 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
     dataBase->init_statis_t(*data1_diameter);
 
     for(int i = 0; i < contours->size(); i++){
-        double num_pixel = cv::contourArea(contours->at(i));
-        double surface1 = (num_pixel * scaled);
+        double surface;
+        if(contours->at(i).size()>5){
+            double num_pixel = cv::contourArea(contours->at(i));
+            double surface1 = (num_pixel * scaled);
 
-        cv::RotatedRect rect = minAreaRect(contours->at(i));
-        double surface2 = (rect.size.width  * rect.size.height) * scaled;
-        cv::RotatedRect ellipse_rect = fitEllipse(contours->at(i));
-        double surface3 = (CV_PI * ellipse_rect.size.width * ellipse_rect.size.height / 4.0) * scaled;
+            cv::RotatedRect rect = minAreaRect(contours->at(i));
+            double surface2 = (rect.size.width  * rect.size.height) * scaled;
+            cv::RotatedRect ellipse_rect = fitEllipse(contours->at(i));
+            double surface3 = (CV_PI * ellipse_rect.size.width * ellipse_rect.size.height / 4.0) * scaled;
 
 
-        double min_rect;
-        if(surface2 == 0)
-        {
-            min_rect = surface3;
-        }else if(surface3 == 3)
-        {
-             min_rect = surface2;
-        }else
-        {
-            min_rect = std::min(surface2, surface3);
+            double min_rect;
+            if(surface2 == 0)
+            {
+                min_rect = surface3;
+            }else if(surface3 == 3)
+            {
+                 min_rect = surface2;
+            }else
+            {
+                min_rect = std::min(surface2, surface3);
+            }
+            surface = surface1 * 0.5 + min_rect * 0.5;
+        }else{
+            double num_pixel = cv::contourArea(contours->at(i));
+            surface = (num_pixel * scaled) * 1.2;
         }
-        double surface = surface1 * 0.5 + min_rect * 0.5;
+
         double diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
 
         if(surface >= 0.01 && surface <= 20)

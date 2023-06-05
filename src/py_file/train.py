@@ -35,8 +35,6 @@ def img_preprocess(img):
     b = np.clip(b * bCoef, 0, 255)
     g = np.clip(g * gCoef, 0, 255)
     r = np.clip(r * rCoef, 0, 255)
-    
-    # cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/test19.png", b, [cv2.IMWRITE_PNG_COMPRESSION, 9])
 
     r_mean = np.mean(r)
     g_mean = np.mean(g)
@@ -55,8 +53,6 @@ def img_preprocess(img):
     g = np.squeeze(g, axis = 2)
     b = np.squeeze(b, axis = 2)
     
-   
-
     normalized_value = 4 / (((g + 1) / 256 * 3 + 1))
     log_value = np.log(normalized_value + 0.3) / np.log(1.6) - 0.3
 
@@ -149,7 +145,7 @@ def shadow_removal(args):
     img = cv2.imread(img_path)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img, blue = img_preprocess(img)
-    cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/blue2.png", blue, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    # cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/blue2.png", blue, [cv2.IMWRITE_PNG_COMPRESSION, 9])
     
 
     img = np.uint8(img)
@@ -160,8 +156,10 @@ def shadow_removal(args):
     # blue_median = np.median(blue_array)
     
     # blue_sqrt = math.sqrt(blue_mean * blue_median)
-    new_blue = np.mean(blue[blue < blue_mean]) * 0.7
-    threshold_value = new_blue
+    # new_blue = np.mean(blue[blue < blue_mean]) * 0.7
+    # threshold_value = new_blue
+    threshold_value = blue_mean
+    
     
     '''
     if blue < blue_value = 255
@@ -248,7 +246,7 @@ if __name__ == '__main__':
     #     cv2.imwrite(os.path.join(outputpath, f"{name}.png"), img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
     # # cv2.imwrite(path, img, [cv2.IMWRITE_JPEG_QUALITY, 100])
     
-    path = "/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/IMG_3624.JPG"
+    path = "/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/EK標準6.JPG"
     img = main(path)
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
     cv2.imwrite("/home/haoyu/Desktop/GUI/parial-GUI/tmp_img/testrgb3.png", img, [cv2.IMWRITE_PNG_COMPRESSION, 9])
