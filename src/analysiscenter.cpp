@@ -571,10 +571,6 @@ void AnalysisCenter::createbar_area(const statis_t& data)
             *p_bar_set << percentage;
         }else{
             *p_bar_set << static_cast<int>(counters[i]);
-//            std::cout << "i: " << static_cast<int>(counters[i]) << "," ;
-//            if(i == nums_bins-1){
-//                std::cout << std::endl;
-//            }
         }
 
 
@@ -616,15 +612,17 @@ void AnalysisCenter::createbar_area(const statis_t& data)
     int max_range;
     if(flag_percent == true){
         max_range = (int)(((static_cast<float>(max_count)/count)*100.0)/20 + 2) * 20;
+        p_axisYL->setTitleText("The Ratio of Particle Size [ % ]");
     }else{
         max_range =  (int)(static_cast<float>(max_count)/20 + 2)*20;
+        p_axisYL->setTitleText("The Number of Particle Size");
     }
     p_axisYL->setRange(0, max_range);
     p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
     p_axisYL->setTickInterval(max_range/20);
     p_axisYL->setTickAnchor(0);
     p_axisYL->setLabelFormat("%d");
-    p_axisYL->setTitleText("Particle Size Ratio");
+
     p_axisYL->setLabelsFont(QFont("Arial", 60));
 
 
@@ -722,7 +720,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     int count = data.cont;
 
     const float max_diameter = std::min(d50 + 2 * sd, dimater->back());
-    const float min_diameter = std::max(d50 - 2 * sd,  dimater->front());
+    const float min_diameter = static_cast<int>(std::max(d50 - 2 * sd,  dimater->front())/100)*100;
     const float diameter_range = max_diameter - min_diameter;
     float bin_size, max_count = 0;
 
@@ -760,13 +758,19 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     p_line_series->setPointLabelsFormat("@yPoint");
     float accmulate_percent = 0;
     int D_70 = 0;
+    bool flag_percent = (ui->comboBox_histstate->currentIndex() == 2);// percent = 2, number = 3
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_diameter + bin_size * i;
         float bin_end = bin_start + bin_size;
         float percentage = (static_cast<float>(counters[i]) / acc_count) * 100.0;
         percentage = std::round(percentage * 100.0) / 100.0;
         accmulate_percent += percentage;
-        *p_bar_set << percentage;
+        if(flag_percent == true){
+            *p_bar_set << percentage;
+        }else{
+            *p_bar_set << static_cast<int>(counters[i]);
+        }
+
         if(accmulate_percent <= 70 ){
            D_70 ++;
         }
@@ -798,13 +802,20 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     p_axisX->setLabelsFont(QFont("Arial", 60));
 
     QValueAxis *p_axisYL = new QValueAxis();
-    int max_range = (int)(((static_cast<float>(max_count)/count)*100.0)/20 + 2) * 20;
+    int max_range;
+    if(flag_percent == true){
+        max_range = (int)(((static_cast<float>(max_count)/count)*100.0)/20 + 2) * 20;
+        p_axisYL->setTitleText("The Ratio of Particle Size [ % ]");
+    }else{
+        max_range =  (int)(static_cast<float>(max_count)/20 + 2)*20;
+        p_axisYL->setTitleText("The Number of Particle Size");
+    }
     p_axisYL->setRange(0, max_range);
     p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
     p_axisYL->setTickInterval(max_range/20);
     p_axisYL->setTickAnchor(0);
     p_axisYL->setLabelFormat("%d");
-    p_axisYL->setTitleText("Particle Size Ratio [ % ]");
+
     p_axisYL->setLabelsFont(QFont("Arial", 60));
 
 

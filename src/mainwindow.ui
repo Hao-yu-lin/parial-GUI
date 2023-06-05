@@ -1664,6 +1664,12 @@ border-color: rgb(94, 92, 100);</string>
                 <height>660</height>
                </size>
               </property>
+              <property name="autoFillBackground">
+               <bool>false</bool>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(190, 190, 190);</string>
+              </property>
               <property name="text">
                <string>No Image Loaded</string>
               </property>

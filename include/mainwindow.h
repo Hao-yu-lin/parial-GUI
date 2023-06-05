@@ -19,13 +19,17 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
-#define state_none 0
-#define state_data1_area 1
-#define state_data1_diameter 2
-#define state_data2_area 3
-#define state_data2_diameter  4
-#define state_datamix_area 5
-#define state_datamix_diameter 6
+#define surface_percent 0
+#define surface_number 1
+#define diameter_percent 2
+#define diameter_number 3
+#define state_none  4
+
+#define hist_data1 1
+#define hist_data2 2
+#define hist_data_mix 3
+//#define state_datamix_area 5
+//#define state_datamix_diameter 6
 
 
 
@@ -94,6 +98,7 @@ private:
     AnalysisCenter *analysisCenter;
     setting_t set_flag;
     int last_hist_state = state_none;
+    int last_data = state_none;
 };
 
 #endif // MAINWINDOW_H

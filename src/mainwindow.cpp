@@ -239,33 +239,23 @@ void MainWindow::on_btn_draw_hist_clicked()
         std::cout << "please, detect data1" << std::endl;
         return;
     }
-//    if(last_hist_state == state_data1_area || last_hist_state  == state_data1_diameter)
-//    {
-//        if(ui->lineEdit_nums_bins->isModified())
-//        {
-//            analysisCenter->reproducehist1();
+    if(last_data == hist_data1){
+        if(last_hist_state != state_index){
+             analysisCenter->reproducehist1();
+        }else
+        {
+             if(ui->lineEdit_nums_bins->isModified()){
+                 analysisCenter->reproducehist1();
+             }else{
+                 analysisCenter->producehist1();
+             }
+        }
+    }else{
+        analysisCenter->reproducehist1();
+    }
 
-//        }else if(state_index == 0 && last_hist_state == state_data1_area)
-//        {
-//             analysisCenter->producehist1();
-//        }else
-//        {
-//            analysisCenter->reproducehist1();
-//        }
-//    }else{
-//        analysisCenter->reproducehist1();
-//    }
-//    if(state_index == 0)
-//    {
-//        last_hist_state = state_data1_area;
-//    }else
-//    {
-//        last_hist_state = state_data1_diameter;
-//    }
-
-
-     analysisCenter->reproducehist1();
-
+    last_hist_state = state_index;
+    last_data = hist_data1;
 }
 
 void MainWindow::on_btn_draw_hist2_clicked()
@@ -278,30 +268,23 @@ void MainWindow::on_btn_draw_hist2_clicked()
         std::cout << "please, detect data2" << std::endl;
         return;
     }
-    if(last_hist_state == state_data2_area || last_hist_state  == state_data2_diameter)
-    {
-        if(ui->lineEdit_nums_bins->isModified())
-        {
-            analysisCenter->reproducehist2();
-
-        }else if(state_index == 0 && last_hist_state == state_data2_area)
-        {
-             analysisCenter->producehist2();
+    if(last_data == hist_data2){
+        if(last_hist_state != state_index){
+             analysisCenter->reproducehist2();
         }else
         {
-            analysisCenter->reproducehist2();
+             if(ui->lineEdit_nums_bins->isModified()){
+                 analysisCenter->reproducehist2();
+             }else{
+                 analysisCenter->producehist2();
+             }
         }
-    }else
-    {
+    }else{
         analysisCenter->reproducehist2();
     }
-    if(state_index == 0)
-    {
-        last_hist_state = state_data2_area;
-    }else
-    {
-        last_hist_state = state_data2_diameter;
-    }
+
+    last_hist_state = state_index;
+    last_data = hist_data2;
 
 
 }
