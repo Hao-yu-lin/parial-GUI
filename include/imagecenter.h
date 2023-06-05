@@ -62,6 +62,7 @@ public:
 
     // save
     void save_data(const QString &fileName);
+    void save_img(const QString &fileName);
 
     QPointF zoomevent(const double &new_rate);
     friend class AnalysisCenter;

@@ -323,6 +323,7 @@ void MainWindow::on_btn_show_contours_img_clicked()
     imgCenter->set_img();
 }
 
+
 void MainWindow::on_btn_save_contours_clicked()
 {
     QString write_name = QFileDialog::getSaveFileName(this, tr("Save File"), nullptr, QStringLiteral("Text files (*.txt)"));
@@ -341,6 +342,11 @@ void MainWindow::on_btn_load_contours2_clicked()
     analysisCenter->load_data2(dataName2);
 }
 
+void MainWindow::on_btn_save_image_clicked()
+{
+    QString write_name = QFileDialog::getSaveFileName(this, tr("Save File"), nullptr, QStringLiteral("Text files (*.png)"));
+    imgCenter->save_img(write_name);
+}
 
 
 

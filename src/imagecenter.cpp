@@ -392,6 +392,17 @@ void ImageCenter::save_data(const QString &fileName)
     datafile.close();
 }
 
+void ImageCenter::save_img(const QString &fileName)
+{
+    const QImage &save_qimg = dataBase->get_contours_img();
+    bool success = save_qimg.save(fileName, "PNG", 100);
+    if(success){
+        std::cout << "success" << std::endl;
+    }else{
+         std::cout << "error" << std::endl;
+    }
+}
+
 
 
 

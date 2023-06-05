@@ -83,6 +83,9 @@ public:
 
 
 
+
+
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;
