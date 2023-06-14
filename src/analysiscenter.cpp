@@ -404,7 +404,7 @@ void AnalysisCenter::white_balance()
         for(int j = 0; j < b_channel.cols; j++){
             uchar image_value = b_channel.at<uchar>(i, j);
             float normalized_value = 4/(((float)((image_value+1)/256)*2 + 1)) + 0.3;
-            float log_value = log(normalized_value)/log(1.65);
+            float log_value = log(normalized_value)/log(1.67);
             binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(new_coeff, log_value-0.35)  *image_value);
         }
     }
@@ -443,43 +443,99 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
     int countout_idx;
     double pixel_sacle = ui->lineEdit_pixel_scale_value->text().toDouble();
     countout_idx = 0;
-    double scaled = std::pow(pixel_sacle, 2);
+    double scaled = pixel_sacle * pixel_sacle;
 
     const statis_t* data1_area = dataBase->get_data1_area();
     const statis_t* data1_diameter = dataBase->get_data1_diameter();
     dataBase->init_statis_t(*data1_area);
     dataBase->init_statis_t(*data1_diameter);
 
+//    std::ofstream ofs;
+//    ofs.open("/Users/haoyulin/Desktop/new_qt/output.txt");
+//    ofs << "idx" << ","  << "surface" << "," <<  "surface1" << "," << "surface2" << ","<< "||" << ","<<"diameter" << "," <<  "diameter1" << "," << " diameter2" << "\n";
+
+    double surface;
+    double surface1;
+    double surface2;
+
+    double diameter;
+    double diameter1;
+    double diameter2;
+
+
+
     for(int i = 0; i < contours->size(); i++){
-        double surface;
         if(contours->at(i).size()>5){
             double num_pixel = cv::contourArea(contours->at(i));
             double surface1 = (num_pixel * scaled);
+            surface1 = cal::surfacefix(pixel_sacle, surface1);
 
             cv::RotatedRect rect = minAreaRect(contours->at(i));
-            double surface2 = (rect.size.width  * rect.size.height) * scaled;
+            double rect_surface = (rect.size.width  * rect.size.height) * scaled;
             cv::RotatedRect ellipse_rect = fitEllipse(contours->at(i));
-            double surface3 = (CV_PI * ellipse_rect.size.width * ellipse_rect.size.height / 4.0) * scaled;
+            double ellipse_surface = (CV_PI * ellipse_rect.size.width * ellipse_rect.size.height / 4.0) * scaled;
+
+            if(surface1 == 0){
+                surface = std::sqrt(rect_surface * ellipse_surface);
+                surface = cal::surfacefix(pixel_sacle, surface);
+
+                diameter2 = (std::sqrt(ellipse_rect.size.width*ellipse_rect.size.height)) * 1000 * pixel_sacle;
+                double diameter3 = std::sqrt(rect.size.width  * rect.size.height) * 1000 * pixel_sacle;
+                diameter1 = std::sqrt(surface/CV_PI) * 2 * 1000;
+
+                diameter1 = cal::diameterfix(pixel_sacle, diameter1);
+                diameter2 = cal::diameterfix(pixel_sacle, diameter2);
+                diameter3 = cal::diameterfix(pixel_sacle, diameter3);
 
 
-            double min_rect;
-            if(surface2 == 0)
-            {
-                min_rect = surface3;
-            }else if(surface3 == 3)
-            {
-                 min_rect = surface2;
-            }else
-            {
-                min_rect = std::min(surface2, surface3);
+                diameter = std::cbrt(diameter1 * diameter2 * diameter3);
+            }else{
+                if((rect_surface >= ellipse_surface) && (ellipse_surface != 0))
+                {
+                    surface2 = ellipse_surface;
+                    surface2 = cal::surfacefix(pixel_sacle, surface2);
+
+                    diameter2 = (std::sqrt(ellipse_rect.size.width*ellipse_rect.size.height)) * 1000 * pixel_sacle;
+                    surface = std::sqrt(surface1*surface2);
+                    diameter1 = std::sqrt(surface/CV_PI) * 2 * 1000;
+
+                    diameter1 = cal::diameterfix(pixel_sacle, diameter1);
+                    diameter2 = cal::diameterfix(pixel_sacle, diameter2);
+
+                    diameter = std::sqrt(diameter1 * diameter2);
+
+                }else if((rect_surface < ellipse_surface) && (rect_surface != 0)){
+                    surface2 = rect_surface;
+                    surface2 = cal::surfacefix(pixel_sacle, surface2);
+
+                    diameter2 = std::sqrt(rect.size.width  * rect.size.height) * 1000 * pixel_sacle;
+                    surface = std::sqrt(surface1*surface2);
+                    diameter1 = std::sqrt(surface/CV_PI) * 2 * 1000;
+
+                    diameter1 = cal::diameterfix(pixel_sacle, diameter1);
+                    diameter2 = cal::diameterfix(pixel_sacle, diameter2);
+
+                    diameter = std::sqrt(diameter1 * diameter2);
+
+                }else{
+                    surface = surface1;
+                    diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
+                    diameter = cal::diameterfix(pixel_sacle, diameter);
+
+                }
             }
-            surface = surface1 * 0.5 + min_rect * 0.5;
+
+
+//            diameter = std::sqrt(diameter2 * diameter3);
+//             ofs << i << ","  << surface << "," <<  surface1 << "," << surface2 <<  ","<< "||" << "," << diameter << "," << diameter1 << "," << diameter2 << "\n";
         }else{
             double num_pixel = cv::contourArea(contours->at(i));
             surface = (num_pixel * scaled) * 1.2;
+            surface = cal::surfacefix(pixel_sacle, surface);
+            diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
+            diameter = cal::diameterfix(pixel_sacle, diameter);
         }
 
-        double diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
 
         if(surface >= 0.01 && surface <= 20)
         {
@@ -488,11 +544,9 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
             countout_idx = countout_idx + 1;
             dataBase->set_particle(countout_idx, surface, diameter);
 
-        }/*else
-        {
-            contours->erase(contours->begin() + i);
-        }*/
+        }
     }
+//    ofs.close();
     dataBase->sort_statis_t(*data1_area);
     statistics(*data1_area);
     dataBase->sort_statis_t(*data1_diameter);
@@ -757,7 +811,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     p_line_series->setPointLabelsVisible(true);
     p_line_series->setPointLabelsFormat("@yPoint");
     float accmulate_percent = 0;
-    int D_70 = 0;
+    int D_75 = 0;
     bool flag_percent = (ui->comboBox_histstate->currentIndex() == 2);// percent = 2, number = 3
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_diameter + bin_size * i;
@@ -771,8 +825,8 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
             *p_bar_set << static_cast<int>(counters[i]);
         }
 
-        if(accmulate_percent <= 70 ){
-           D_70 ++;
+        if(accmulate_percent <= 75 ){
+           D_75 ++;
         }
         QString bin_label = QString::number(bin_start, 'f', 0) + " - " + QString::number(bin_end, 'f', 0);
         partical_size.append(bin_label);
@@ -867,7 +921,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
             }
         }
     }
-    int cnt = nums_bins - D_70 - 1;
+    int cnt = nums_bins - D_75 - 1;
     for(QGraphicsRectItem * rect : rect_items){
 
         if(cnt > 0){
