@@ -260,9 +260,10 @@ void DataBase::set_data_value(const statis_t& data, float data_value)
     mutable_data->cont = mutable_data->cont + 1;
 }
 
-void DataBase::set_data_statis(const statis_t &data, float avg, float sd, float mode, float d20, float d50, float d70, float d75)
+void DataBase::set_data_statis(const statis_t &data, float avg, float sd, float mode, float d20, float d50, float d70, float d75, int cnt)
 {
      statis_t* mutable_data = const_cast<statis_t*>(&data);
+     mutable_data->cont = cnt;
      mutable_data->avg = avg;
      mutable_data->sd = sd;
      mutable_data->mode = mode;
@@ -279,11 +280,11 @@ void DataBase::init_statis_t(const statis_t& data)
     mutable_data->value.clear();
 }
 
-void DataBase::sort_statis_t(const statis_t& data)
-{
-    statis_t* mutable_data = const_cast<statis_t*>(&data);
-    std::sort(mutable_data->value.begin(), mutable_data->value.end());
-}
+//void DataBase::sort_statis_t(const statis_t& data)
+//{
+//    statis_t* mutable_data = const_cast<statis_t*>(&data);
+//    std::sort(mutable_data->value.begin(), mutable_data->value.end());
+//}
 
 
 

@@ -28,8 +28,18 @@ void MainWindow::on_btn_open_img_clicked()
         analysisCenter->~AnalysisCenter();
         set_flag.flag_image = false;
     }
+
     imgCenter->open_img(fileName);
+     if(set_flag.flag_image == false){
+         return;
+     }
     analysisCenter = new AnalysisCenter(ui, imgCenter, &set_flag);
+    if(set_flag.flag_image == true){
+        QFileInfo fileInfo(fileName);
+        QString baseName = fileInfo.baseName();
+        ui->lineEdit_data1_Name->setText(baseName);
+    }
+
 }
 
 void MainWindow::on_slider_zoom_sliderReleased()
@@ -313,22 +323,69 @@ void MainWindow::on_btn_save_contours_clicked()
     imgCenter->save_data(write_name);
 }
 
-void MainWindow::on_btn_load_contours_clicked()
+void MainWindow::on_btn_load_data1_clicked()
 {
     QString dataName = QFileDialog::getOpenFileName(this, tr("Open Area Data"), "", tr("Text files (*.txt)"));
     analysisCenter->load_data1(dataName);
+    if(set_flag.flag_data1 == true){
+        QFileInfo fileInfo(dataName);
+        QString baseName = fileInfo.baseName();
+        ui->lineEdit_data1_Name->setText(baseName);
+    }
+
 }
 
-void MainWindow::on_btn_load_contours2_clicked()
+void MainWindow::on_btn_load_data2_clicked()
 {
     QString dataName2 = QFileDialog::getOpenFileName(this, tr("Open Area Data"), "", tr("Text files (*.txt)"));
     analysisCenter->load_data2(dataName2);
+    if(set_flag.flag_data2 == true){
+        QFileInfo fileInfo(dataName2);
+        QString baseName = fileInfo.baseName();
+        ui->lineEdit_data2_Name->setText(baseName);
+    }
 }
 
 void MainWindow::on_btn_save_image_clicked()
 {
     QString write_name = QFileDialog::getSaveFileName(this, tr("Save File"), nullptr, QStringLiteral("Text files (*.png)"));
     imgCenter->save_img(write_name);
+}
+
+void MainWindow::on_btn_draw_comparehist_clicked()
+{
+     set_flag.flag_num = num_hist;
+     int state_index = ui->comboBox_histstate->currentIndex(); // 0: surface, 1:diameter
+
+     if(set_flag.flag_data2 == false)
+     {
+         std::cout << "please, detect data2" << std::endl;
+         return;
+     }
+
+     if(set_flag.flag_data1 == false)
+     {
+         std::cout << "please, detect data1" << std::endl;
+         return;
+     }
+
+     if(last_data == hist_data_mix){
+         if(last_hist_state != state_index){
+              analysisCenter->producehistmix();
+         }else
+         {
+              if(ui->lineEdit_nums_bins->isModified()){
+                  analysisCenter->producehistmix();
+              }else{
+                  analysisCenter->producehistmix();
+              }
+         }
+     }else{
+         analysisCenter->producehistmix();
+     }
+
+     last_hist_state = state_index;
+     last_data = hist_data_mix;
 }
 
 

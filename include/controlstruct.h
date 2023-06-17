@@ -18,6 +18,7 @@ typedef struct setting_flag{
     bool flag_contours = false;
     bool flag_data1 = false;
     bool flag_data2 = false;
+
     int flag_num = num_off;
     int img_show = num_show_img;
 }setting_t;

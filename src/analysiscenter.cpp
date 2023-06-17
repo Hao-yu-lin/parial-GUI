@@ -217,7 +217,7 @@ void AnalysisCenter::chose_detect_obj()
     detect_vector = nullptr;
     delete detect_vector;
 
-    white_balance();
+//    white_balance();
 }
 
 void AnalysisCenter::reset_detect()
@@ -246,10 +246,9 @@ void AnalysisCenter::find_contours()
 
     dataBase->del_threshold();
 
-    if(binary_map.empty())
-    {
-        white_balance();
-    }
+
+    white_balance();
+
 
     double channel_value = ui->lineEdit_rgb_value->text().toDouble();
     if(channel_value == -1){
@@ -278,10 +277,10 @@ void AnalysisCenter::find_contours()
     detect_threshold.release();
 
     std::vector<std::vector<cv::Point>> detect_contours;
-    cv::findContours(mask_thrshold, detect_contours, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
+    cv::findContours(mask_thrshold, detect_contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
-//    detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
-//           return contour.size() < 5; }), detect_contours.end());
+    detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
+           return contour.size() < 10; }), detect_contours.end());
 
     dataBase->del_contours();
     dataBase->set_detect_contours(detect_contours);
@@ -361,53 +360,53 @@ void AnalysisCenter::white_balance()
     r_channel = min(r_channel, cv::Scalar(255));
 
     cv::merge(rgb_channels, imgsrc);
+    if(ui->checkBox_white_balance->isChecked() == true){
+        cv::Scalar new_means = cv::mean(imgsrc);
 
-//    cv::cvtColor(imgsrc, imgsrc, cv::COLOR_BGR2RGB);
-//    cv::imwrite("/Users/haoyulin/Desktop/new_qt/blue_channel1.png", imgsrc);
+        r_mean = new_means[0];
+        g_mean = new_means[1];
+        b_mean = new_means[2];
 
+        float r_mean_new = 0, g_mean_new = 0, b_mean_new = 0;
 
-    cv::Scalar new_means = cv::mean(imgsrc);
+        for (int i = 0; i < 3; i++) {
+            cv::Mat mask;
+            cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
+            cv::Mat sum_masked;
+            cv::bitwise_and(rgb_channels[i], mask, sum_masked);
+            double sum = cv::sum(sum_masked)[0];
+            int count = cv::countNonZero(mask);
 
-    r_mean = new_means[0];
-    g_mean = new_means[1];
-    b_mean = new_means[2];
-
-    float r_mean_new = 0, g_mean_new = 0, b_mean_new = 0;
-
-    for (int i = 0; i < 3; i++) {
-        cv::Mat mask;
-        cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
-        cv::Mat sum_masked;
-        cv::bitwise_and(rgb_channels[i], mask, sum_masked);
-        double sum = cv::sum(sum_masked)[0];
-        int count = cv::countNonZero(mask);
-
-        if (count > 0) {
-            if (i == 0) {
-                r_mean_new = sum / count;
-            } else if (i == 1) {
-                g_mean_new = sum / count;
-            } else if (i == 2) {
-                b_mean_new = sum / count;
+            if (count > 0) {
+                if (i == 0) {
+                    r_mean_new = sum / count;
+                } else if (i == 1) {
+                    g_mean_new = sum / count;
+                } else if (i == 2) {
+                    b_mean_new = sum / count;
+                }
             }
         }
-    }
 
-    float new_coeff1 =  255.0 / std::min(r_mean_new, std::min(g_mean_new, b_mean_new));
-    float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
-    float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
+        float new_coeff1 =  255.0 / std::min(r_mean_new, std::min(g_mean_new, b_mean_new));
+        float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
+        float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
 
 
-    binary_map = cv::Mat(b_channel.size(), CV_8UC1, cv::Scalar(255));
+        binary_map = cv::Mat(b_channel.size(), CV_8UC1, cv::Scalar(255));
 
-    for(int i = 0; i < b_channel.rows; i++){
-        for(int j = 0; j < b_channel.cols; j++){
-            uchar image_value = b_channel.at<uchar>(i, j);
-            float normalized_value = 4/(((float)((image_value+1)/256)*2 + 1)) + 0.3;
-            float log_value = log(normalized_value)/log(1.67);
-            binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(new_coeff, log_value-0.35)  *image_value);
+        for(int i = 0; i < b_channel.rows; i++){
+            for(int j = 0; j < b_channel.cols; j++){
+                uchar image_value = b_channel.at<uchar>(i, j);
+                float normalized_value = 4/(((float)((image_value+1)/256)*2 + 1)) + 0.3;
+                float log_value = log(normalized_value)/log(1.67);
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(new_coeff, log_value-0.35)  *image_value);
+            }
         }
+    }else{
+        binary_map = b_channel.clone();
     }
+
 
     rgb_channels.clear();
     std::vector<cv::Mat>().swap(rgb_channels);
@@ -450,9 +449,9 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
     dataBase->init_statis_t(*data1_area);
     dataBase->init_statis_t(*data1_diameter);
 
-//    std::ofstream ofs;
-//    ofs.open("/Users/haoyulin/Desktop/new_qt/output.txt");
-//    ofs << "idx" << ","  << "surface" << "," <<  "surface1" << "," << "surface2" << ","<< "||" << ","<<"diameter" << "," <<  "diameter1" << "," << " diameter2" << "\n";
+    std::ofstream ofs;
+    ofs.open("/Users/haoyulin/Desktop/new_qt/output.txt");
+    ofs << "i" << ","  << "surface" << "," << "diameter" << "\n";
 
     double surface;
     double surface1;
@@ -462,13 +461,29 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
     double diameter1;
     double diameter2;
 
-
-
     for(int i = 0; i < contours->size(); i++){
+
+        surface = 0;
+        surface1 = 0;
+        surface2 = 0;
+
+        diameter = 0;
+        diameter1 = 0;
+        diameter2 = 0;
+
+
         if(contours->at(i).size()>5){
             double num_pixel = cv::contourArea(contours->at(i));
             double surface1 = (num_pixel * scaled);
-            surface1 = cal::surfacefix(pixel_sacle, surface1);
+
+            if(surface1 != 0){
+                diameter1 = std::sqrt(surface1/CV_PI) * 2 * 1000;
+                diameter1 = cal::diameterfix(pixel_sacle, diameter1);
+                surface1 = cal::surfacefix(pixel_sacle, surface1);
+            }else{
+                diameter1 = 0;
+                surface1 = 0;
+            }
 
             cv::RotatedRect rect = minAreaRect(contours->at(i));
             double rect_surface = (rect.size.width  * rect.size.height) * scaled;
@@ -477,86 +492,73 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
 
             if(surface1 == 0){
                 surface = std::sqrt(rect_surface * ellipse_surface);
-                surface = cal::surfacefix(pixel_sacle, surface);
+                diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
 
-                diameter2 = (std::sqrt(ellipse_rect.size.width*ellipse_rect.size.height)) * 1000 * pixel_sacle;
-                double diameter3 = std::sqrt(rect.size.width  * rect.size.height) * 1000 * pixel_sacle;
-                diameter1 = std::sqrt(surface/CV_PI) * 2 * 1000;
-
-                diameter1 = cal::diameterfix(pixel_sacle, diameter1);
-                diameter2 = cal::diameterfix(pixel_sacle, diameter2);
-                diameter3 = cal::diameterfix(pixel_sacle, diameter3);
-
-
-                diameter = std::cbrt(diameter1 * diameter2 * diameter3);
             }else{
-                if((rect_surface >= ellipse_surface) && (ellipse_surface != 0))
+                double rect_err = std::abs(surface1 - rect_surface);
+                double ellipse_err = std::abs(surface1 - ellipse_surface);
+                if((rect_err >= ellipse_err) && (ellipse_surface != 0))
                 {
+
                     surface2 = ellipse_surface;
-                    surface2 = cal::surfacefix(pixel_sacle, surface2);
+                    surface = std::cbrt(surface1 * surface1 * surface2);
 
-                    diameter2 = (std::sqrt(ellipse_rect.size.width*ellipse_rect.size.height)) * 1000 * pixel_sacle;
-                    surface = std::sqrt(surface1*surface2);
-                    diameter1 = std::sqrt(surface/CV_PI) * 2 * 1000;
+                    diameter2 = std::sqrt(surface/CV_PI) * 2 * 1000;
+                    diameter = std::cbrt(diameter1 * diameter1 * diameter2);
 
-                    diameter1 = cal::diameterfix(pixel_sacle, diameter1);
-                    diameter2 = cal::diameterfix(pixel_sacle, diameter2);
-
-                    diameter = std::sqrt(diameter1 * diameter2);
-
-                }else if((rect_surface < ellipse_surface) && (rect_surface != 0)){
+                }else if((rect_err < ellipse_err) && (rect_surface != 0)){
                     surface2 = rect_surface;
-                    surface2 = cal::surfacefix(pixel_sacle, surface2);
-
-                    diameter2 = std::sqrt(rect.size.width  * rect.size.height) * 1000 * pixel_sacle;
-                    surface = std::sqrt(surface1*surface2);
-                    diameter1 = std::sqrt(surface/CV_PI) * 2 * 1000;
-
-                    diameter1 = cal::diameterfix(pixel_sacle, diameter1);
-                    diameter2 = cal::diameterfix(pixel_sacle, diameter2);
-
-                    diameter = std::sqrt(diameter1 * diameter2);
+                    surface = std::cbrt(surface1 * surface1 * surface2);
+                    diameter2 = std::sqrt(surface/CV_PI) * 2 * 1000;
+                    diameter = std::cbrt(diameter1 * diameter1 * diameter2);
 
                 }else{
                     surface = surface1;
-                    diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
-                    diameter = cal::diameterfix(pixel_sacle, diameter);
-
+                    diameter = diameter1;
                 }
             }
 
+             ofs << i << ","  << surface << "," << diameter << "\n";
 
-//            diameter = std::sqrt(diameter2 * diameter3);
-//             ofs << i << ","  << surface << "," <<  surface1 << "," << surface2 <<  ","<< "||" << "," << diameter << "," << diameter1 << "," << diameter2 << "\n";
         }else{
             double num_pixel = cv::contourArea(contours->at(i));
             surface = (num_pixel * scaled) * 1.2;
             surface = cal::surfacefix(pixel_sacle, surface);
             diameter = std::sqrt(surface/CV_PI) * 2 * 1000;
-            diameter = cal::diameterfix(pixel_sacle, diameter);
         }
 
+        if(ui->checkBox_tiny_mode->isChecked() == false){
+            if(surface >= 0.03 && surface <= 20)
+            {
+                dataBase->set_data_value(*data1_area, (float)surface);
+                dataBase->set_data_value(*data1_diameter, (float)diameter);
+                countout_idx = countout_idx + 1;
+                dataBase->set_particle(countout_idx, surface, diameter);
 
-        if(surface >= 0.01 && surface <= 20)
-        {
+            }
+        }else{
             dataBase->set_data_value(*data1_area, (float)surface);
             dataBase->set_data_value(*data1_diameter, (float)diameter);
             countout_idx = countout_idx + 1;
             dataBase->set_particle(countout_idx, surface, diameter);
-
         }
+
     }
-//    ofs.close();
-    dataBase->sort_statis_t(*data1_area);
-    statistics(*data1_area);
-    dataBase->sort_statis_t(*data1_diameter);
-    statistics(*data1_diameter);
+    ofs.close();
+    data1_area_sort = data1_area->value;
+    std::sort(data1_area_sort.begin(), data1_area_sort.end());
+
+    data1_diameter_sort = data1_diameter->value;
+    std::sort(data1_diameter_sort.begin(), data1_diameter_sort.end());
+
+    statistics(*data1_area, data1_area_sort);
+    statistics(*data1_diameter, data1_diameter_sort);
     set_flag->flag_data1 = true;
     update_label();
 
 }
 
-void AnalysisCenter::createbar_area(const statis_t& data)
+void AnalysisCenter::createbar_area(const statis_t& data, std::vector<float>& data_value)
 {
 
     if(!dataBase->get_hist_img().isNull()){
@@ -564,15 +566,15 @@ void AnalysisCenter::createbar_area(const statis_t& data)
         return;
     }
 
-    const std::vector<float>* area = &data.value;
+
 
 //    float mean = data.avg;
     float d50 = data.d50;
     float sd = data.sd;
     int count = data.cont;
 
-    const float max_area = std::min(d50 + 2 * sd, area->back());
-    const float min_area = std::max(d50 - 2 * sd, area->front());
+    const float max_area = std::min(d50 + 2 * sd, data_value.back());
+    const float min_area = std::max(d50 - 2 * sd, data_value.front());
     const float area_range = max_area - min_area;
     float bin_size, max_count = 0;
 
@@ -590,7 +592,7 @@ void AnalysisCenter::createbar_area(const statis_t& data)
     std::vector<int> counters(nums_bins, 0);
     int acc_count = 0;
 
-    for (auto& a : *area)
+    for (auto& a : data_value)
     {
         if (a < min_area || a > max_area) {
             continue;
@@ -613,7 +615,7 @@ void AnalysisCenter::createbar_area(const statis_t& data)
     float accmulate_percent = 0;
     int D_70 = 0;
     bool flag_percent = (ui->comboBox_histstate->currentIndex() == 0);// percent = 0, number = 1
-    std::cout << flag_percent << std::endl;
+//    std::cout << flag_percent << std::endl;
 
     for (int i = 0; i < nums_bins; i++) {
         float bin_start = min_area + bin_size * i;
@@ -633,7 +635,8 @@ void AnalysisCenter::createbar_area(const statis_t& data)
         }
         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
         partical_size.append(bin_label);
-        p_line_series->append(i+bin_size/2, accmulate_percent);
+        p_line_series->append(i, accmulate_percent);
+
     }
 
     counters.clear();
@@ -654,10 +657,7 @@ void AnalysisCenter::createbar_area(const statis_t& data)
 
 //    // for X
     QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
-//    QCategoryAxis *p_axisX = new QCategoryAxis();
-//    for(int i = 0; i < partical_size.size(); i++){
-//         p_axisX->append(partical_size[i], i+1);
-//    }
+
     p_axisX->append(partical_size);
     p_axisX->setTitleText("Particle Size [ mm x mm ]");
     p_axisX->setLabelsFont(QFont("Arial", 60));
@@ -713,17 +713,11 @@ void AnalysisCenter::createbar_area(const statis_t& data)
     p_chart->legend()->setVisible(false);
     p_chart->legend()->setAlignment(Qt::AlignBottom);
 
-//    p_chart->setTheme(QChart::ChartThemeBrownSand);
 
-
-
-//    QChartView *chartView = new QChartView(p_chart);
     if(nums_bins == -1){
         nums_bins = partical_size.size();
     }
     chartView.resize(600 * nums_bins/5, 1080);
-
-
 
     QList<QGraphicsRectItem *> rect_items;
     for(QGraphicsItem * it : chartView.items()){
@@ -744,37 +738,28 @@ void AnalysisCenter::createbar_area(const statis_t& data)
         }
 
     }
-//    std::cout << "chartView.width()" << chartView.width() << std::endl;
-//    std::cout << "chartView.height() " << chartView.height() << std::endl;
-    QPixmap p = chartView.grab();
-//    QPixmap croppedPixmap = p.copy(0, 0, chartView.width(), chartView.height());
 
-    //   ui->label_image->setPixmap(p);
-//    std::cout << "p.width()" << p.width() << std::endl;
-//    std::cout << "p.height() " << p.height() << std::endl;
+    QPixmap p = chartView.grab();
     QImage hist_image = p.toImage();
-//    hist_image.save("/Users/haoyulin/Desktop/new_qt/hist.jpg", "JPG", 100);
     dataBase->set_hist_qimage(hist_image);
     imgCenter->set_hist_img();
     delete p_chart;
 }
 
-void AnalysisCenter::createbar_diameter(const statis_t& data)
+void AnalysisCenter::createbar_diameter(const statis_t& data, std::vector<float>& data_value)
 {
     if(!dataBase->get_hist_img().isNull()){
         imgCenter->set_hist_img();
         return;
     }
 
-    const std::vector<float>* dimater = &data.value;
-
 //    float mean = data.avg;
     float d50 = data.d50;
     float sd = data.sd;
     int count = data.cont;
 
-    const float max_diameter = std::min(d50 + 2 * sd, dimater->back());
-    const float min_diameter = static_cast<int>(std::max(d50 - 2 * sd,  dimater->front())/100)*100;
+    const float max_diameter = std::min(d50 + 2 * sd, data_value.back());
+    const float min_diameter = static_cast<int>(std::max(d50 - 2 * sd,  data_value.front())/100)*100;
     const float diameter_range = max_diameter - min_diameter;
     float bin_size, max_count = 0;
 
@@ -791,7 +776,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
 
     std::vector<int> counters(nums_bins);
     int acc_count = 0;
-    for (auto& a : *dimater)
+    for (auto& a : data_value)
     {
         if (a < min_diameter || a > max_diameter) {
             continue;
@@ -830,7 +815,8 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
         }
         QString bin_label = QString::number(bin_start, 'f', 0) + " - " + QString::number(bin_end, 'f', 0);
         partical_size.append(bin_label);
-        p_line_series->append(i+bin_size/2, accmulate_percent);
+        p_line_series->append(i, accmulate_percent);
+
     }
 
     counters.clear();
@@ -940,12 +926,465 @@ void AnalysisCenter::createbar_diameter(const statis_t& data)
     delete p_chart;
 }
 
+void AnalysisCenter::createbar_mix_area(const statis_t& data1, const statis_t& data2)
+{
+//    if(!dataBase->get_hist_img().isNull()){
+//        imgCenter->set_hist_img();
+//        return;
+//    }
+
+    float d50_1 = data1.d50;
+    float sd_1 = data1.sd;
+
+    float d50_2 = data2.d50;
+    float sd_2 = data2.sd;
+
+    int count = std::max(data1.cont, data2.cont);
+
+    float max_area_1 = std::min(d50_1 + 2 * sd_1, data1_area_sort.back());
+    float min_area_1 = std::max(d50_1 - 2 * sd_1, data1_area_sort.front());
+
+    float max_area_2 = std::min(d50_2 + 2 * sd_2, data2_area_sort.back());
+    float min_area_2 = std::max(d50_2 - 2 * sd_2, data2_area_sort.front());
+
+    const float max_area = std::max(max_area_1, max_area_2);
+    const float min_area = std::min(min_area_1, min_area_2);
+    const float area_range = max_area - min_area;
+    float bin_size, max_count = 0;
+
+    int nums_bins = ui->lineEdit_nums_bins->text().isEmpty() ? -1 : ui->lineEdit_nums_bins->text().toInt();
+
+    if(nums_bins == -1 || nums_bins == 0)
+    {
+        bin_size = 0.01;
+        nums_bins =  static_cast<int>(area_range / bin_size) + 1;
+    }else
+    {
+        bin_size = area_range / nums_bins;
+    }
+
+    std::vector<int> counters_1(nums_bins, 0);
+    int acc_count_1 = 0;
+
+    for(auto& a : data1_area_sort)
+    {
+        if( a < min_area || a > max_area){
+            continue;
+        }
+
+        int bin_index = static_cast<int>((a - min_area) / bin_size);
+        bin_index = std::min(bin_index, nums_bins-1);
+        counters_1[bin_index] ++;
+        if(counters_1[bin_index] > max_count){
+            max_count = counters_1[bin_index];
+        }
+        acc_count_1 ++;
+    }
+
+    std::vector<int> counters_2(nums_bins, 0);
+    int acc_count_2 = 0;
+
+    for(auto& a : data2_area_sort)
+    {
+        if( a < min_area || a > max_area){
+            continue;
+        }
+
+        int bin_index = static_cast<int>((a - min_area) / bin_size);
+        bin_index = std::min(bin_index, nums_bins-1);
+        counters_2[bin_index] ++;
+        if(counters_2[bin_index] > max_count){
+            max_count = counters_2[bin_index];
+        }
+        acc_count_2 ++;
+    }
+
+    QString data_name_1 = ui->lineEdit_data1_Name->text();
+    QBarSet* p_bar_set_1 = new QBarSet(data_name_1);
+
+    QString data_name_2 = ui->lineEdit_data2_Name->text();
+    QBarSet* p_bar_set_2 = new QBarSet(data_name_2);
+
+    QStringList partical_size;
+    QLineSeries* p_line_series_1 = new QLineSeries();
+    QLineSeries* p_line_series_2 = new QLineSeries();
+
+    p_line_series_1->setPointLabelsVisible(true);
+    p_line_series_1->setPointLabelsFormat("@yPoint");
+    p_line_series_1->setName(data_name_1);
+
+    p_line_series_2->setPointLabelsVisible(true);
+    p_line_series_2->setPointLabelsFormat("@yPoint");
+    p_line_series_2->setName(data_name_2);
+
+    float accmulate_percet_1 = 0;
+    float accmulate_percet_2 = 0;
+
+    int D_70_1 = 0;
+    int D_70_2 = 0;
+    bool flag_percent = (ui->comboBox_histstate->currentIndex() == 0);
+
+    for(int i = 0; i < nums_bins; i++)
+    {
+        float bin_start = min_area + bin_size*i;
+        float bin_end = bin_start + bin_size;
+
+        float percentage_1 = (static_cast<float>(counters_1[i]) / acc_count_1) * 100.0;
+        percentage_1 = std::round(percentage_1 * 100.0) / 100.0;
+        float percentage_2 = (static_cast<float>(counters_2[i]) / acc_count_2) * 100.0;
+        percentage_2 = std::round(percentage_2 * 100.0) / 100.0;
+
+        accmulate_percet_1 += percentage_1;
+        accmulate_percet_2 += percentage_2;
+
+        if(flag_percent == true){
+            *p_bar_set_1 << percentage_1;
+            *p_bar_set_2 << percentage_2;
+        }else{
+            *p_bar_set_1 << static_cast<int>(counters_1[i]);
+            *p_bar_set_2 << static_cast<int>(counters_2[i]);
+        }
+
+        if(accmulate_percet_1 <= 70 ){
+           D_70_1 ++;
+        }
+
+        if(accmulate_percet_2 <= 70 ){
+           D_70_2 ++;
+        }
+
+         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
+         partical_size.append(bin_label);
+         p_line_series_1->append(i, accmulate_percet_1);
+         p_line_series_2->append(i, accmulate_percet_2);
+    }
+
+    counters_1.clear();
+    std::vector<int>().swap(counters_1);
+
+    counters_2.clear();
+    std::vector<int>().swap(counters_2);
+
+    QBarSeries *series = new QBarSeries();
+    series->append(p_bar_set_1);
+    series->append(p_bar_set_2);
+
+    QColor label_color = QColor(Qt::black);
+    p_bar_set_1->setLabelColor(label_color);
+    p_bar_set_2->setLabelColor(label_color);
+
+    series->setLabelsVisible(true);
+    series->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
+    series->setUseOpenGL(true);
+
+    QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
+    p_axisX->append(partical_size);
+    p_axisX->setTitleText("Particle Size [ mm x mm ]");
+    p_axisX->setLabelsFont(QFont("Arial", 60));
+
+    QValueAxis *p_axisYL = new QValueAxis();
+    int max_range;
+    if(flag_percent == true){
+        max_range = (int)(((static_cast<float>(max_count)/count)*100.0)/20 + 2) * 20;
+        p_axisYL->setTitleText("The Ratio of Particle Size [ % ]");
+    }else{
+        max_range =  (int)(static_cast<float>(max_count)/20 + 2)*20;
+        p_axisYL->setTitleText("The Number of Particle Size");
+    }
+
+    p_axisYL->setRange(0, max_range);
+    p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisYL->setTickInterval(max_range/20);
+    p_axisYL->setTickAnchor(0);
+    p_axisYL->setLabelFormat("%d");
+
+    p_axisYL->setLabelsFont(QFont("Arial", 60));
+
+    QValueAxis *p_axisYR = new QValueAxis();
+    p_axisYR->setRange(0, 100);
+    p_axisYR->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisYR->setTickInterval(5);
+    p_axisYR->setTickAnchor(0);
+    p_axisYR->setLabelFormat("%d");
+    p_axisYR->setTitleText("Accumulate Ratio [ % ]");
+    p_axisYR->setLabelsFont(QFont("Arial", 60));
+
+    //    // setting Chart
+    QChart *p_chart = new QChart();
+    QChartView chartView;
+    chartView.setChart(p_chart);
+
+    p_chart->createDefaultAxes();
+    p_chart->setTitle("Distribution");
+
+    p_chart->addAxis(p_axisX, Qt::AlignBottom);
+    p_chart->addAxis(p_axisYL, Qt::AlignLeft);
+    p_chart->addAxis(p_axisYR, Qt::AlignRight);
+
+    p_chart->setTheme(QChart::ChartThemeBrownSand);
+    p_chart->addSeries(series);
+    p_chart->addSeries(p_line_series_1);
+    p_chart->addSeries(p_line_series_2);
+
+    series->attachAxis(p_axisX);
+    series->attachAxis(p_axisYL);
+    p_line_series_1->attachAxis(p_axisX);
+    p_line_series_1->attachAxis(p_axisYR);
+
+    p_line_series_2->attachAxis(p_axisX);
+    p_line_series_2->attachAxis(p_axisYR);
+
+    p_chart->legend()->setVisible(false);
+    p_chart->legend()->setAlignment(Qt::AlignBottom);
+    p_chart->legend()->setFont(QFont("Arial", 30));
+
+    if(nums_bins == -1){
+        nums_bins = partical_size.size();
+    }
+
+    p_chart->legend()->setVisible(true);
+    p_chart->legend()->setAlignment(Qt::AlignBottom);
+
+    chartView.resize(600 * nums_bins/5, 1080);
+
+    QPixmap p = chartView.grab();
+    QImage hist_image = p.toImage();
+    dataBase->set_hist_qimage(hist_image);
+    imgCenter->set_hist_img();
+    delete p_chart;
+
+}
+
+void AnalysisCenter::createbar_mix_diameter(const statis_t &data1, const statis_t &data2)
+{
+    float d50_1 = data1.d50;
+    float sd_1 = data1.sd;
+
+    float d50_2 = data2.d50;
+    float sd_2 = data2.sd;
+
+    int count = std::max(data1.cont, data2.cont);
+
+    float max_diameter_1 = std::min(d50_1 + 2 * sd_1, data1_diameter_sort.back());
+    float min_diameter_1 = std::max(d50_1 - 2 * sd_1, data1_diameter_sort.front());
+
+    float max_diameter_2 = std::min(d50_2 + 2 * sd_2, data2_diameter_sort.back());
+    float min_diameter_2 = std::max(d50_2 - 2 * sd_2, data2_diameter_sort.front());
+
+    const float max_diameter = std::max(max_diameter_1, max_diameter_2);
+    const float min_diameter = std::min(min_diameter_1, min_diameter_2);
+    const float diameter_range = max_diameter - min_diameter;
+    float bin_size, max_count = 0;
+
+    int nums_bins = ui->lineEdit_nums_bins->text().isEmpty() ? -1 : ui->lineEdit_nums_bins->text().toInt();
+
+    if(nums_bins == -1 || nums_bins == 0)
+    {
+        bin_size = 50;
+        nums_bins =  static_cast<int>(diameter_range / bin_size) + 1;
+    }else
+    {
+        bin_size = diameter_range / nums_bins;
+    }
+
+    std::vector<int> counters_1(nums_bins, 0);
+    int acc_count_1 = 0;
+
+    for(auto& a : data1_diameter_sort)
+    {
+        if( a < min_diameter || a > max_diameter){
+            continue;
+        }
+
+        int bin_index = static_cast<int>((a - min_diameter) / bin_size);
+        bin_index = std::min(bin_index, nums_bins-1);
+        counters_1[bin_index] ++;
+        if(counters_1[bin_index] > max_count){
+            max_count = counters_1[bin_index];
+        }
+        acc_count_1 ++;
+    }
+
+    std::vector<int> counters_2(nums_bins, 0);
+    int acc_count_2 = 0;
+
+    for(auto& a : data2_diameter_sort)
+    {
+        if( a < min_diameter || a > max_diameter){
+            continue;
+        }
+
+        int bin_index = static_cast<int>((a - min_diameter) / bin_size);
+        bin_index = std::min(bin_index, nums_bins-1);
+        counters_2[bin_index] ++;
+        if(counters_2[bin_index] > max_count){
+            max_count = counters_2[bin_index];
+        }
+        acc_count_2 ++;
+    }
+
+    QString data_name_1 = ui->lineEdit_data1_Name->text();
+    QBarSet* p_bar_set_1 = new QBarSet(data_name_1);
+
+    QString data_name_2 = ui->lineEdit_data2_Name->text();
+    QBarSet* p_bar_set_2 = new QBarSet(data_name_2);
+
+    QStringList partical_size;
+    QLineSeries* p_line_series_1 = new QLineSeries();
+    QLineSeries* p_line_series_2 = new QLineSeries();
+
+    p_line_series_1->setPointLabelsVisible(true);
+    p_line_series_1->setPointLabelsFormat("@yPoint");
+    p_line_series_1->setName(data_name_1);
+
+    p_line_series_2->setPointLabelsVisible(true);
+    p_line_series_2->setPointLabelsFormat("@yPoint");
+    p_line_series_2->setName(data_name_2);
+
+    float accmulate_percet_1 = 0;
+    float accmulate_percet_2 = 0;
+
+    int D_75_1 = 0;
+    int D_75_2 = 0;
+    bool flag_percent = (ui->comboBox_histstate->currentIndex() == 2);
+
+    for(int i = 0; i < nums_bins; i++)
+    {
+        float bin_start = min_diameter + bin_size*i;
+        float bin_end = bin_start + bin_size;
+
+        float percentage_1 = (static_cast<float>(counters_1[i]) / acc_count_1) * 100.0;
+        percentage_1 = std::round(percentage_1 * 100.0) / 100.0;
+        float percentage_2 = (static_cast<float>(counters_2[i]) / acc_count_2) * 100.0;
+        percentage_2 = std::round(percentage_2 * 100.0) / 100.0;
+
+        accmulate_percet_1 += percentage_1;
+        accmulate_percet_2 += percentage_2;
+
+        if(flag_percent == true){
+            *p_bar_set_1 << percentage_1;
+            *p_bar_set_2 << percentage_2;
+        }else{
+            *p_bar_set_1 << static_cast<int>(counters_1[i]);
+            *p_bar_set_2 << static_cast<int>(counters_2[i]);
+        }
+
+        if(accmulate_percet_1 <= 75 ){
+           D_75_1 ++;
+        }
+
+        if(accmulate_percet_2 <= 75 ){
+           D_75_2 ++;
+        }
+
+         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
+         partical_size.append(bin_label);
+         p_line_series_1->append(i, accmulate_percet_1);
+         p_line_series_2->append(i, accmulate_percet_2);
+    }
+
+    counters_1.clear();
+    std::vector<int>().swap(counters_1);
+
+    counters_2.clear();
+    std::vector<int>().swap(counters_2);
+
+    QBarSeries *series = new QBarSeries();
+    series->append(p_bar_set_1);
+    series->append(p_bar_set_2);
+
+    QColor label_color = QColor(Qt::black);
+    p_bar_set_1->setLabelColor(label_color);
+    p_bar_set_2->setLabelColor(label_color);
+
+    series->setLabelsVisible(true);
+    series->setLabelsPosition(QAbstractBarSeries::LabelsOutsideEnd);
+    series->setUseOpenGL(true);
+
+    QBarCategoryAxis *p_axisX = new QBarCategoryAxis();
+    p_axisX->append(partical_size);
+    p_axisX->setTitleText("Particle Diameter [ um ]");
+    p_axisX->setLabelsFont(QFont("Arial", 60));
+
+    QValueAxis *p_axisYL = new QValueAxis();
+    int max_range;
+    if(flag_percent == true){
+        max_range = (int)(((static_cast<float>(max_count)/count)*100.0)/20 + 2) * 20;
+        p_axisYL->setTitleText("The Ratio of Particle Size [ % ]");
+    }else{
+        max_range =  (int)(static_cast<float>(max_count)/20 + 2)*20;
+        p_axisYL->setTitleText("The Number of Particle Size");
+    }
+
+    p_axisYL->setRange(0, max_range);
+    p_axisYL->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisYL->setTickInterval(max_range/20);
+    p_axisYL->setTickAnchor(0);
+    p_axisYL->setLabelFormat("%d");
+
+    p_axisYL->setLabelsFont(QFont("Arial", 60));
+
+    QValueAxis *p_axisYR = new QValueAxis();
+    p_axisYR->setRange(0, 100);
+    p_axisYR->setTickType(QValueAxis::TickType::TicksDynamic);
+    p_axisYR->setTickInterval(5);
+    p_axisYR->setTickAnchor(0);
+    p_axisYR->setLabelFormat("%d");
+    p_axisYR->setTitleText("Accumulate Ratio [ % ]");
+    p_axisYR->setLabelsFont(QFont("Arial", 60));
+
+    //    // setting Chart
+    QChart *p_chart = new QChart();
+    QChartView chartView;
+    chartView.setChart(p_chart);
+
+    p_chart->createDefaultAxes();
+    p_chart->setTitle("Distribution");
+
+    p_chart->addAxis(p_axisX, Qt::AlignBottom);
+    p_chart->addAxis(p_axisYL, Qt::AlignLeft);
+    p_chart->addAxis(p_axisYR, Qt::AlignRight);
+
+    p_chart->setTheme(QChart::ChartThemeBrownSand);
+    p_chart->addSeries(series);
+    p_chart->addSeries(p_line_series_1);
+    p_chart->addSeries(p_line_series_2);
+
+    series->attachAxis(p_axisX);
+    series->attachAxis(p_axisYL);
+    p_line_series_1->attachAxis(p_axisX);
+    p_line_series_1->attachAxis(p_axisYR);
+
+    p_line_series_2->attachAxis(p_axisX);
+    p_line_series_2->attachAxis(p_axisYR);
+
+    p_chart->legend()->setVisible(false);
+    p_chart->legend()->setAlignment(Qt::AlignBottom);
+
+    if(nums_bins == -1){
+        nums_bins = partical_size.size();
+    }
+
+    p_chart->legend()->setVisible(true);
+    p_chart->legend()->setAlignment(Qt::AlignBottom);
+    p_chart->legend()->setFont(QFont("Arial", 30));
+
+    chartView.resize(600 * nums_bins/5, 1080);
+
+    QPixmap p = chartView.grab();
+    QImage hist_image = p.toImage();
+    dataBase->set_hist_qimage(hist_image);
+    imgCenter->set_hist_img();
+    delete p_chart;
+
+}
+
 void AnalysisCenter::producehist1()
 {
     if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1){
-        createbar_area(*dataBase->get_data1_area());
+        createbar_area(*dataBase->get_data1_area(), data1_area_sort);
     }else{
-        createbar_diameter(*dataBase->get_data1_diameter());
+        createbar_diameter(*dataBase->get_data1_diameter(), data1_diameter_sort);
     }
     update_label();
 
@@ -954,9 +1393,19 @@ void AnalysisCenter::producehist1()
 void AnalysisCenter::producehist2()
 {
     if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1){
-        createbar_area(*dataBase->get_data2_area());
+        createbar_area(*dataBase->get_data2_area(), data2_area_sort);
     }else{
-        createbar_diameter(*dataBase->get_data2_diameter());
+        createbar_diameter(*dataBase->get_data2_diameter(), data2_diameter_sort);
+    }
+    update_label();
+}
+
+void AnalysisCenter::producehistmix()
+{
+    if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1){
+        createbar_mix_area(*dataBase->get_data1_area(), *dataBase->get_data2_area());
+    }else{
+       createbar_mix_diameter(*dataBase->get_data1_diameter(), *dataBase->get_data2_diameter());
     }
     update_label();
 }
@@ -967,9 +1416,9 @@ void AnalysisCenter::reproducehist1()
     dataBase->del_hist_qimg();
 
     if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1){
-        createbar_area(*dataBase->get_data1_area());
+        createbar_area(*dataBase->get_data1_area(), data1_area_sort);
     }else{
-        createbar_diameter(*dataBase->get_data1_diameter());
+        createbar_diameter(*dataBase->get_data1_diameter(), data1_diameter_sort);
     }
     update_label();
 
@@ -979,17 +1428,17 @@ void AnalysisCenter::reproducehist2()
 {
     dataBase->del_hist_qimg();
     if(ui->comboBox_histstate->currentIndex() == 0|| ui->comboBox_histstate->currentIndex() == 1){
-        createbar_area(*dataBase->get_data2_area());
+        createbar_area(*dataBase->get_data2_area(), data2_area_sort);
     }else{
-        createbar_diameter(*dataBase->get_data2_diameter());
+        createbar_diameter(*dataBase->get_data2_diameter(), data2_diameter_sort);
     }
     update_label();
 }
 
-void AnalysisCenter::statistics(const statis_t& data)
+void AnalysisCenter::statistics(const statis_t& data, std::vector<float>& data_value)
 {
     std::map<float, int> counter;
-    const int& total_cont = data.cont;
+    const int& total_cont = data_value.size();
     float avg = 0.0;
     float sd = 0.0;
     float mode = 0.0;
@@ -998,30 +1447,30 @@ void AnalysisCenter::statistics(const statis_t& data)
     float d70 = 0.0;
     float d75 = 0.0;
 
+
     // d20
     int d20_index = static_cast<int>(total_cont * 0.2);
-    d20 = data.value.at(d20_index);
+    d20 = data_value.at(d20_index);
 
     // d50
     if(total_cont % 2 == 0)
     {
-         d50 =  (data.value.at(total_cont/2 - 1) + data.value.at(total_cont / 2)) / 2.0;
+         d50 =  (data_value.at(total_cont/2 - 1) + data_value.at(total_cont / 2)) / 2.0;
     }else{
-         d50 = data.value.at(total_cont / 2);
+         d50 = data_value.at(total_cont / 2);
     }
 
     // d70
     int d70_index = static_cast<int>(total_cont * 0.7) - 1;
-    d70 = data.value.at(d70_index);
+    d70 = data_value.at(d70_index);
 
-    // d85
+    // d75
     int d75_index = static_cast<int>(total_cont * 0.75) - 1;
-    d75 = data.value.at(d75_index);
-
+    d75 = data_value.at(d75_index);
 
     int max_count = 0;
-    int max_range = (int)(data.value.back() * 100 + 1);
-    int min_range = (int)(data.value.front() * 100 - 1);
+    int max_range = (int)(data_value.back() * 100 + 1);
+    int min_range = (int)(data_value.front() * 100 - 1);
 
     for(int i = min_range; i <= max_range; i += 1)
     {
@@ -1030,15 +1479,16 @@ void AnalysisCenter::statistics(const statis_t& data)
     }
 
     float sum = 0.0;
-    for(auto value : data.value)
+    for(auto value : data_value)
     {
-        sum += value;
+        sum = value + sum;
     }
+
     avg = (float)sum/total_cont;
 
-    for(const auto &a : data.value)
+    for(const auto &a : data_value)
     {
-        sd += std::pow(a - avg, 2);
+        sd = std::pow(a - avg, 2) + sd;
         double tmp_area = std::round(a*100.0)/100.0;
         counter[tmp_area] ++;
 
@@ -1048,10 +1498,10 @@ void AnalysisCenter::statistics(const statis_t& data)
             mode = tmp_area;
         }
     }
+
     sd = std::sqrt(sd/total_cont);
-    dataBase->set_data_statis(data, avg, sd, mode, d20, d50, d70, d75);
-//    statis_data->mode = mode;
-//    statis_data->sd = sd;
+    dataBase->set_data_statis(data, avg, sd, mode, d20, d50, d70, d75, total_cont);
+
     counter.clear();
     std::map<float, int>().swap(counter);
 }
@@ -1064,7 +1514,7 @@ void AnalysisCenter::update_label()
 
     if(set_flag->flag_data2 == true)
     {
-        if(ui->comboBox_histstate->currentIndex() == 0)
+        if(ui->comboBox_histstate->currentIndex() == 0 || ui->comboBox_histstate->currentIndex() == 1)
         {
             ui->label_property_title->setText("Properties of the Surface Distribution");
             data1 = dataBase->get_data1_area();
@@ -1117,9 +1567,7 @@ void AnalysisCenter::update_label()
             ui->label_d50->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
             ui->label_d70->setText(QString("D75 : %1").arg(QString::number(data1->d75, 'f', 4)));
         }
-
     }
-
 }
 
 void AnalysisCenter::load_data1(const QString &fileName)
@@ -1132,8 +1580,8 @@ void AnalysisCenter::load_data1(const QString &fileName)
     }
     QTextStream in(&datafile);
     bool firstline = true;
-    int countout_idx = 0;
-    double surface_average = 0;
+//    int countout_idx = 0;
+//    double surface_average = 0;
 
     const statis_t* data1_area = dataBase->get_data1_area();
     const statis_t* data1_diameter = dataBase->get_data1_diameter();
@@ -1154,12 +1602,22 @@ void AnalysisCenter::load_data1(const QString &fileName)
 
     }
 
-    dataBase->sort_statis_t(*data1_area);
-    statistics(*data1_area);
-    dataBase->sort_statis_t(*data1_diameter);
-    statistics(*data1_diameter);
+    data1_area_sort = data1_area->value;
+    std::sort(data1_area_sort.begin(), data1_area_sort.end());
+
+
+    data1_diameter_sort = data1_diameter->value;
+    std::sort(data1_diameter_sort.begin(), data1_diameter_sort.end());
+
+
+    statistics(*data1_area, data1_area_sort);
+
+    statistics(*data1_diameter, data1_diameter_sort);
+
+
     set_flag->flag_data1 = true;
     update_label();
+
     datafile.close();
 
 }
@@ -1174,8 +1632,8 @@ void AnalysisCenter::load_data2(const QString &fileName)
     }
     QTextStream in(&datafile);
     bool firstline = true;
-    int countout_idx = 0;
-    double surface_average = 0;
+//    int countout_idx = 0;
+//    double surface_average = 0;
 
     const statis_t* data2_area = dataBase->get_data2_area();
     const statis_t* data2_diameter = dataBase->get_data2_diameter();
@@ -1198,15 +1656,26 @@ void AnalysisCenter::load_data2(const QString &fileName)
 
     }
 
-    dataBase->sort_statis_t(*data2_area);
-    statistics(*data2_area);
-    dataBase->sort_statis_t(*data2_diameter);
-    statistics(*data2_diameter);
+    data2_area_sort = data2_area->value;
+    std::sort(data2_area_sort.begin(), data2_area_sort.end());
+
+    data2_diameter_sort = data2_diameter->value;
+    std::sort(data2_diameter_sort.begin(), data2_diameter_sort.end());
+
+
+    statistics(*data2_area, data2_area_sort);
+    statistics(*data2_diameter, data2_diameter_sort);
+
     set_flag->flag_data2 = true;
     update_label();
     datafile.close();
-
 }
+
+
+
+
+
+
 
 
 

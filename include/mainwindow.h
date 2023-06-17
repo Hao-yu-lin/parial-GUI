@@ -83,13 +83,15 @@ private slots:
 
     void on_btn_save_contours_clicked();
 
-    void on_btn_load_contours_clicked();
+    void on_btn_load_data1_clicked();
 
-    void on_btn_load_contours2_clicked();
+    void on_btn_load_data2_clicked();
 
     void on_btn_show_contours_img_clicked();
 
     void on_btn_save_image_clicked();
+
+    void on_btn_draw_comparehist_clicked();
 
 private:
     Ui::MainWindow *ui;

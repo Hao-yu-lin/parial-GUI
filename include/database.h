@@ -52,7 +52,7 @@ public:
 
     // settr data
     void set_data_value(const statis_t& data, float data_value);
-    void set_data_statis(const statis_t& data, float avg, float sd, float mode, float d20, float d50, float d70, float d75);
+    void set_data_statis(const statis_t& data, float avg, float sd, float mode, float d20, float d50, float d70, float d75, int cnt);
     void set_particle(const int &idx, const float &surface, const float &diameter);
 
     /* ------------- Gettr ------------- */
@@ -100,7 +100,7 @@ public:
     void del_hist_qimg();
 
     void init_statis_t(const statis_t& data);
-    void sort_statis_t(const statis_t& data);
+//    void sort_statis_t(const statis_t& data);
 
     const std::vector<particle_t>* get_particle_data() const;
 
@@ -145,6 +145,7 @@ private:
     statis_t data1_diameter;
     statis_t data2_area;
     statis_t data2_diameter;
+
 
 };
 

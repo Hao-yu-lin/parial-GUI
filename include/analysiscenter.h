@@ -69,22 +69,22 @@ public:
     void update_pts_img(cv::Mat &imgsrc, const std::vector<cv::Point2i> &vector_pts, const cv::Scalar color);
     void draw_contours_img();
 
-    void createbar_area(const statis_t& data);
-    void createbar_diameter(const statis_t& data);
+    void createbar_area(const statis_t& data, std::vector<float>& data_value);
+    void createbar_diameter(const statis_t& data, std::vector<float>& data_value);
+    void createbar_mix_area(const statis_t& data1, const statis_t& data2);
+    void createbar_mix_diameter(const statis_t& data1, const statis_t& data2);
 
     void producehist1();
     void producehist2();
+    void producehistmix();
     void reproducehist1();
     void reproducehist2();
 
-    void statistics(const statis_t& data);
-//    void statistics_without_outlier();
+    void statistics(const statis_t& data, std::vector<float>& data_value);
+
     void update_label();
     void load_data1(const QString& fileName);
-    void load_data2(const QString& fileName);
-
-
-
+    void load_data2(const QString& fileName);   
 
 
 
@@ -95,6 +95,10 @@ private:
     DataBase *dataBase;
     cv::Mat roi_mask;
     cv::Mat binary_map;
+    std::vector<float> data1_area_sort;
+    std::vector<float> data1_diameter_sort;
+    std::vector<float> data2_area_sort;
+    std::vector<float> data2_diameter_sort;
 };
 
 

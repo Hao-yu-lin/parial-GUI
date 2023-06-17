@@ -32,6 +32,7 @@ double diameterfix(const double &pixel_scal, const double &diameter)
     double new_sacle = f * diameter2 + p;
 
     return diameter * new_sacle;
+//    return diameter;
 }
 
 double surfacefix(const double &pixel_scal, const double &surface)
@@ -54,6 +55,7 @@ double surfacefix(const double &pixel_scal, const double &surface)
     double new_sacle = f * surface2 + p;
 
     return surface * new_sacle;
+//    return surface;
 }
 
 

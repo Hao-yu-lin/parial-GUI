@@ -376,7 +376,6 @@ void ImageCenter::white_balance()
 
 void ImageCenter::save_data(const QString &fileName)
 {
-//    const std::vector<float>* contours_area = dataBase->get_contours_area();
     const std::vector<particle_t>* particle_data = dataBase->get_particle_data();
     QFile datafile(fileName);
     if(!datafile.open(QFile::WriteOnly | QFile::Text))
