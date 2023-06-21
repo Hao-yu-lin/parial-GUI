@@ -280,7 +280,7 @@ void AnalysisCenter::find_contours()
     cv::findContours(mask_thrshold, detect_contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
 
     detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
-           return contour.size() < 10; }), detect_contours.end());
+           return contour.size() < 6; }), detect_contours.end());
 
     dataBase->del_contours();
     dataBase->set_detect_contours(detect_contours);
@@ -361,36 +361,36 @@ void AnalysisCenter::white_balance()
 
     cv::merge(rgb_channels, imgsrc);
     if(ui->checkBox_white_balance->isChecked() == true){
-        cv::Scalar new_means = cv::mean(imgsrc);
+//        cv::Scalar new_means = cv::mean(imgsrc);
 
-        r_mean = new_means[0];
-        g_mean = new_means[1];
-        b_mean = new_means[2];
+//        r_mean = new_means[0];
+//        g_mean = new_means[1];
+//        b_mean = new_means[2];
 
-        float r_mean_new = 0, g_mean_new = 0, b_mean_new = 0;
+//        float r_mean_new = 0, g_mean_new = 0, b_mean_new = 0;
 
-        for (int i = 0; i < 3; i++) {
-            cv::Mat mask;
-            cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
-            cv::Mat sum_masked;
-            cv::bitwise_and(rgb_channels[i], mask, sum_masked);
-            double sum = cv::sum(sum_masked)[0];
-            int count = cv::countNonZero(mask);
+//        for (int i = 0; i < 3; i++) {
+//            cv::Mat mask;
+//            cv::compare(rgb_channels[i], means[i], mask, cv::CMP_GT);
+//            cv::Mat sum_masked;
+//            cv::bitwise_and(rgb_channels[i], mask, sum_masked);
+//            double sum = cv::sum(sum_masked)[0];
+//            int count = cv::countNonZero(mask);
 
-            if (count > 0) {
-                if (i == 0) {
-                    r_mean_new = sum / count;
-                } else if (i == 1) {
-                    g_mean_new = sum / count;
-                } else if (i == 2) {
-                    b_mean_new = sum / count;
-                }
-            }
-        }
+//            if (count > 0) {
+//                if (i == 0) {
+//                    r_mean_new = sum / count;
+//                } else if (i == 1) {
+//                    g_mean_new = sum / count;
+//                } else if (i == 2) {
+//                    b_mean_new = sum / count;
+//                }
+//            }
+//        }
 
-        float new_coeff1 =  255.0 / std::min(r_mean_new, std::min(g_mean_new, b_mean_new));
-        float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
-        float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
+//        float new_coeff1 =  255.0 / std::min(r_mean_new, std::min(g_mean_new, b_mean_new));
+//        float new_coeff2 =  255.0 / std::min(r_mean, std::min(g_mean, b_mean));
+//        float new_coeff = std::sqrt(new_coeff1 * new_coeff2);
 
 
         binary_map = cv::Mat(b_channel.size(), CV_8UC1, cv::Scalar(255));
@@ -400,7 +400,7 @@ void AnalysisCenter::white_balance()
                 uchar image_value = b_channel.at<uchar>(i, j);
                 float normalized_value = 4/(((float)((image_value+1)/256)*2 + 1)) + 0.3;
                 float log_value = log(normalized_value)/log(1.67);
-                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(new_coeff, log_value-0.35)  *image_value);
+                binary_map.at<uchar>(i, j) = cv::saturate_cast<uchar>(pow(1.2, log_value-0.35)  *image_value);
             }
         }
     }else{
@@ -449,9 +449,9 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
     dataBase->init_statis_t(*data1_area);
     dataBase->init_statis_t(*data1_diameter);
 
-    std::ofstream ofs;
-    ofs.open("/Users/haoyulin/Desktop/new_qt/output.txt");
-    ofs << "i" << ","  << "surface" << "," << "diameter" << "\n";
+//    std::ofstream ofs;
+//    ofs.open("/Users/haoyulin/Desktop/new_qt/output.txt");
+//    ofs << "i" << ","  << "surface" << "," << "diameter" << "\n";
 
     double surface;
     double surface1;
@@ -518,7 +518,7 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
                 }
             }
 
-             ofs << i << ","  << surface << "," << diameter << "\n";
+//             ofs << i << ","  << surface << "," << diameter << "\n";
 
         }else{
             double num_pixel = cv::contourArea(contours->at(i));
@@ -544,7 +544,7 @@ void AnalysisCenter::cal_contours(const std::vector<std::vector<cv::Point>> *con
         }
 
     }
-    ofs.close();
+//    ofs.close();
     data1_area_sort = data1_area->value;
     std::sort(data1_area_sort.begin(), data1_area_sort.end());
 

@@ -204,7 +204,7 @@ void ImageCenter::set_hist_img()
     qimg_width = ratio * qimg_width;
 
     const QImage &hist_qimg = dataBase->get_hist_img();
-    qimg_img = hist_qimg.scaledToHeight(qimg_height * 2);
+    qimg_img = hist_qimg.scaledToHeight(qimg_height);
 
 //    std::cout << "qimg_width2 : " << qimg_width  << std::endl;
 //    std::cout << "qimg_height2 : " << qimg_height  << std::endl;
