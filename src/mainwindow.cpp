@@ -388,5 +388,11 @@ void MainWindow::on_btn_draw_comparehist_clicked()
      last_data = hist_data_mix;
 }
 
+void MainWindow::on_btn_save_hist_clicked()
+{
+    QString write_name = QFileDialog::getSaveFileName(this, tr("Save File"), nullptr, QStringLiteral("Text files (*.png)"));
+    imgCenter->save_histimg(write_name);
+}
+
 
 

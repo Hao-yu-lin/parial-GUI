@@ -178,7 +178,7 @@ border-color: rgb(94, 92, 100);</string>
         </property>
         <property name="font">
          <font>
-          <pointsize>12</pointsize>
+          <pointsize>13</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -1553,7 +1553,7 @@ border-color: rgb(94, 92, 100);</string>
               </size>
              </property>
              <property name="text">
-              <string>D20 :</string>
+              <string>D50 :</string>
              </property>
             </widget>
            </item>
@@ -1642,7 +1642,7 @@ border-color: rgb(94, 92, 100);</string>
               </size>
              </property>
              <property name="text">
-              <string>D50 :</string>
+              <string>D75 :</string>
              </property>
             </widget>
            </item>
@@ -1661,7 +1661,7 @@ border-color: rgb(94, 92, 100);</string>
               </size>
              </property>
              <property name="text">
-              <string>D70 :</string>
+              <string>D80 :</string>
              </property>
             </widget>
            </item>

@@ -93,6 +93,9 @@ private slots:
 
     void on_btn_draw_comparehist_clicked();
 
+    void on_btn_save_hist_clicked();
+
+
 private:
     Ui::MainWindow *ui;
     ImageCenter *imgCenter;

@@ -52,7 +52,7 @@ public:
 
     // settr data
     void set_data_value(const statis_t& data, float data_value);
-    void set_data_statis(const statis_t& data, float avg, float sd, float mode, float d20, float d50, float d70, float d75, int cnt);
+    void set_data_statis(const statis_t& data, float avg, float sd, float mode, float d20, float d50,  float d75, float d80, float d85,int cnt);
     void set_particle(const int &idx, const float &surface, const float &diameter);
 
     /* ------------- Gettr ------------- */

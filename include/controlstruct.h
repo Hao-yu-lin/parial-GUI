@@ -36,8 +36,9 @@ typedef struct statis{
     float mode;
     float d20;
     float d50;
-    float d70;
     float d75;
+    float d80;
+    float d85;
     std::vector<float> value;
 }statis_t;
 

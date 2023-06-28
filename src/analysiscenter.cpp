@@ -277,7 +277,7 @@ void AnalysisCenter::find_contours()
     detect_threshold.release();
 
     std::vector<std::vector<cv::Point>> detect_contours;
-    cv::findContours(mask_thrshold, detect_contours, cv::RETR_LIST, cv::CHAIN_APPROX_SIMPLE);
+    cv::findContours(mask_thrshold, detect_contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
     detect_contours.erase(std::remove_if(detect_contours.begin(), detect_contours.end(), [](std::vector<cv::Point>& contour) {
            return contour.size() < 6; }), detect_contours.end());
@@ -630,7 +630,7 @@ void AnalysisCenter::createbar_area(const statis_t& data, std::vector<float>& da
         }
 
 
-        if(accmulate_percent <= 70 ){
+        if(accmulate_percent <= 80 ){
            D_70 ++;
         }
         QString bin_label = QString::number(bin_start, 'f', 2) + " - " + QString::number(bin_end, 'f', 2);
@@ -810,7 +810,7 @@ void AnalysisCenter::createbar_diameter(const statis_t& data, std::vector<float>
             *p_bar_set << static_cast<int>(counters[i]);
         }
 
-        if(accmulate_percent <= 75 ){
+        if(accmulate_percent <= 80 ){
            D_75 ++;
         }
         QString bin_label = QString::number(bin_start, 'f', 0) + " - " + QString::number(bin_end, 'f', 0);
@@ -1269,11 +1269,11 @@ void AnalysisCenter::createbar_mix_diameter(const statis_t &data1, const statis_
             *p_bar_set_2 << static_cast<int>(counters_2[i]);
         }
 
-        if(accmulate_percet_1 <= 75 ){
+        if(accmulate_percet_1 <= 80 ){
            D_75_1 ++;
         }
 
-        if(accmulate_percet_2 <= 75 ){
+        if(accmulate_percet_2 <= 80 ){
            D_75_2 ++;
         }
 
@@ -1369,7 +1369,7 @@ void AnalysisCenter::createbar_mix_diameter(const statis_t &data1, const statis_
     p_chart->legend()->setAlignment(Qt::AlignBottom);
     p_chart->legend()->setFont(QFont("Arial", 30));
 
-    chartView.resize(600 * nums_bins/5, 1080);
+    chartView.resize(1200 * nums_bins/5, 1080);
 
     QPixmap p = chartView.grab();
     QImage hist_image = p.toImage();
@@ -1444,8 +1444,9 @@ void AnalysisCenter::statistics(const statis_t& data, std::vector<float>& data_v
     float mode = 0.0;
     float d20 = 0.0;
     float d50 = 0.0;
-    float d70 = 0.0;
     float d75 = 0.0;
+    float d80 = 0.0;
+    float d85 = 0.0;
 
 
     // d20
@@ -1460,13 +1461,16 @@ void AnalysisCenter::statistics(const statis_t& data, std::vector<float>& data_v
          d50 = data_value.at(total_cont / 2);
     }
 
-    // d70
-    int d70_index = static_cast<int>(total_cont * 0.7) - 1;
-    d70 = data_value.at(d70_index);
+    // d85
+    int d85_index = static_cast<int>(total_cont * 0.85) - 1;
+    d85 = data_value.at(d85_index);
 
     // d75
     int d75_index = static_cast<int>(total_cont * 0.75) - 1;
     d75 = data_value.at(d75_index);
+
+    int d80_index = static_cast<int>(total_cont * 0.8) - 1;
+    d80 = data_value.at(d80_index);
 
     int max_count = 0;
     int max_range = (int)(data_value.back() * 100 + 1);
@@ -1500,7 +1504,7 @@ void AnalysisCenter::statistics(const statis_t& data, std::vector<float>& data_v
     }
 
     sd = std::sqrt(sd/total_cont);
-    dataBase->set_data_statis(data, avg, sd, mode, d20, d50, d70, d75, total_cont);
+    dataBase->set_data_statis(data, avg, sd, mode, d20, d50, d75, d80, d85,total_cont);
 
     counter.clear();
     std::map<float, int>().swap(counter);
@@ -1524,9 +1528,9 @@ void AnalysisCenter::update_label()
             ui->label_deviation->setText(QString("Standard Deviation : (1) %1, (2) %2").arg(QString::number(data1->sd, 'f', 4), QString::number(data2->sd, 'f', 4)));
             ui->label_mode->setText(QString("Mode : (1) %1, (2) %2").arg(QString::number(data1->mode, 'f', 2), QString::number(data2->mode, 'f', 2)));
             ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
-            ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
-            ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D70 : (1) %1, (2) %2").arg(QString::number(data1->d70, 'f', 4), QString::number(data2->d70, 'f', 4)));
+            ui->label_d20->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
+            ui->label_d50->setText(QString("D75 : (1) %1, (2) %2").arg(QString::number(data1->d75, 'f', 4), QString::number(data2->d75, 'f', 4)));
+            ui->label_d70->setText(QString("D80 : (1) %1, (2) %2").arg(QString::number(data1->d80, 'f', 4), QString::number(data2->d80, 'f', 4)));
         }else
         {
             ui->label_property_title->setText("Properties of the Diameter Distribution(um)");
@@ -1537,9 +1541,9 @@ void AnalysisCenter::update_label()
             ui->label_deviation->setText(QString("Standard Deviation : (1) %1, (2) %2").arg(QString::number(data1->sd, 'f', 4), QString::number(data2->sd, 'f', 4)));
             ui->label_mode->setText(QString("Mode : (1) %1, (2) %2").arg(QString::number(data1->mode, 'f', 2), QString::number(data2->mode, 'f', 2)));
             ui->label_nums->setText(QString("Nums Coffee Particle : (1) %1, (2) %2").arg(data1->cont).arg(data2->cont));
-            ui->label_d20->setText(QString("D20 : (1) %1, (2) %2").arg(QString::number(data1->d20, 'f', 4), QString::number(data2->d20, 'f', 4)));
-            ui->label_d50->setText(QString("D50 : (1) %1, (2) %2").arg(QString::number(data1->d50, 'f', 4), QString::number(data2->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D75 : (1) %1, (2) %2").arg(QString::number(data1->d75, 'f', 4), QString::number(data2->d75, 'f', 4)));
+            ui->label_d20->setText(QString("D75 : (1) %1, (2) %2").arg(QString::number(data1->d75, 'f', 4), QString::number(data2->d75, 'f', 4)));
+            ui->label_d50->setText(QString("D80 : (1) %1, (2) %2").arg(QString::number(data1->d80, 'f', 4), QString::number(data2->d80, 'f', 4)));
+            ui->label_d70->setText(QString("D85 : (1) %1, (2) %2").arg(QString::number(data1->d85, 'f', 4), QString::number(data2->d85, 'f', 4)));
         }
 
     }else
@@ -1552,9 +1556,9 @@ void AnalysisCenter::update_label()
             ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(data1->sd, 'f', 4)));
             ui->label_mode->setText(QString("Mode: %1").arg(QString::number(data1->mode, 'f', 2)));
             ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(data1->cont));
-            ui->label_d20->setText(QString("D20 : %1").arg(QString::number(data1->d20, 'f', 4)));
-            ui->label_d50->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D70 : %1").arg(QString::number(data1->d70, 'f', 4)));
+            ui->label_d20->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
+            ui->label_d50->setText(QString("D75 : %1").arg(QString::number(data1->d75, 'f', 4)));
+            ui->label_d70->setText(QString("D80 : %1").arg(QString::number(data1->d80, 'f', 4)));
         }else
         {
             ui->label_property_title->setText("Properties of the Diameter Distribution(um)");
@@ -1563,9 +1567,9 @@ void AnalysisCenter::update_label()
             ui->label_deviation->setText(QString("Standard Deviation : %1").arg(QString::number(data1->sd, 'f', 4)));
             ui->label_mode->setText(QString("Mode: %1").arg(QString::number(data1->mode, 'f', 2)));
             ui->label_nums->setText(QString("Nums Coffee Particle : %1").arg(data1->cont));
-            ui->label_d20->setText(QString("D20 : %1").arg(QString::number(data1->d20, 'f', 4)));
-            ui->label_d50->setText(QString("D50 : %1").arg(QString::number(data1->d50, 'f', 4)));
-            ui->label_d70->setText(QString("D75 : %1").arg(QString::number(data1->d75, 'f', 4)));
+            ui->label_d20->setText(QString("D75 : %1").arg(QString::number(data1->d75, 'f', 4)));
+            ui->label_d50->setText(QString("D80 : %1").arg(QString::number(data1->d80, 'f', 4)));
+            ui->label_d70->setText(QString("D85 : %1").arg(QString::number(data1->d85, 'f', 4)));
         }
     }
 }
@@ -1670,7 +1674,6 @@ void AnalysisCenter::load_data2(const QString &fileName)
     update_label();
     datafile.close();
 }
-
 
 
 
