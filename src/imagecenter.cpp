@@ -251,31 +251,31 @@ QPointF ImageCenter::zoomevent(const double &new_rate)
 
 void ImageCenter::shadow_removal()
 {
-//    m_callpy = new CallPy;
+    m_callpy = new CallPy;
 //    m_child_thread = new QThread;
-//    m_callpy->set_addr(img_path);
+    m_callpy->set_addr(img_path);
 
 //    m_callpy->moveToThread(m_child_thread);
 
-//    std::cout << "start!!" << std::endl;
+    std::cout << "start!!" << std::endl;
 //    m_child_thread->start();
 
-//    imgSrc = m_callpy->start_python();
+    imgSrc = m_callpy->start_python();
 
 
-//    QImage tmp_img(imgSrc.data,
-//                      imgSrc.cols, // width
-//                      imgSrc.rows, // height
-//                      imgSrc.step,
-//                      QImage::Format_RGB888);
-//    dataBase->set_origimg(tmp_img);
-//    dataBase->set_contours_image(tmp_img);
-//    set_img();
+    QImage tmp_img(imgSrc.data,
+                      imgSrc.cols, // width
+                      imgSrc.rows, // height
+                      imgSrc.step,
+                      QImage::Format_RGB888);
+    dataBase->set_origimg(tmp_img);
+    dataBase->set_contours_image(tmp_img);
+    set_img();
 
-//    std::cout << "finish!!" << std::endl;
+    std::cout << "finish!!" << std::endl;
 
-//    m_callpy->~CallPy();
-//    m_callpy = nullptr;
+    m_callpy->~CallPy();
+    m_callpy = nullptr;
 }
 
 void ImageCenter::white_balance()
